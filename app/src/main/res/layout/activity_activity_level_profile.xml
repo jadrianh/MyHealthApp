@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="32dp"
+    tools:context=".onboarding.ActivityLevelProfileActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_white_background"
+        android:gravity="left"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/title"
+            android:text="Selecciona tu nivel de actividad física"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal" />
+
+        <!-- Botones de selección -->
+        <RadioGroup
+            android:id="@+id/activityLevelGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/veryActiveButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🚴‍♂️ Muy activo (+800 CAL)"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:id="@+id/moderatelyActiveButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🏃 Moderadamente activo (450-800 CAL)"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:id="@+id/lightlyActiveButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🚶 Ligeramente activo (200-450 CAL)"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:id="@+id/sedentaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🪑 Sedentario (-200 CAL)"
+                android:textSize="16sp" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/submitButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Continuar"
+            android:enabled="false"/>
+
+    </LinearLayout>
+
+</LinearLayout>
