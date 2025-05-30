@@ -10,7 +10,7 @@
     android:padding="16dp"
     tools:context=".MainActivity">
 
-    <!-- Card: Saludo -->
+    <!-- Card: Saludoodfjsdfsdf -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardSaludo"
         android:layout_width="0dp"
