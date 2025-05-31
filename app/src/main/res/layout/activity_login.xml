@@ -140,8 +140,8 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonGoogle"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="64dp"  android:layout_height="64dp"
-                android:layout_marginEnd="16dp" app:backgroundTint="@color/white" app:cornerRadius="16dp" app:icon="@drawable/ic_google" app:iconSize="36dp" app:iconTint="@null" app:strokeColor="@color/gray" app:strokeWidth="1dp" android:insetLeft="0dp"
+                android:layout_width="48dp"  android:layout_height="48dp"
+                android:layout_marginEnd="16dp" app:backgroundTint="@color/white" app:cornerRadius="24dp" app:icon="@drawable/ic_google" app:iconTint="@null" app:strokeColor="@color/green" app:strokeWidth="1dp" android:insetLeft="0dp"
                 android:insetTop="0dp"
                 android:insetRight="0dp"
                 android:insetBottom="0dp"

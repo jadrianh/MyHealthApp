@@ -12,13 +12,9 @@ import com.damb.myhealthapp.models.EjercicioSugerido;
 import java.util.ArrayList;
 import java.util.List;
 import androidx.annotation.Nullable;
-import android.text.SpannableString;
-import android.text.style.UnderlineSpan;
-import android.view.View;
 
 public class DetalleEjercicioActivity extends AppCompatActivity {
     private static final int REQ_ENTRENAMIENTO = 1001;
-    private int porcentajeUltimo = -1;
     private List<EjercicioSugerido> rutina;
     private TextView titulo;
     private String nombrePlan;
@@ -178,61 +174,16 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
             Intent intent = new Intent(this, EntrenamientoGuiadoActivity.class);
             intent.putExtra("ejercicios", new ArrayList<>(rutina));
             intent.putExtra("nombre_plan", nombrePlan);
-            // Si hay progreso guardado, pasar el índice actual
-            int indice = EntrenamientoGuiadoActivity.hayProgreso(this, nombrePlan) ?
-                getSharedPreferences("entrenamiento_prefs", MODE_PRIVATE).getInt("indice_actual" + nombrePlan, 0) : 0;
-            intent.putExtra("indice_actual", indice);
+            intent.putExtra("indice_actual", 0);
             startActivity(intent);
         });
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_ENTRENAMIENTO) {
-            // Desbloquear el ViewPager2 en MainActivity
             MainActivity.setViewPagerEnabled(true);
-            if (resultCode == RESULT_OK && data != null) {
-                porcentajeUltimo = data.getIntExtra("porcentaje", 0);
-                mostrarPorcentaje(porcentajeUltimo);
-            }
         }
-    }
-    private void mostrarPorcentaje(int porcentaje) {
-        TextView info = findViewById(R.id.infoDetalle);
-        String texto = info.getText().toString();
-        texto += "\n\nÚltimo entrenamiento completado: " + porcentaje + "%";
-        info.setText(texto);
-    }
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mostrarPorcentajeEntrenamiento();
-    }
-
-    private void mostrarPorcentajeEntrenamiento() {
-        int porcentaje = EntrenamientoGuiadoActivity.obtenerProgreso(this, nombrePlan);
-        TextView info = findViewById(R.id.infoDetalle);
-        String texto = info.getText().toString().split("\n\nÚltimo entrenamiento completado:")[0];
-        if (porcentaje > 0 && porcentaje < 100) {
-            SpannableString span = new SpannableString("\n\nÚltimo entrenamiento: " + porcentaje + "% (Toca para continuar)");
-            span.setSpan(new UnderlineSpan(), 0, span.length(), 0);
-            info.setText(texto + span);
-            info.setOnClickListener(v -> reanudarEntrenamiento());
-        } else if (porcentaje == 100) {
-            info.setText(texto + "\n\n¡Entrenamiento completado al 100%! 🎉");
-            info.setOnClickListener(null);
-        } else {
-            info.setText(texto);
-            info.setOnClickListener(null);
-        }
-    }
-
-    private void reanudarEntrenamiento() {
-        Intent intent = new Intent(this, EntrenamientoGuiadoActivity.class);
-        intent.putExtra("ejercicios", new ArrayList<>(rutina));
-        intent.putExtra("nombre_plan", nombrePlan);
-        int indice = getSharedPreferences("entrenamiento_prefs", MODE_PRIVATE).getInt("indice_actual" + nombrePlan, 0);
-        intent.putExtra("indice_actual", indice);
-        startActivity(intent);
     }
 } 
