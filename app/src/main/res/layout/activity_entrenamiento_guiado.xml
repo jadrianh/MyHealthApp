@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5"
+    android:padding="0dp">
+
+    <!-- Barra superior con progreso y cronómetro -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/progresoSuperior"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2/10"
+            android:textColor="#22334A"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tituloPlanGuiado"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Entrenamiento full body"
+            android:textColor="#22334A"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/cronometroSuperior"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0:47"
+            android:textColor="#009688"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <!-- Imagen grande del ejercicio -->
+    <ImageView
+        android:id="@+id/imagenEjercicioGuiado"
+        android:layout_width="220dp"
+        android:layout_height="180dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@android:drawable/ic_menu_gallery"
+        android:scaleType="fitCenter"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Nombre y detalles del ejercicio -->
+    <TextView
+        android:id="@+id/nombreEjercicioGuiado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Media sentadilla búlgara con banda de resistencia"
+        android:textColor="#22334A"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="2dp"/>
+
+    <TextView
+        android:id="@+id/detalleEjercicioGuiado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Peso recomendado: 12 kg"
+        android:textColor="#888"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Indicadores circulares -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="8dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/indicadorReps"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/circle_background"
+                android:text="15"
+                android:textColor="#009688"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Repeticiones"
+                android:textColor="#888"
+                android:textSize="12sp"
+                android:gravity="center"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/indicadorDescanso"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/circle_background"
+                android:text="0:51"
+                android:textColor="#009688"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Descanso"
+                android:textColor="#888"
+                android:textSize="12sp"
+                android:gravity="center"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/indicadorSeries"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/circle_background"
+                android:text="2/3"
+                android:textColor="#009688"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Series"
+                android:textColor="#888"
+                android:textSize="12sp"
+                android:gravity="center"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Botón Siguiente/Finalizar Ejercicio -->
+    <Button
+        android:id="@+id/btnSiguienteEjercicio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="SIGUIENTE EJERCICIO"
+        android:textAllCaps="true"
+        android:textColor="#FFF"
+        android:backgroundTint="#009688"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_margin="24dp"/>
+
+</LinearLayout> 

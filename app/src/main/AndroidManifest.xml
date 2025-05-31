@@ -56,14 +56,19 @@
             android:name=".onboarding.ActivityLevelProfileActivity"
             android:exported="true">
         </activity>
+        <activity
+            android:name=".DetalleEjercicioActivity"
+            android:exported="true">
+        </activity>
+        <activity android:name=".EntrenamientoGuiadoActivity" />
 
         <!-- Facebook Configuration -->
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id" />
+            android:value="@strings/facebook_client_token" />
         <meta-data
             android:name="com.facebook.sdk.ClientToken"
-            android:value="@string/facebook_client_token" />
+            android:value="@strings/facebook_client_token" />
 
     </application>
 

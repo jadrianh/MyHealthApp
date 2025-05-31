@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tituloDetalle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Información de Plan de Entrenamiento"
+        android:textColor="#22334A"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/infoDetalle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#222"
+        android:textSize="16sp"
+        android:lineSpacingExtra="4dp"
+        android:padding="8dp"
+        android:background="#FFF"
+        android:gravity="start"
+        android:layout_marginBottom="16dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerEjercicios"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnComenzar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="COMENZAR ENTRENAMIENTO"
+        android:textAllCaps="true"
+        android:textColor="#FFF"
+        android:backgroundTint="#009688"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"/>
+
+</LinearLayout> 

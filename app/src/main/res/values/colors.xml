@@ -13,4 +13,13 @@
     <color name="gray_dark">#666666</color>
     <color name="disabled_text">#9E9E9E</color>
 
+    <color name="md_theme_light_background">#FFFFFF</color>
+    <color name="md_theme_light_primary">#0061A4</color>
+    <color name="md_theme_light_primaryContainer">#D1E4FF</color>
+    <color name="md_theme_light_onSurface">#1C1B1F</color>
+    <color name="card_stroke">#DDDDDD</color>
+    <color name="Background_primary">#48A3FE</color>
+    <color name="Mountain_Meadow">#f16b48</color>
+
+    <color name="primary">#4f4acf</color>
 </resources>
