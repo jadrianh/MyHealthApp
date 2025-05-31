@@ -87,7 +87,7 @@ public class GenderProfileActivity extends AppCompatActivity {
     }
 
     private void resetGenderButtonStyles() {
-        maleButton.setBackgroundResource(R.drawable.gender_button_background); // Asegúrate de tener este drawable
+        maleButton.setBackgroundResource(R.drawable.gender_button_background);
         femaleButton.setBackgroundResource(R.drawable.gender_button_background);
         maleButton.setTextColor(ContextCompat.getColor(this, android.R.color.black)); // Color por defecto
         femaleButton.setTextColor(ContextCompat.getColor(this, android.R.color.black));

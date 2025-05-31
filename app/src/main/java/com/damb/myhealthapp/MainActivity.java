@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
 
         saludoTextView = findViewById(R.id.saludoTextView);
         consejoTextView = findViewById(R.id.consejoTextView);
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         Button btnPeso = findViewById(R.id.btnPeso);
         Button btnPresion = findViewById(R.id.btnPresion);
         Button btnAlimentacion = findViewById(R.id.btnAlimentacion);
@@ -66,16 +65,6 @@ public class MainActivity extends AppCompatActivity {
 
         ViewPagerEjercicioAdapter viewPagerEjercicioAdapter = new ViewPagerEjercicioAdapter(this, tiposEjercicio);
         viewPagerEjercicios.setAdapter(viewPagerEjercicioAdapter);
-
-        // Menú inferior
-        bottomNav.setOnItemSelectedListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.nav_inicio) return true;
-            if (id == R.id.nav_historial) return true;
-            if (id == R.id.nav_rutinas) return true;
-            if (id == R.id.nav_perfil) return true;
-            return false;
-        });
 
         // Botones accesos rápidos
         btnPeso.setOnClickListener(v -> {

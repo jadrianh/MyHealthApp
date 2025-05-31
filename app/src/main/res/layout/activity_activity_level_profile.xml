@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="@drawable/gradient_background"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="32dp"
@@ -18,48 +19,64 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <TextView
-            android:id="@+id/title"
-            android:text="Selecciona tu nivel de actividad física"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal" />
+            android:gravity="left"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_bike"
+                app:tint="@color/green"/>
+
+            <TextView
+                android:id="@+id/titleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Introduce tu nivel de actividad fisica"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <!-- Botones de selección -->
         <RadioGroup
             android:id="@+id/activityLevelGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginTop="24dp">
 
             <RadioButton
                 android:id="@+id/veryActiveButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="🚴‍♂️ Muy activo (+800 CAL)"
+                android:text="Muy activo (+800 CAL)"
                 android:textSize="16sp" />
 
             <RadioButton
                 android:id="@+id/moderatelyActiveButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="🏃 Moderadamente activo (450-800 CAL)"
+                android:text="Moderadamente activo (450-800 CAL)"
                 android:textSize="16sp" />
 
             <RadioButton
                 android:id="@+id/lightlyActiveButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="🚶 Ligeramente activo (200-450 CAL)"
+                android:text="Ligeramente activo (200-450 CAL)"
                 android:textSize="16sp" />
 
             <RadioButton
                 android:id="@+id/sedentaryButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="🪑 Sedentario (-200 CAL)"
+                android:text="Sedentario (-200 CAL)"
                 android:textSize="16sp" />
         </RadioGroup>
 
@@ -67,9 +84,14 @@
             android:id="@+id/submitButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="Continuar"
-            android:enabled="false"/>
+            android:backgroundTint="@color/green"
+            android:layout_marginTop="16dp"
+            android:enabled="false"
+            android:text="Aceptar"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/white" />
+
 
     </LinearLayout>
 
