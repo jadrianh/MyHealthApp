@@ -8,10 +8,17 @@ import android.os.CountDownTimer;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.damb.myhealthapp.models.EjercicioSugerido;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EntrenamientoGuiadoActivity extends AppCompatActivity {
     private List<EjercicioSugerido> rutina;
@@ -30,10 +37,17 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
     private static final String KEY_PLAN = "plan_actual";
     private String nombrePlan;
 
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entrenamiento_guiado);
+
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
         nombre = findViewById(R.id.nombreEjercicioGuiado);
         detalleTextView = findViewById(R.id.detalleEjercicioGuiado);
         contador = findViewById(R.id.cronometroSuperior);
@@ -49,7 +63,9 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
         completados = prefs.getInt(KEY_COMPLETADOS + nombrePlan, 0);
         indiceActual = getIntent().getIntExtra("indice_actual", guardado);
         titulo.setText(nombrePlan);
+
         mostrarEjercicio();
+
         btnSiguiente.setOnClickListener(v -> {
             if (!enDescanso) {
                 completados++;
@@ -60,7 +76,39 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
                     mostrarEjercicio();
                 } else {
                     guardarProgreso(100);
-                    finish();
+
+                    // Guardar el tipo de rutina completada en Firebase
+                    FirebaseUser currentUser = mAuth.getCurrentUser();
+                    if (currentUser != null) {
+                        String userId = currentUser.getUid();
+                        Date fechaActual = new Date();
+
+                        Map<String, Object> registroRutina = new HashMap<>();
+                        registroRutina.put("fecha", fechaActual);
+                        registroRutina.put("tipoRutina", nombrePlan); // Guardar el nombre del plan/rutina
+
+                        db.collection("users").document(userId).collection("registrosEjercicio")
+                                .add(registroRutina)
+                                .addOnSuccessListener(documentReference -> {
+                                    // Opcional: Log de éxito
+                                    // Log.d("EntrenamientoGuiado", "Registro de rutina guardado con éxito");
+                                })
+                                .addOnFailureListener(e -> {
+                                    // Opcional: Log de error
+                                    // Log.e("EntrenamientoGuiado", "Error al guardar registro de rutina", e);
+                                });
+
+                        Toast.makeText(EntrenamientoGuiadoActivity.this, "haz finalizado el ejercicio", Toast.LENGTH_SHORT).show();
+
+                    } else {
+                        Toast.makeText(EntrenamientoGuiadoActivity.this, "Usuario no autenticado. No se pudo guardar el registro.", Toast.LENGTH_SHORT).show();
+                    }
+
+                    // Regresar al Home (MainActivity) limpiando la pila de actividades
+                    Intent intent = new Intent(EntrenamientoGuiadoActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish(); // Finalizar esta actividad después de iniciar MainActivity
                 }
             }
         });
@@ -68,6 +116,7 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
     private void mostrarEjercicio() {
         if (indiceActual >= rutina.size()) {
             guardarProgreso(100);
+            Toast.makeText(this, "La rutina está vacía.", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
