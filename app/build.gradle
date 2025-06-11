@@ -42,6 +42,10 @@ dependencies {
     // Google Sign In
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
     
+    // Google Fit
+    implementation 'com.google.android.gms:play-services-fitness:21.1.0'
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    
     // Facebook Sign In
     implementation 'com.facebook.android:facebook-login:16.3.0'
     

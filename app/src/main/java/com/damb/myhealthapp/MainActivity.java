@@ -5,11 +5,13 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
@@ -28,17 +30,34 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import androidx.cardview.widget.CardView;
 import com.damb.myhealthapp.bluetooth.BluetoothHealthManager;
+import com.damb.myhealthapp.utils.GoogleFitManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements BluetoothHealthManager.OnHealthDataListener {
+public class MainActivity extends AppCompatActivity implements BluetoothHealthManager.OnHealthDataListener, GoogleFitManager.OnFitDataReceivedListener {
     private static final int PERMISSION_REQUEST_CODE = 1;
+    private static final int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 2;
     private static final String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.BLUETOOTH_CONNECT,
             Manifest.permission.ACCESS_FINE_LOCATION
     };
+    private static final String[] FIT_PERMISSIONS;
+
+    static {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            FIT_PERMISSIONS = new String[]{
+                    Manifest.permission.ACTIVITY_RECOGNITION,
+                    Manifest.permission.BODY_SENSORS
+            };
+        } else {
+            FIT_PERMISSIONS = new String[]{
+                    Manifest.permission.BODY_SENSORS
+            };
+        }
+    }
 
     private TextView saludoTextView;
     private TextView consejoTextView;
@@ -50,6 +69,12 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
     private TextView bluetoothStatus;
     private Button btnConnectBluetooth;
     private ImageView bluetoothIcon;
+    private GoogleFitManager googleFitManager;
+    private TextView stepsTextView;
+    private TextView caloriesTextView;
+    private TextView stepsGoalTextView;
+    private ProgressBar stepsProgressBar;
+    private final long DAILY_STEP_GOAL = 10000; // Puedes cambiar esta meta
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
 
         // Configurar botón de conexión Bluetooth
         btnConnectBluetooth.setOnClickListener(v -> {
-            if (checkPermissions()) {
+            if (checkPermissions(REQUIRED_PERMISSIONS)) {
                 if (bluetoothManager.isBluetoothEnabled()) {
                     if (bluetoothStatus.getText().equals("No conectado")) {
                         bluetoothManager.startScan();
@@ -81,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
                     Toast.makeText(this, "Por favor, activa el Bluetooth", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                requestPermissions();
+                requestAppPermissions(REQUIRED_PERMISSIONS, PERMISSION_REQUEST_CODE);
             }
         });
 
@@ -152,6 +177,52 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
             intent.putExtra("measurement_type", "spo2");
             startActivity(intent);
         });
+
+        // Inicializar Google Fit si los permisos ya están concedidos
+        stepsTextView = findViewById(R.id.stepsTextView);
+        caloriesTextView = findViewById(R.id.caloriesTextView);
+        stepsGoalTextView = findViewById(R.id.stepsGoalTextView);
+        stepsProgressBar = findViewById(R.id.stepsProgressBar);
+        checkAndSetupGoogleFit();
+    }
+
+    private void checkAndSetupGoogleFit() {
+        if (checkPermissions(FIT_PERMISSIONS)) {
+            googleFitManager = new GoogleFitManager(this, this);
+        } else {
+            requestAppPermissions(FIT_PERMISSIONS, GOOGLE_FIT_PERMISSIONS_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (googleFitManager != null) {
+            googleFitManager.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @Override
+    public void onStepsReceived(long steps) {
+        runOnUiThread(() -> {
+            stepsTextView.setText(String.format("Pasos hoy: %d", steps));
+            stepsGoalTextView.setText(String.format("Meta: %d / %d pasos", steps, DAILY_STEP_GOAL));
+            stepsProgressBar.setProgress((int) Math.min(steps, DAILY_STEP_GOAL)); // Actualiza el progreso de la barra
+        });
+    }
+
+    @Override
+    public void onCaloriesReceived(float calories) {
+        runOnUiThread(() -> {
+            caloriesTextView.setText(String.format("Calorías: %.0f", calories));
+        });
+    }
+
+    @Override
+    public void onError(String error) {
+        runOnUiThread(() -> {
+            Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override
@@ -189,8 +260,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
         moveTaskToBack(true);
     }
 
-    private boolean checkPermissions() {
-        for (String permission : REQUIRED_PERMISSIONS) {
+    private boolean checkPermissions(String[] permissionsToCheck) {
+        for (String permission : permissionsToCheck) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                 return false;
             }
@@ -198,8 +269,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
         return true;
     }
 
-    private void requestPermissions() {
-        ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, PERMISSION_REQUEST_CODE);
+    private void requestAppPermissions(String[] permissionsToRequest, int requestCode) {
+        ActivityCompat.requestPermissions(this, permissionsToRequest, requestCode);
     }
 
     @Override
@@ -217,6 +288,19 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
                 btnConnectBluetooth.performClick();
             } else {
                 Toast.makeText(this, "Se requieren permisos para conectar el dispositivo", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
+            boolean allFitPermissionsGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allFitPermissionsGranted = false;
+                    break;
+                }
+            }
+            if (allFitPermissionsGranted) {
+                checkAndSetupGoogleFit();
+            } else {
+                Toast.makeText(this, "Permisos de Google Fit denegados. La función de conteo de pasos no estará disponible.", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -249,25 +333,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
             btnConnectBluetooth.setText("Conectar Dispositivo");
             btnConnectBluetooth.setEnabled(true);
             bluetoothIcon.setImageResource(android.R.drawable.ic_menu_share);
-            bluetoothIcon.setColorFilter(getResources().getColor(android.R.color.darker_gray));
-        });
-    }
-
-    @Override
-    public void onError(String error) {
-        runOnUiThread(() -> {
-            bluetoothStatus.setText("Error: " + error);
-            btnConnectBluetooth.setEnabled(true);
-            bluetoothIcon.setImageResource(android.R.drawable.ic_menu_share);
             bluetoothIcon.setColorFilter(getResources().getColor(android.R.color.holo_red_dark));
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (bluetoothManager != null) {
-            bluetoothManager.disconnect();
-        }
     }
 }
