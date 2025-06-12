@@ -1,4 +1,4 @@
-package com.damb.myhealthapp;
+package com.damb.myhealthapp.views;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -16,9 +16,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.Calendar;
 import android.util.Log;
 
-public class ReminderActivity extends AppCompatActivity {
+import com.damb.myhealthapp.R;
+import com.damb.myhealthapp.receivers.NotificationReceiver;
 
-    private static final String TAG = "ReminderActivity";
+public class SettingsActivity extends AppCompatActivity {
+
+    private static final String TAG = "SettingsActivity";
 
     private Switch switchWaterReminder;
     private EditText editTextWaterInterval;
@@ -28,14 +31,14 @@ public class ReminderActivity extends AppCompatActivity {
     private Switch switchStepGoalReminder;
     private Button btnStepGoalTimePicker;
     private TextView textViewStepGoalTime;
-    private Button btnSaveReminders;
+    private Button btnSaveSettings;
 
     private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reminder);
+        setContentView(R.layout.activity_settings);
 
         // Inicializar vistas
         switchWaterReminder = findViewById(R.id.switchWaterReminder);
@@ -46,7 +49,7 @@ public class ReminderActivity extends AppCompatActivity {
         switchStepGoalReminder = findViewById(R.id.switchStepGoalReminder);
         btnStepGoalTimePicker = findViewById(R.id.btnStepGoalTimePicker);
         textViewStepGoalTime = findViewById(R.id.textViewStepGoalTime);
-        btnSaveReminders = findViewById(R.id.btnSaveReminders);
+        btnSaveSettings = findViewById(R.id.btnSaveSettings);
 
         sharedPreferences = getSharedPreferences("ReminderPrefs", MODE_PRIVATE);
 
@@ -55,7 +58,7 @@ public class ReminderActivity extends AppCompatActivity {
         btnExerciseTimePicker.setOnClickListener(v -> showTimePicker(textViewExerciseTime, "exercise_hour", "exercise_minute"));
         btnStepGoalTimePicker.setOnClickListener(v -> showTimePicker(textViewStepGoalTime, "step_goal_hour", "step_goal_minute"));
 
-        btnSaveReminders.setOnClickListener(v -> saveReminders());
+        btnSaveSettings.setOnClickListener(v -> saveReminders());
     }
 
     private void showTimePicker(TextView textView, String hourKey, String minuteKey) {

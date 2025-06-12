@@ -1,4 +1,4 @@
-package com.damb.myhealthapp;
+package com.damb.myhealthapp.views;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.damb.myhealthapp.R;
 import com.damb.myhealthapp.adapters.EjerciciosSugeridosAdapter;
 import com.damb.myhealthapp.models.EjercicioSugerido;
 import java.util.ArrayList;

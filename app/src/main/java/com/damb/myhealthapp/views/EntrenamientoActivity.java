@@ -1,4 +1,4 @@
-package com.damb.myhealthapp;
+package com.damb.myhealthapp.views;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,9 +9,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.damb.myhealthapp.R;
 import com.damb.myhealthapp.adapters.EntrenamientoAdapter;
 import com.damb.myhealthapp.models.EjercicioSugerido;
-import com.damb.myhealthapp.models.RegistroEjercicio;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;

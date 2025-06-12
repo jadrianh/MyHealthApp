@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.DetalleEjercicioActivity;
+import com.damb.myhealthapp.views.DetalleEjercicioActivity;
 import java.util.List;
 
 public class SliderEjerciciosAdapter extends RecyclerView.Adapter<SliderEjerciciosAdapter.EjercicioViewHolder> {

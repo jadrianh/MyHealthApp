@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home"
+            android:title="Inicio" />
+        <item
+            android:id="@+id/nav_activity_record"
+            android:icon="@drawable/ic_bike"
+            android:title="Registro de actividad" />
+        <item
+            android:id="@+id/nav_button3"
+            android:icon="@android:drawable/ic_menu_edit"
+            android:title="Boton 3" />
+        <item
+            android:id="@+id/nav_button4"
+            android:icon="@android:drawable/ic_menu_share"
+            android:title="Boton 4" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@android:drawable/ic_menu_preferences"
+            android:title="Configuraciones" />
+    </group>
+
+    <item android:title="Otras Opciones">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_logout"
+                android:title="Cerrar sesión" />
+        </menu>
+    </item>
+
+</menu>

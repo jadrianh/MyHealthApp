@@ -1,9 +1,11 @@
-package com.damb.myhealthapp;
+package com.damb.myhealthapp.views;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.util.Log;
+
+import com.damb.myhealthapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -12,7 +14,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.Calendar;
 import java.util.Date;
 
-public class RegistrarEjercicioActivity extends AppCompatActivity {
+public class ExerciseLogActivity extends AppCompatActivity {
 
     private TextView textViewListaRegistros;
     private FirebaseAuth mAuth;
@@ -21,7 +23,7 @@ public class RegistrarEjercicioActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registrar_ejercicio);
+        setContentView(R.layout.activity_exercise_log);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();

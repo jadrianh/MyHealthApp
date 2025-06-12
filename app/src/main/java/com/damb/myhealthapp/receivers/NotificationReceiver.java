@@ -1,4 +1,4 @@
-package com.damb.myhealthapp;
+package com.damb.myhealthapp.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

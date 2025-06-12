@@ -1,4 +1,4 @@
-package com.damb.myhealthapp;
+package com.damb.myhealthapp.views;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,13 +10,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.damb.myhealthapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import com.damb.myhealthapp.auth.RegisterActivity;
 
 public class LoginActivity extends AppCompatActivity {
 

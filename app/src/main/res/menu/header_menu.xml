@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="176dp"
+    android:background="@drawable/gradient_background"
+    android:gravity="bottom"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <!-- Icono de perfil de usuario (puedes reemplazarlo con una imagen real si tienes) -->
+    <ImageView
+        android:id="@+id/imageView_drawer_user_profile"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:contentDescription="User Profile Image"
+        android:paddingTop="8dp"
+        android:src="@android:drawable/sym_def_app_icon" />
+
+    <!-- Nombre de usuario en el encabezado del menú -->
+    <TextView
+        android:id="@+id/textView_drawer_username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:text="Nombre Usuario"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
+
+    <!-- Correo electrónico del usuario en el encabezado del menú -->
+    <TextView
+        android:id="@+id/textView_drawer_user_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="correo.electronico@gmail.com"
+        android:textColor="@android:color/white" />
+</LinearLayout>

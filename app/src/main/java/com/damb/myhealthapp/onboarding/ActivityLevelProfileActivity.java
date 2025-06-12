@@ -9,7 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.auth.RegisterActivity;
+import com.damb.myhealthapp.views.RegisterActivity;
 
 public class ActivityLevelProfileActivity extends AppCompatActivity {
 

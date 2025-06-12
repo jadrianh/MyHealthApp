@@ -1,4 +1,4 @@
-package com.damb.myhealthapp;
+package com.damb.myhealthapp.views;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.damb.myhealthapp.R;
 import com.damb.myhealthapp.auth.LoginActivity;
 import com.damb.myhealthapp.onboarding.BirthdayProfileActivity;
 

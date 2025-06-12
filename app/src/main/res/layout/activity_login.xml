@@ -24,19 +24,30 @@
 
         <ImageView
             android:id="@+id/loginImage"
-            android:layout_width="120dp"  android:layout_height="120dp" android:layout_gravity="center"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
             android:src="@drawable/ic_launcher_foreground"
             android:contentDescription="Imagen de bienvenida"
-            android:scaleType="fitCenter"
-            android:layout_marginTop="0dp" android:layout_marginBottom="8dp"/> <TextView
-        android:id="@+id/loginTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hola,\nBienvenido!"
-        android:textSize="20sp" android:textStyle="bold"
-        android:textColor="@color/black"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="8dp"/>
+            android:scaleType="fitCenter" />
+
+        <TextView
+            android:id="@+id/loginTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hola,"
+            android:textSize="20sp" android:textStyle="bold"
+            android:textColor="@color/gray_dark"
+            android:layout_marginTop="0dp" />
+        <TextView
+            android:id="@+id/loginSubTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bienvenido de nuevo!"
+            android:textSize="24sp" android:textStyle="bold"
+            android:textColor="@color/gray_dark"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="12dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -59,11 +70,13 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" android:hint="Contraseña"
+            android:layout_marginTop="8dp"
+            android:hint="Contraseña"
             android:textColorHint="@color/black"
             app:hintTextColor="@color/green"
             app:boxStrokeColor="@color/green"
             app:endIconMode="password_toggle"
+            app:endIconTint="@color/gray_dark"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -80,12 +93,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginTop="8dp" android:clickable="true"
+            android:clickable="true"
             android:focusable="true"
-            android:minHeight="48dp"
             android:text="¿Olvidaste la contraseña?"
             android:textColor="@color/black"
-            android:textSize="14sp" />
+            android:padding="8dp" />
 
         <Button
             android:id="@+id/loginButton"
@@ -94,14 +106,17 @@
             android:text="Iniciar sesión"
             android:textColor="@color/white"
             android:backgroundTint="@color/green"
-            android:layout_marginTop="12dp" /> <TextView
-        android:id="@+id/registerLink"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="8dp" android:text="@string/no_tienes_cuenta_reg_strate"
-        android:textColor="@color/green"
-        android:padding="8dp" />
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/registerLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/no_tienes_cuenta_reg_strate"
+            android:textColor="@color/gray_dark"
+            android:padding="8dp"
+            android:layout_marginBottom="30dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -135,55 +150,66 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:orientation="horizontal" android:gravity="center">
+            android:orientation="horizontal"
+            android:gravity="center" >
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonGoogle"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="48dp"  android:layout_height="48dp"
-                android:layout_marginEnd="16dp" app:backgroundTint="@color/white" app:cornerRadius="24dp" app:icon="@drawable/ic_google" app:iconTint="@null" app:strokeColor="@color/green" app:strokeWidth="1dp" android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="16dp"
+                app:backgroundTint="@color/white"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_google"
+                app:iconGravity="textEnd"
+                app:iconTint="@null"
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp"
                 tools:ignore="SpeakableTextPresentCheck" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonFacebook"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="12dp" app:backgroundTint="@color/white"
-                app:cornerRadius="24dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="12dp"
+                app:backgroundTint="@color/white"
                 app:icon="@drawable/ic_facebook"
+                app:iconGravity="textEnd"
+                app:iconSize="55dp"
                 app:iconTint="@null"
-                app:strokeColor="@color/green"
-                app:strokeWidth="1dp"
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp"
                 tools:ignore="SpeakableTextPresentCheck" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonMicrosoft"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="12dp" app:backgroundTint="@color/white"
-                app:cornerRadius="24dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="12dp"
+                app:backgroundTint="@color/white"
                 app:icon="@drawable/ic_microsoft_logo"
+                app:iconGravity="textStart"
+                app:iconSize="60dp"
                 app:iconTint="@null"
-                app:strokeColor="@color/green"
-                app:strokeWidth="1dp"
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp"
                 tools:ignore="SpeakableTextPresentCheck" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonYahoo"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 app:backgroundTint="@color/white"
-                app:cornerRadius="24dp"
                 app:icon="@drawable/ic_yahoo"
+                app:iconGravity="textEnd"
+                app:iconSize="50dp"
                 app:iconTint="@null"
-                app:strokeColor="@color/green"
-                app:strokeWidth="1dp"
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp"
                 tools:ignore="SpeakableTextPresentCheck" />
         </LinearLayout>
     </LinearLayout>
