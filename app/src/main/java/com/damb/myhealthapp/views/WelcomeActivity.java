@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.auth.LoginActivity;
+import com.damb.myhealthapp.views.LoginActivity;
 import com.damb.myhealthapp.onboarding.BirthdayProfileActivity;
 
 public class WelcomeActivity extends AppCompatActivity {
