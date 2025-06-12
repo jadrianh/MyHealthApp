@@ -1,7 +1,6 @@
 package com.damb.myhealthapp;
 
 import android.Manifest;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -29,21 +28,16 @@ import com.damb.myhealthapp.models.EjercicioSugerido;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import androidx.cardview.widget.CardView;
-import com.damb.myhealthapp.bluetooth.BluetoothHealthManager;
 import com.damb.myhealthapp.utils.GoogleFitManager;
+import android.content.SharedPreferences;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements BluetoothHealthManager.OnHealthDataListener, GoogleFitManager.OnFitDataReceivedListener {
-    private static final int PERMISSION_REQUEST_CODE = 1;
+public class MainActivity extends AppCompatActivity implements GoogleFitManager.OnFitDataReceivedListener {
     private static final int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 2;
-    private static final String[] REQUIRED_PERMISSIONS = {
-            Manifest.permission.BLUETOOTH_SCAN,
-            Manifest.permission.BLUETOOTH_CONNECT,
-            Manifest.permission.ACCESS_FINE_LOCATION
-    };
+    private static final int REQUEST_NOTIFICATION_PERMISSION_CODE = 3;
     private static final String[] FIT_PERMISSIONS;
 
     static {
@@ -65,10 +59,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
     private static ViewPager2 viewPagerEjercicios;
     private ImageView btnLogout;
     private CardView cardEjercicio;
-    private BluetoothHealthManager bluetoothManager;
-    private TextView bluetoothStatus;
-    private Button btnConnectBluetooth;
-    private ImageView bluetoothIcon;
     private GoogleFitManager googleFitManager;
     private TextView stepsTextView;
     private TextView caloriesTextView;
@@ -82,33 +72,14 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
 
-        // Inicializar BluetoothManager
-        bluetoothManager = new BluetoothHealthManager(this);
-        bluetoothManager.setHealthDataListener(this);
+        // Guardar la meta de pasos en SharedPreferences al iniciar la aplicación
+        SharedPreferences sharedPreferences = getSharedPreferences("ReminderPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong("daily_step_goal", DAILY_STEP_GOAL);
+        editor.apply();
 
-        // Inicializar vistas de Bluetooth
-        bluetoothStatus = findViewById(R.id.bluetoothStatus);
-        btnConnectBluetooth = findViewById(R.id.btnConnectBluetooth);
-        bluetoothIcon = findViewById(R.id.bluetoothIcon);
-
-        // Configurar botón de conexión Bluetooth
-        btnConnectBluetooth.setOnClickListener(v -> {
-            if (checkPermissions(REQUIRED_PERMISSIONS)) {
-                if (bluetoothManager.isBluetoothEnabled()) {
-                    if (bluetoothStatus.getText().equals("No conectado")) {
-                        bluetoothManager.startScan();
-                        bluetoothStatus.setText("Buscando dispositivo...");
-                        btnConnectBluetooth.setEnabled(false);
-                    } else {
-                        bluetoothManager.disconnect();
-                    }
-                } else {
-                    Toast.makeText(this, "Por favor, activa el Bluetooth", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                requestAppPermissions(REQUIRED_PERMISSIONS, PERMISSION_REQUEST_CODE);
-            }
-        });
+        // Solicitar permiso de notificaciones si es necesario
+        checkAndRequestNotificationPermission();
 
         saludoTextView = findViewById(R.id.saludoTextView);
         consejoTextView = findViewById(R.id.consejoTextView);
@@ -162,19 +133,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
             startActivity(intent);
         });
 
-        // Configurar click listeners para las tarjetas de salud
-        CardView cardCorazon = findViewById(R.id.cardCorazon);
-        CardView cardSpO2 = findViewById(R.id.cardSpO2);
-
-        cardCorazon.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, MedicionSaludActivity.class);
-            intent.putExtra("measurement_type", "heart_rate");
-            startActivity(intent);
-        });
-
-        cardSpO2.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, MedicionSaludActivity.class);
-            intent.putExtra("measurement_type", "spo2");
+        // Configurar el botón de recordatorios
+        Button btnRecordatorios = findViewById(R.id.btnRecordatorios);
+        btnRecordatorios.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ReminderActivity.class);
             startActivity(intent);
         });
 
@@ -184,6 +146,22 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
         stepsGoalTextView = findViewById(R.id.stepsGoalTextView);
         stepsProgressBar = findViewById(R.id.stepsProgressBar);
         checkAndSetupGoogleFit();
+    }
+
+    private void checkAndRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13 (API 33) y superiores
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                // Permiso ya concedido
+                Log.d("MainActivity", "Permiso de notificación ya concedido");
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // Explicar por qué se necesita el permiso (opcional, para una mejor UX)
+                Toast.makeText(this, "Se necesita el permiso de notificaciones para los recordatorios.", Toast.LENGTH_LONG).show();
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_NOTIFICATION_PERMISSION_CODE);
+            } else {
+                // Solicitar el permiso directamente
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_NOTIFICATION_PERMISSION_CODE);
+            }
+        }
     }
 
     private void checkAndSetupGoogleFit() {
@@ -276,20 +254,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            boolean allGranted = true;
-            for (int result : grantResults) {
-                if (result != PackageManager.PERMISSION_GRANTED) {
-                    allGranted = false;
-                    break;
-                }
-            }
-            if (allGranted) {
-                btnConnectBluetooth.performClick();
-            } else {
-                Toast.makeText(this, "Se requieren permisos para conectar el dispositivo", Toast.LENGTH_SHORT).show();
-            }
-        } else if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
+        if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
             boolean allFitPermissionsGranted = true;
             for (int result : grantResults) {
                 if (result != PackageManager.PERMISSION_GRANTED) {
@@ -302,38 +267,12 @@ public class MainActivity extends AppCompatActivity implements BluetoothHealthMa
             } else {
                 Toast.makeText(this, "Permisos de Google Fit denegados. La función de conteo de pasos no estará disponible.", Toast.LENGTH_LONG).show();
             }
+        } else if (requestCode == REQUEST_NOTIFICATION_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permiso de notificaciones concedido", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permiso de notificaciones denegado. Es posible que los recordatorios no funcionen.", Toast.LENGTH_LONG).show();
+            }
         }
-    }
-
-    @Override
-    public void onHeartRateUpdate(int heartRate) {
-        // No necesitamos manejar actualizaciones de frecuencia cardíaca en la pantalla principal
-    }
-
-    @Override
-    public void onSpO2Update(int spo2) {
-        // No necesitamos manejar actualizaciones de SpO2 en la pantalla principal
-    }
-
-    @Override
-    public void onDeviceConnected(BluetoothDevice device) {
-        runOnUiThread(() -> {
-            bluetoothStatus.setText("Conectado a: " + device.getName());
-            btnConnectBluetooth.setText("Desconectar");
-            btnConnectBluetooth.setEnabled(true);
-            bluetoothIcon.setImageResource(android.R.drawable.ic_menu_share);
-            bluetoothIcon.setColorFilter(getResources().getColor(android.R.color.holo_green_dark));
-        });
-    }
-
-    @Override
-    public void onDeviceDisconnected() {
-        runOnUiThread(() -> {
-            bluetoothStatus.setText("No conectado");
-            btnConnectBluetooth.setText("Conectar Dispositivo");
-            btnConnectBluetooth.setEnabled(true);
-            bluetoothIcon.setImageResource(android.R.drawable.ic_menu_share);
-            bluetoothIcon.setColorFilter(getResources().getColor(android.R.color.holo_red_dark));
-        });
     }
 }

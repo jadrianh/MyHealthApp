@@ -9,22 +9,8 @@
     <uses-permission android:name="android.permission.BODY_SENSORS" />
     <uses-permission android:name="android.permission.BODY_SENSORS_BACKGROUND" />
 
-    <!-- Request legacy Bluetooth permissions on versions older than API 31 (Android 12). -->
-    <uses-permission android:name="android.permission.BLUETOOTH"
-        android:maxSdkVersion="30" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
-        android:maxSdkVersion="30" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
-        android:maxSdkVersion="30" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-    <!-- Required for Android 12 and above -->
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
-        android:usesPermissionFlags="neverForLocation" tools:targetApi="s" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-
-    <!-- Declara que la aplicación usa la función BLE -->
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
+    <!-- Permiso para notificaciones en Android 13 (API 33) y superiores -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:allowBackup="true"
@@ -47,6 +33,10 @@
         <activity
             android:name=".MainActivity"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".auth.LoginActivity"
@@ -83,6 +73,7 @@
         <activity android:name=".EntrenamientoGuiadoActivity" />
         <activity android:name=".RegistrarEjercicioActivity" />
         <activity android:name=".MedicionSaludActivity" />
+        <activity android:name=".ReminderActivity" />
 
         <!-- Facebook Configuration -->
         <meta-data
@@ -91,6 +82,17 @@
         <meta-data
             android:name="com.facebook.sdk.ClientToken"
             android:value="@strings/facebook_client_token" />
+
+        <receiver
+            android:name=".NotificationReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="water_reminder_action" />
+                <action android:name="exercise_reminder_action" />
+                <action android:name="step_goal_reminder_action" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

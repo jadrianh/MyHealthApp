@@ -1,6 +1,7 @@
 package com.damb.myhealthapp.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.util.Log;
@@ -40,6 +41,12 @@ public class GoogleFitManager {
     public interface OnFitDataReceivedListener {
         void onStepsReceived(long steps);
         void onCaloriesReceived(float calories);
+        void onError(String error);
+    }
+
+    // Nueva interfaz para la verificación de meta de pasos
+    public interface OnStepGoalCheckListener {
+        void onStepCountReceived(long steps);
         void onError(String error);
     }
 
@@ -129,6 +136,51 @@ public class GoogleFitManager {
                             fitDataListener.onError("Error al obtener datos de Google Fit: " + e.getMessage());
                         }
                         Log.e(TAG, "Error al leer datos de Google Fit", e);
+                    }
+                });
+    }
+
+    // Nuevo método estático para leer pasos diarios desde NotificationReceiver
+    public static void getDailyStepsForNotification(Context context, OnStepGoalCheckListener listener) {
+        FitnessOptions fitnessOptions = FitnessOptions.builder()
+                .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .build();
+
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
+
+        if (account == null || !GoogleSignIn.hasPermissions(account, fitnessOptions)) {
+            if (listener != null) {
+                listener.onError("No se ha iniciado sesión en Google Fit o no se tienen permisos.");
+            }
+            return;
+        }
+
+        Fitness.getHistoryClient(context, account)
+                .readDailyTotal(DataType.TYPE_STEP_COUNT_DELTA)
+                .addOnSuccessListener(new OnSuccessListener<DataSet>() {
+                    @Override
+                    public void onSuccess(DataSet dataSet) {
+                        long totalSteps = 0;
+                        if (dataSet != null) {
+                            for (DataPoint dp : dataSet.getDataPoints()) {
+                                for (Field field : dp.getDataType().getFields()) {
+                                    totalSteps += dp.getValue(field).asInt();
+                                }
+                            }
+                        }
+                        if (listener != null) {
+                            listener.onStepCountReceived(totalSteps);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (listener != null) {
+                            listener.onError("Error al obtener datos de Google Fit para la notificación: " + e.getMessage());
+                        }
+                        Log.e(TAG, "Error al leer datos de Google Fit para la notificación", e);
                     }
                 });
     }
