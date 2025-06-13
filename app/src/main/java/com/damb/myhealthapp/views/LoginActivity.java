@@ -2,6 +2,7 @@ package com.damb.myhealthapp.views;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -33,6 +34,7 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import java.util.Arrays;
+import com.google.firebase.auth.OAuthProvider;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -41,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginButton;
     private TextView registerButton;
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     // Google Sign In
     private GoogleSignInClient mGoogleSignInClient;
@@ -49,6 +52,12 @@ public class LoginActivity extends AppCompatActivity {
     // Facebook Sign In
     private CallbackManager mCallbackManager;
 
+    // Microsoft Sign In
+    private OAuthProvider.Builder microsoftProvider;
+
+    // Yahoo Sign In
+    private OAuthProvider.Builder yahooProvider;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +65,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -95,6 +105,8 @@ public class LoginActivity extends AppCompatActivity {
         registerButton = findViewById(R.id.registerLink);
         Button googleSignInButton = findViewById(R.id.buttonGoogle);
         Button facebookSignInButton = findViewById(R.id.buttonFacebook);
+        Button buttonMicrosoft = findViewById(R.id.buttonMicrosoft);
+        Button buttonYahoo = findViewById(R.id.buttonYahoo);
 
         loginButton.setOnClickListener(v -> loginUser());
         registerButton.setOnClickListener(v -> {
@@ -125,6 +137,16 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         facebookSignInButton.setOnClickListener(v -> LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email", "public_profile")));
+
+        // Configure Microsoft Sign In
+        microsoftProvider = OAuthProvider.newBuilder("microsoft.com");
+        microsoftProvider.addCustomParameter("prompt", "consent");
+
+        // Configure Yahoo Sign In
+        yahooProvider = OAuthProvider.newBuilder("yahoo.com");
+
+        buttonMicrosoft.setOnClickListener(v -> signInWithMicrosoft());
+        buttonYahoo.setOnClickListener(v -> signInWithYahoo());
     }
 
     @Override
@@ -210,9 +232,43 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    private void signInWithMicrosoft() {
+        mAuth.startActivityForSignInWithProvider(this, microsoftProvider.build())
+                .addOnSuccessListener(authResult -> {
+                    // Sign-in successful
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if (user != null) {
+                        // Verificar si el usuario existe en Firestore
+                        checkUserInFirestoreAndNavigate(user);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Handle sign-in failure
+                    Toast.makeText(LoginActivity.this, "Error al iniciar sesión con Microsoft: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("MicrosoftAuth", "Error signing in with Microsoft", e);
+                });
+    }
+
+    private void signInWithYahoo() {
+        mAuth.startActivityForSignInWithProvider(this, yahooProvider.build())
+                .addOnSuccessListener(authResult -> {
+                    // Sign-in successful
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if (user != null) {
+                        // Verificar si el usuario existe en Firestore
+                        checkUserInFirestoreAndNavigate(user);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Handle sign-in failure
+                    Toast.makeText(LoginActivity.this, "Error al iniciar sesión con Yahoo: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("YahooAuth", "Error signing in with Yahoo", e);
+                });
+    }
+
     // Nuevo método para verificar el usuario en Firestore y navegar
     private void checkUserInFirestoreAndNavigate(FirebaseUser user) {
-        FirebaseFirestore.getInstance().collection("users").document(user.getUid())
+        db.collection("users").document(user.getUid())
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {

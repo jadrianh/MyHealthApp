@@ -126,8 +126,16 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
         buttonFacebook.setOnClickListener(v -> signInWithFacebook());
-        buttonMicrosoft.setOnClickListener(v -> signInWithMicrosoft());
-        buttonYahoo.setOnClickListener(v -> signInWithYahoo());
+        buttonMicrosoft.setOnClickListener(v -> {
+            Toast.makeText(RegisterActivity.this, 
+                "Registro con Microsoft próximamente disponible", 
+                Toast.LENGTH_SHORT).show();
+        });
+        buttonYahoo.setOnClickListener(v -> {
+            Toast.makeText(RegisterActivity.this, 
+                "Registro con Yahoo próximamente disponible", 
+                Toast.LENGTH_SHORT).show();
+        });
 
         // Get onboarding data
         long birthdayMillis = getIntent().getLongExtra("birthday", -1L);
