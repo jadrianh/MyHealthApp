@@ -185,6 +185,9 @@ public class MainActivity extends AppCompatActivity implements
         } else if (id == R.id.nav_activity_record) {
             // Acción para "Registro de actividad"
             intent = new Intent(MainActivity.this, ExerciseLogActivity.class);
+        } else if (id == R.id.nav_profile) {
+            //PERFIL PARA USUARIO
+            intent = new Intent(MainActivity.this, UserProfileActivity.class);
         } else if (id == R.id.nav_button3) {
             // Acción para "Boton 3"
             Toast.makeText(this, "Navegar a Botón 3", Toast.LENGTH_SHORT).show();
