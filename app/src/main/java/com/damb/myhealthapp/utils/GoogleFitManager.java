@@ -56,7 +56,6 @@ public class GoogleFitManager {
         this.activity = activity;
         this.fitDataListener = listener;
         setupGoogleFitOptions(); // Configurar las opciones de Fitness
-        checkAndRequestGoogleFitPermissions(); // Verificar y solicitar permisos
     }
 
     // Configura las opciones de Fitness (qué tipos de datos se necesitan)
@@ -70,12 +69,13 @@ public class GoogleFitManager {
     }
 
     // Verifica si ya se tienen los permisos de Google Fit o los solicita
-    private void checkAndRequestGoogleFitPermissions() {
+    public void initiateFitSignInFlow() {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(activity);
 
         if (account == null) {
             // No hay cuenta de Google logueada, intentar iniciar sesión pasivamente
-            googleSignInClient = GoogleSignIn.getClient(activity, GoogleSignInOptions.DEFAULT_SIGN_IN);
+            googleSignInClient = GoogleSignIn.getClient(activity, new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .addExtension(fitnessOptions).build());
             googleSignInClient.silentSignIn()
                     .addOnSuccessListener(signedInAccount -> {
                         // Sesión iniciada pasivamente, ahora verificar permisos de Fit
@@ -87,14 +87,10 @@ public class GoogleFitManager {
                     })
                     .addOnFailureListener(e -> {
                         // No se pudo iniciar sesión pasivamente, pedir inicio de sesión interactivo
-                        Log.w(TAG, "No se pudo iniciar sesión pasivamente: " + e.getMessage());
-                        if (fitDataListener != null) {
-                            fitDataListener.onError("Inicia sesión en Google para usar My Health App.");
-                        }
-                        // Opcional: Podrías aquí lanzar una actividad de inicio de sesión de Google
-                        // para que el usuario pueda seleccionar una cuenta si no hay ninguna.
-                        // Sin embargo, por simplicidad y UX, a menudo se espera que MainActivity
-                        // maneje el flujo inicial de Google Sign-In.
+                        Log.w(TAG, "No se pudo iniciar sesión pasivamente, iniciando flujo interactivo: " + e.getMessage());
+                        // Lanzar el flujo interactivo de Google Sign-In
+                        Intent signInIntent = googleSignInClient.getSignInIntent();
+                        activity.startActivityForResult(signInIntent, REQUEST_OAUTH_REQUEST_CODE);
                     });
         } else {
             // Hay una cuenta de Google logueada, verificar si tiene permisos de Fit
@@ -220,6 +216,23 @@ public class GoogleFitManager {
                 });
     }
 
+    // Método para manejar los resultados de las actividades lanzadas por Google Fit
+    public void handleActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_OAUTH_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                // Permisos concedidos después de la resolución, intentar leer datos de nuevo
+                Log.d(TAG, "Resolución de Google Fit exitosa. Leyendo datos.");
+                readFitData();
+            } else {
+                // Usuario canceló o falló la resolución
+                Log.w(TAG, "Resolución de Google Fit cancelada o fallida. Código: " + resultCode);
+                if (fitDataListener != null) {
+                    fitDataListener.onError("Permisos de Google Fit no concedidos. La función de conteo de pasos no estará disponible.");
+                }
+            }
+        }
+    }
+
     // Método estático para leer pasos diarios desde NotificationReceiver
     public static void getDailyStepsForNotification(Context context, OnStepGoalCheckListener listener) {
         FitnessOptions notificationFitnessOptions = FitnessOptions.builder()
@@ -274,26 +287,5 @@ public class GoogleFitManager {
                         Log.e(TAG, "Error al leer datos de Google Fit para la notificación: " + errorMessage, e);
                     }
                 });
-    }
-
-    // Maneja el resultado de la solicitud de permisos de Google Fit
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_OAUTH_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                Log.d(TAG, "Permisos de Google Fit concedidos. Releyendo datos.");
-                readFitData(); // Si los permisos se concedieron, intentar leer datos de nuevo
-            } else {
-                String errorMessage = "Autenticación con Google Fit cancelada o fallida.";
-                if (data != null) {
-                    // Puedes extraer más detalles del error si es necesario
-                    // Status status = GoogleSignInApi.getSignInResultFromIntent(data).getStatus();
-                    // if (status != null) errorMessage += " (Código: " + status.getStatusCode() + ")";
-                }
-                if (fitDataListener != null) {
-                    fitDataListener.onError(errorMessage);
-                }
-                Log.w(TAG, "Error al autenticar con Google Fit: " + errorMessage);
-            }
-        }
     }
 }

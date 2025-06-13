@@ -78,6 +78,9 @@ public class MainActivity extends AppCompatActivity implements
     private FirebaseAuth mAuth;
     private final long DAILY_STEP_GOAL = 10000; // cambiar esta meta
 
+    private boolean isRequestingGoogleFitPermissions = false; // Nueva bandera para permisos de runtime
+    private boolean isGoogleFitOAuthRequesting = false; // Nueva bandera para la solicitud OAuth de Google Fit
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,12 +161,11 @@ public class MainActivity extends AppCompatActivity implements
             drawerLayout.openDrawer(GravityCompat.START);
         });
 
-        // Inicializar Google Fit si los permisos ya están concedidos
+        // Las siguientes líneas se moverán a onResume()
         stepsTextView = findViewById(R.id.stepsTextView);
         caloriesTextView = findViewById(R.id.caloriesTextView);
         stepsGoalTextView = findViewById(R.id.stepsGoalTextView);
         stepsProgressBar = findViewById(R.id.stepsProgressBar);
-        checkAndSetupGoogleFit();
     }
 
     /**
@@ -230,9 +232,20 @@ public class MainActivity extends AppCompatActivity implements
      */
     private void checkAndSetupGoogleFit() {
         if (checkPermissions(FIT_PERMISSIONS)) {
-            googleFitManager = new GoogleFitManager(this, this);
+            // Permisos de runtime ya concedidos
+            if (googleFitManager == null) {
+                googleFitManager = new GoogleFitManager(this, this);
+            }
+            if (googleFitManager != null && !isGoogleFitOAuthRequesting) {
+                isGoogleFitOAuthRequesting = true;
+                googleFitManager.initiateFitSignInFlow();
+            }
         } else {
-            requestAppPermissions(FIT_PERMISSIONS, GOOGLE_FIT_PERMISSIONS_REQUEST_CODE);
+            // Permisos de runtime NO concedidos
+            if (!isRequestingGoogleFitPermissions) {
+                isRequestingGoogleFitPermissions = true;
+                requestAppPermissions(FIT_PERMISSIONS, GOOGLE_FIT_PERMISSIONS_REQUEST_CODE);
+            }
         }
     }
 
@@ -240,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (googleFitManager != null) {
-            googleFitManager.onActivityResult(requestCode, resultCode, data);
+            googleFitManager.handleActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -272,6 +285,8 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
         // Asegura que el ViewPager2 esté habilitado para la interacción del usuario
         setViewPagerEnabled(true);
+        // Inicializar Google Fit aquí para mayor estabilidad
+        checkAndSetupGoogleFit();
     }
 
     /**
@@ -341,9 +356,18 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
             if (allFitPermissionsGranted) {
-                checkAndSetupGoogleFit();
+                isRequestingGoogleFitPermissions = false;
+                // Permisos de runtime concedidos. Ahora, inicializar GoogleFitManager e iniciar flujo OAuth.
+                if (googleFitManager == null) {
+                    googleFitManager = new GoogleFitManager(this, this);
+                }
+                if (googleFitManager != null && !isGoogleFitOAuthRequesting) {
+                    isGoogleFitOAuthRequesting = true; // Establecer la bandera de solicitud OAuth
+                    googleFitManager.initiateFitSignInFlow();
+                }
             } else {
                 Toast.makeText(this, "Permisos de Google Fit denegados. La función de conteo de pasos no estará disponible.", Toast.LENGTH_LONG).show();
+                // Si los permisos son denegados, isRequestingGoogleFitPermissions permanece en true para evitar solicitudes repetidas.
             }
         } else if (requestCode == REQUEST_NOTIFICATION_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

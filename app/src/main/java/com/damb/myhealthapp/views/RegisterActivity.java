@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
 
 import com.damb.myhealthapp.R;
 import com.damb.myhealthapp.views.LoginActivity;
@@ -170,8 +171,8 @@ public class RegisterActivity extends AppCompatActivity {
                                                             Toast.makeText(RegisterActivity.this,
                                                                     "Se ha enviado un correo de verificación. Por favor, verifica tu correo antes de iniciar sesión.",
                                                                     Toast.LENGTH_LONG).show();
-                                                            Intent intent = new Intent(RegisterActivity.this, com.damb.myhealthapp.views.LoginActivity.class);
-                                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                                             startActivity(intent);
                                                             finish();
                                                         })
@@ -228,7 +229,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     Toast.makeText(RegisterActivity.this,
                                         "Esta cuenta ya está registrada. Por favor, inicia sesión.",
                                         Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(RegisterActivity.this, com.damb.myhealthapp.views.LoginActivity.class);
+                                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                     startActivity(intent);
                                     finish();
                                 } else {
@@ -263,7 +264,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     Toast.makeText(RegisterActivity.this,
                                         "Esta cuenta ya está registrada. Por favor, inicia sesión.",
                                         Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(RegisterActivity.this, com.damb.myhealthapp.views.LoginActivity.class);
+                                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                     startActivity(intent);
                                     finish();
                                 } else {
@@ -310,7 +311,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         Toast.makeText(RegisterActivity.this,
                                             "Esta cuenta ya está registrada. Por favor, inicia sesión.",
                                             Toast.LENGTH_LONG).show();
-                                        Intent intent = new Intent(RegisterActivity.this, com.damb.myhealthapp.views.LoginActivity.class);
+                                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                         startActivity(intent);
                                         finish();
                                     } else {

@@ -16,6 +16,8 @@ import com.damb.myhealthapp.models.EjercicioSugerido;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +43,8 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,8 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
 
         nombre = findViewById(R.id.nombreEjercicioGuiado);
         detalleTextView = findViewById(R.id.detalleEjercicioGuiado);
@@ -66,7 +72,19 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
         indiceActual = getIntent().getIntExtra("indice_actual", guardado);
         titulo.setText(nombrePlan);
 
-        mostrarEjercicio();
+        if (indiceActual >= rutina.size()) {
+            Toast.makeText(this, "La rutina está vacía.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        EjercicioSugerido ej = rutina.get(indiceActual);
+        nombre.setText(ej.getNombre());
+        detalleTextView.setText(ej.getSeriesReps());
+        imagen.setImageResource(ej.getImagenResId());
+        btnSiguiente.setText("Terminar ejercicio");
+        enDescanso = false;
+        iniciarCronometro(DURACION_EJERCICIO, "Ejercicio");
 
         btnSiguiente.setOnClickListener(v -> {
             if (!enDescanso) {
@@ -106,7 +124,7 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
                         Toast.makeText(EntrenamientoGuiadoActivity.this, "Usuario no autenticado. No se pudo guardar el registro.", Toast.LENGTH_SHORT).show();
                     }
 
-                    // Regresar al Home (MainActivity) limpiando la pila de actividades
+                    // Regresar directamente al Home (MainActivity) limpiando la pila de actividades
                     Intent intent = new Intent(EntrenamientoGuiadoActivity.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
@@ -115,6 +133,7 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
             }
         });
     }
+
     private void mostrarEjercicio() {
         if (indiceActual >= rutina.size()) {
             guardarProgreso(100);
@@ -130,11 +149,13 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
         enDescanso = false;
         iniciarCronometro(DURACION_EJERCICIO, "Ejercicio");
     }
+
     private void iniciarDescanso() {
         btnSiguiente.setText("Siguiente ejercicio");
         enDescanso = true;
         iniciarCronometro(DURACION_DESCANSO, "Descanso");
     }
+
     private void iniciarCronometro(int segundos, String tipo) {
         if (timer != null) timer.cancel();
         contador.setText(tipo + ": " + segundos + "s");
@@ -152,6 +173,7 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
         };
         timer.start();
     }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -159,6 +181,7 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
         guardarProgreso(porcentaje);
         if (timer != null) timer.cancel();
     }
+
     private void guardarProgreso(int porcentaje) {
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
@@ -167,10 +190,12 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
         editor.putInt("porcentaje_" + nombrePlan, porcentaje);
         editor.apply();
     }
+
     public static int obtenerProgreso(Context ctx, String nombrePlan) {
         SharedPreferences prefs = ctx.getSharedPreferences(PREFS, MODE_PRIVATE);
         return prefs.getInt("porcentaje_" + nombrePlan, 0);
     }
+
     public static boolean hayProgreso(Context ctx, String nombrePlan) {
         SharedPreferences prefs = ctx.getSharedPreferences(PREFS, MODE_PRIVATE);
         return prefs.getInt(KEY_INDICE + nombrePlan, 0) > 0;
