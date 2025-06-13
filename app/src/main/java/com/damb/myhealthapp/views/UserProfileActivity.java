@@ -1,82 +1,137 @@
 package com.damb.myhealthapp.views;
-import android.content.DialogInterface;
-import android.content.Intent;
+
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.damb.myhealthapp.R;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class UserProfileActivity extends AppCompatActivity {
 
-    private TextView userEmailText;
-    private EditText userNameEdit;
-    private Button saveButton, deletePasswordButton, logoutButton;
+    private TextView emailTextView, genderTextView, birthdayTextView,
+            heightTextView, weightTextView, activityLevelTextView;
 
-    private FirebaseAuth mAuth;
-    private FirebaseUser currentUser;
+    private EditText currentPasswordInput, newPasswordInput, confirmPasswordInput;
+    private Button updatePasswordButton;
+
+    private FirebaseAuth auth;
+    private FirebaseUser user;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_profile);
+        try {
+            setContentView(R.layout.activity_user_profile);
 
-        userEmailText = findViewById(R.id.userEmail);
-        userNameEdit = findViewById(R.id.userName);
-        saveButton = findViewById(R.id.saveButton);
-        deletePasswordButton = findViewById(R.id.deletePasswordButton);
-        logoutButton = findViewById(R.id.logoutButton);
+            // Inicializar Firebase
+            auth = FirebaseAuth.getInstance();
+            user = auth.getCurrentUser();
+            db = FirebaseFirestore.getInstance();
 
-        mAuth = FirebaseAuth.getInstance();
-        currentUser = mAuth.getCurrentUser();
+            // Referencias de vistas
+            emailTextView = findViewById(R.id.emailTextView);
+            genderTextView = findViewById(R.id.genderTextView);
+            birthdayTextView = findViewById(R.id.birthdayTextView);
+            heightTextView = findViewById(R.id.heightTextView);
+            weightTextView = findViewById(R.id.weightTextView);
+            activityLevelTextView = findViewById(R.id.activityLevelTextView);
 
-        if (currentUser == null) {
-            Toast.makeText(this, "No hay usuario activo", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
+            currentPasswordInput = findViewById(R.id.currentPasswordInput);
+            newPasswordInput = findViewById(R.id.newPasswordInput);
+            confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
+            updatePasswordButton = findViewById(R.id.updatePasswordButton);
+
+            updatePasswordButton.setOnClickListener(v -> actualizarPassword());
+
+            cargarDatosUsuario();
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Error al cargar perfil: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
-
-        userEmailText.setText(currentUser.getEmail());
-
-        saveButton.setOnClickListener(v -> {
-            String name = userNameEdit.getText().toString().trim();
-            if (!TextUtils.isEmpty(name)) {
-                // Aquí podrías guardar el nombre en Firestore o Realtime DB
-                Toast.makeText(this, "Nombre actualizado localmente: " + name, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Ingresa un nombre válido.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        deletePasswordButton.setOnClickListener(v -> confirmDeletePassword());
-
-        logoutButton.setOnClickListener(v -> {
-            mAuth.signOut();
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        });
     }
 
-    private void confirmDeletePassword() {
-        new AlertDialog.Builder(this)
-                .setTitle("Eliminar contraseña")
-                .setMessage("¿Estás seguro de que deseas eliminar tu contraseña? Esto deshabilitará el inicio de sesión por email.")
-                .setPositiveButton("Sí", (dialog, which) -> {
-                    currentUser.unlink("password").addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(this, "Contraseña eliminada.", Toast.LENGTH_SHORT).show();
+    private void cargarDatosUsuario() {
+        try {
+            if (user == null) return;
+
+            String uid = user.getUid();
+
+            db.collection("users").document(uid).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        try {
+                            if (documentSnapshot.exists()) {
+                                emailTextView.setText("Correo: " + documentSnapshot.getString("email"));
+                                genderTextView.setText("Género: " + documentSnapshot.getString("gender"));
+                                birthdayTextView.setText("Fecha de nacimiento: " + documentSnapshot.get("birthday").toString());
+                                heightTextView.setText("Altura: " + documentSnapshot.get("height").toString());
+                                weightTextView.setText("Peso: " + documentSnapshot.get("weight").toString());
+                                activityLevelTextView.setText("Nivel de actividad: " + documentSnapshot.getString("activityLevel"));
+                            } else {
+                                Toast.makeText(this, "No se encontraron datos del usuario.", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception e) {
+                            Toast.makeText(this, "Error al mostrar datos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this, "Error al obtener datos: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                    );
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Excepción al cargar datos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void actualizarPassword() {
+        try {
+            String currentPassword = currentPasswordInput.getText().toString().trim();
+            String newPassword = newPasswordInput.getText().toString().trim();
+            String confirmPassword = confirmPasswordInput.getText().toString().trim();
+
+            if (TextUtils.isEmpty(currentPassword) || TextUtils.isEmpty(newPassword) || TextUtils.isEmpty(confirmPassword)) {
+                Toast.makeText(this, "Completa todos los campos.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!newPassword.equals(confirmPassword)) {
+                Toast.makeText(this, "Las contraseñas no coinciden.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String email = user.getEmail();
+            if (email == null) {
+                Toast.makeText(this, "Usuario sin correo registrado.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            AuthCredential credential = EmailAuthProvider.getCredential(email, currentPassword);
+            user.reauthenticate(credential).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    user.updatePassword(newPassword).addOnCompleteListener(updateTask -> {
+                        if (updateTask.isSuccessful()) {
+                            Toast.makeText(this, "Contraseña actualizada correctamente.", Toast.LENGTH_SHORT).show();
+                            finish();
                         } else {
-                            Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Error al actualizar contraseña: " + updateTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
+                } else {
+                    Toast.makeText(this, "Contraseña actual incorrecta.", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Excepción al actualizar contraseña: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 }

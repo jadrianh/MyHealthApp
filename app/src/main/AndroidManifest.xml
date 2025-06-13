@@ -67,6 +67,10 @@
             android:name=".views.DetalleEjercicioActivity"
             android:exported="true">
         </activity>
+        <activity
+            android:name=".views.UserProfileActivity"
+            android:exported="true">
+        </activity>
         <activity android:name=".views.EntrenamientoGuiadoActivity" />
         <activity android:name=".views.ExerciseLogActivity" />
         <activity android:name=".views.SettingsActivity" />

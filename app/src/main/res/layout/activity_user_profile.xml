@@ -1,78 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center"
-    android:background="@android:color/white">
+    android:padding="16dp">
 
-    <TextView
-        android:id="@+id/userEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Correo: user@example.com"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:paddingBottom="16dp" />
-
-    <EditText
-        android:id="@+id/userName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Nombre de usuario"
-        android:padding="10dp"
-        android:background="@android:drawable/edit_text" />
-
-    <!-- NUEVA SECCIÓN: Pasos y Calorías -->
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="fill_horizontal"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
+
+        <!-- Datos del usuario -->
+        <TextView
+            android:id="@+id/emailTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Correo:"
+            android:textStyle="bold"
+            android:padding="8dp" />
 
         <TextView
-            android:id="@+id/stepsText"
-            android:layout_width="0dp"
+            android:id="@+id/genderTextView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:text="Pasos: 0"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:text="Género:"
+            android:padding="8dp" />
 
         <TextView
-            android:id="@+id/caloriesText"
-            android:layout_width="0dp"
+            android:id="@+id/birthdayTextView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:text="Calorías: 0"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:text="Fecha de nacimiento:"
+            android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/heightTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Altura:"
+            android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/weightTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Peso:"
+            android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/activityLevelTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nivel de actividad:"
+            android:padding="8dp" />
+
+        <!-- Separador visual -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#CCCCCC"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Formulario para actualizar contraseña -->
+        <EditText
+            android:id="@+id/currentPasswordInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contraseña actual"
+            android:inputType="textPassword"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/newPasswordInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nueva contraseña"
+            android:inputType="textPassword"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/confirmPasswordInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirmar nueva contraseña"
+            android:inputType="textPassword"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/updatePasswordButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Actualizar contraseña" />
     </LinearLayout>
-
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Guardar cambios"
-        android:layout_marginTop="24dp" />
-
-    <Button
-        android:id="@+id/deletePasswordButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Eliminar contraseña"
-        android:layout_marginTop="12dp"
-        android:backgroundTint="#FF5555" />
-
-    <Button
-        android:id="@+id/logoutButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cerrar sesión"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="#CCCCCC" />
-</LinearLayout>
+</ScrollView>
