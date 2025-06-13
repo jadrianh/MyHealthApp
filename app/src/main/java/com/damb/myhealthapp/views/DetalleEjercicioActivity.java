@@ -1,8 +1,10 @@
 package com.damb.myhealthapp.views;
-
+import android.view.View;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,15 +27,28 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalle_ejercicio);
 
+
+
         titulo = findViewById(R.id.tituloDetalle);
         TextView info = findViewById(R.id.infoDetalle);
         RecyclerView recyclerEjercicios = findViewById(R.id.recyclerEjercicios);
         Button btnComenzar = findViewById(R.id.btnComenzar);
 
+        ImageView btnRegresar = findViewById(R.id.btnBack);
+        btnRegresar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(DetalleEjercicioActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+
+
         String nombre = getIntent().getStringExtra("nombre_ejercicio");
         if (nombre == null) nombre = "";
         nombrePlan = nombre;
-        titulo.setText(nombre);
         String detalle = "";
         rutina = new ArrayList<>();
         int ic_run = android.R.drawable.ic_media_play;
@@ -45,11 +60,10 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
         int ic_walk = android.R.drawable.ic_menu_directions;
         switch (nombre) {
             case "Pérdida de Peso (Quema de Grasa)":
-                detalle = "Duración Sugerida: 4 a 8 semanas\n" +
-                        "Modalidad: En casa y gimnasio\n" +
+                detalle = "Pérdida de Peso (Quema de Grasa)\n" +
                         "Frecuencia: 5-6 días/semana\n" +
                         "Ejercicios Típicos: HIIT, cardio, circuitos full body, entrenamiento de resistencia.\n" +
-                        "Ideal para: Usuarios que buscan bajar de peso y mejorar la salud cardiovascular.";
+                        "🔥 Calorías: 1880 kca ⏱️ Duración: 540 min";
                 rutina.add(new EjercicioSugerido("Jumping Jacks", "3 x 30", ic_run));
                 rutina.add(new EjercicioSugerido("Burpees", "3 x 15", ic_fitness));
                 rutina.add(new EjercicioSugerido("Mountain Climbers", "3 x 20", ic_run));
@@ -60,11 +74,10 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
                 rutina.add(new EjercicioSugerido("Crunch abdominal", "3 x 20", ic_fitness));
                 break;
             case "Ganancia de Masa Muscular (Hipertrofia)":
-                detalle = "Duración Sugerida: 6-12 semanas\n" +
-                        "Modalidad: Principalmente gimnasio (adaptable a casa)\n" +
+                detalle = "Ganancia de Masa Muscular (Hipertrofia)\n" +
                         "Frecuencia: 4-5 días/semana\n" +
                         "Ejercicios Típicos: Rutinas divididas por grupo muscular (push-pull-legs, torso-pierna).\n" +
-                        "Ideal para: Quienes desean volumen y fuerza.";
+                        "🔥 Calorías: 1880 kca ⏱️ Duración: 540 min";
                 rutina.add(new EjercicioSugerido("Press de banca", "4 x 10", ic_strength));
                 rutina.add(new EjercicioSugerido("Sentadilla", "4 x 12", ic_strength));
                 rutina.add(new EjercicioSugerido("Peso muerto", "4 x 10", ic_strength));
@@ -76,11 +89,10 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
                 rutina.add(new EjercicioSugerido("Crunch abdominal", "3 x 20", ic_fitness));
                 break;
             case "Flexibilidad y Movilidad":
-                detalle = "Duración Sugerida: Permanente o cíclica\n" +
-                        "Modalidad: En casa\n" +
+                detalle = "Flexibilidad y Movilidada\n" +
                         "Frecuencia: 3-4 días/semana\n" +
                         "Ejercicios Típicos: Estiramientos, yoga, movilidad articular.\n" +
-                        "Ideal para: Complemento a otros planes o para adultos mayores/sedentarios.";
+                        "🔥 Calorías: 1880 kca ⏱️ Duración: 540 min";
                 rutina.add(new EjercicioSugerido("Estiramiento de cuello", "2 x 30 seg", ic_walk));
                 rutina.add(new EjercicioSugerido("Estiramiento de hombros", "2 x 30 seg", ic_walk));
                 rutina.add(new EjercicioSugerido("Estiramiento de espalda", "2 x 30 seg", ic_walk));
@@ -91,11 +103,10 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
                 rutina.add(new EjercicioSugerido("Rotaciones de tobillo", "2 x 20", ic_list));
                 break;
             case "Salud General y Bienestar":
-                detalle = "Duración Sugerida: Indefinida\n" +
-                        "Modalidad: En casa\n" +
+                detalle = "Salud General y Bienestar\n" +
                         "Frecuencia: 3-5 días/semana\n" +
                         "Ejercicios Típicos: Caminata, estiramientos, ejercicios básicos funcionales.\n" +
-                        "Ideal para: Principiantes o personas mayores.";
+                        "🔥 Calorías: 1880 kca ⏱️ Duración: 540 min";
                 rutina.add(new EjercicioSugerido("Caminata", "20 min", ic_walk));
                 rutina.add(new EjercicioSugerido("Sentadillas", "3 x 15", ic_strength));
                 rutina.add(new EjercicioSugerido("Flexiones de pared", "3 x 12", ic_fitness));
@@ -105,11 +116,10 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
                 rutina.add(new EjercicioSugerido("Plancha", "3 x 20 seg", ic_timer));
                 break;
             case "Resistencia y Cardio":
-                detalle = "Duración Sugerida: 4-6 semanas\n" +
-                        "Modalidad: Casa, aire libre o gimnasio\n" +
+                detalle = "Resistencia y Cardio\n" +
                         "Frecuencia: 4-6 días/semana\n" +
                         "Ejercicios Típicos: HIIT, Tabata, trote, saltos, escaleras.\n" +
-                        "Ideal para: Corredores, ciclistas o quienes entrenan con poco equipo.";
+                        "🔥 Calorías: 1880 kca ⏱️ Duración: 540 min";
                 rutina.add(new EjercicioSugerido("Trote", "15 min", ic_run));
                 rutina.add(new EjercicioSugerido("Saltos de tijera", "3 x 30", ic_run));
                 rutina.add(new EjercicioSugerido("Burpees", "3 x 15", ic_fitness));
@@ -120,11 +130,10 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
                 rutina.add(new EjercicioSugerido("Cuerda", "5 min", ic_run));
                 break;
             case "Entrenamiento Funcional":
-                detalle = "Duración Sugerida: 6 semanas\n" +
-                        "Modalidad: En casa o gimnasio\n" +
+                detalle = "Entrenamiento Funcional\n" +
                         "Frecuencia: 4-5 días/semana\n" +
                         "Ejercicios Típicos: Burpees, sentadillas, planchas, saltos, movimientos compuestos.\n" +
-                        "Ideal para: Mejorar fuerza útil, equilibrio y coordinación.";
+                        "🔥 Calorías: 1880 kca ⏱️ Duración: 540 min";
                 rutina.add(new EjercicioSugerido("Burpees", "3 x 15", ic_fitness));
                 rutina.add(new EjercicioSugerido("Sentadillas", "4 x 12", ic_strength));
                 rutina.add(new EjercicioSugerido("Plancha lateral", "3 x 30 seg", ic_timer));
@@ -135,11 +144,10 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
                 rutina.add(new EjercicioSugerido("Crunch abdominal", "3 x 20", ic_fitness));
                 break;
             case "Plan Rápido para Tonificación":
-                detalle = "Duración Sugerida: 2-4 semanas\n" +
-                        "Modalidad: En casa\n" +
+                detalle = "Plan Rápido para Tonificación\n" +
                         "Frecuencia: 5-6 días/semana\n" +
                         "Ejercicios Típicos: Series intensas de core, piernas, glúteos, brazos.\n" +
-                        "Ideal para: Usuarios que buscan cambios rápidos.";
+                        "🔥 Calorías: 1880 kca ⏱️ Duración: 540 min";
                 rutina.add(new EjercicioSugerido("Sentadillas", "4 x 15", ic_strength));
                 rutina.add(new EjercicioSugerido("Zancadas", "3 x 12", ic_strength));
                 rutina.add(new EjercicioSugerido("Puente de glúteos", "3 x 15", ic_fitness));
@@ -150,11 +158,10 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
                 rutina.add(new EjercicioSugerido("Saltos de tijera", "3 x 30", ic_run));
                 break;
             case "Plan para Principiantes":
-                detalle = "Duración Sugerida: 4 semanas\n" +
-                        "Modalidad: En casa\n" +
+                detalle = "Plan para Principiantes\n" +
                         "Frecuencia: 3 días/semana\n" +
                         "Ejercicios Típicos: Sentadillas, flexiones modificadas, abdominales básicos.\n" +
-                        "Ideal para: Enganchar a nuevos usuarios y enseñarles progresivamente.";
+                        "🔥 Calorías: 1880 kca ⏱️ Duración: 540 min";
                 rutina.add(new EjercicioSugerido("Sentadillas", "3 x 12", ic_strength));
                 rutina.add(new EjercicioSugerido("Flexiones de rodillas", "3 x 10", ic_fitness));
                 rutina.add(new EjercicioSugerido("Puente de glúteos", "3 x 12", ic_fitness));

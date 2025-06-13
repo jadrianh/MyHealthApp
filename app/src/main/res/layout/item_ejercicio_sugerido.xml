@@ -39,4 +39,12 @@
             android:textColor="#666"
             android:textSize="14sp"/>
     </LinearLayout>
+    <ImageView
+        android:id="@+id/flecha"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="12dp"
+        android:src="@drawable/ic_right_arrow"
+        android:contentDescription="Flecha" />
+
 </LinearLayout> 

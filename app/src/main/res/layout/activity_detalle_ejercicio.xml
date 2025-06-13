@@ -1,51 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F5F5F5"
-    android:padding="24dp">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"  android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tituloDetalle"
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Información de Plan de Entrenamiento"
-        android:textColor="#22334A"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="16dp"/>
+        android:layout_height="250dp"
+        android:background="@drawable/blue_background_shape" />
 
-    <TextView
-        android:id="@+id/infoDetalle"
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_arrow_back"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="Botón volver"
+        app:tint="#FFFFFF"
+        android:layout_marginStart="64dp"
+        />
+
+
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#222"
-        android:textSize="16sp"
-        android:lineSpacingExtra="4dp"
-        android:padding="8dp"
-        android:background="#FFF"
-        android:gravity="start"
-        android:layout_marginBottom="16dp"/>
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:fillViewport="true">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerEjercicios"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginBottom="16dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <Button
-        android:id="@+id/btnComenzar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="COMENZAR ENTRENAMIENTO"
-        android:textAllCaps="true"
-        android:textColor="#FFF"
-        android:backgroundTint="#009688"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_marginTop="8dp"/>
+            <TextView
+                android:id="@+id/tituloDetalle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Información del\nplan de entrenamiento"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="16dp"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginTop="32dp" />
 
-</LinearLayout> 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_blue"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/textoMotivacional"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Comienza con fuerza\ny logra tus metas"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_alignParentStart="true" />
+
+                <ImageView
+                    android:id="@+id/imgMotivacional"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="8dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/plancha" />
+
+                <Button
+                    android:id="@+id/btnComenzar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Comenzar entrenamiento"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:backgroundTint="#00C853"
+                    android:layout_below="@id/textoMotivacional"
+                    android:layout_marginTop="16dp"
+                    android:layout_alignParentStart="true" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/infoDetalle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Descripción del plan de entrenamiento..."
+                android:textColor="#444"
+                android:textSize="14sp"
+                android:lineSpacingExtra="6dp"
+                android:padding="12dp"
+                android:background="@drawable/info_background"
+                android:layout_marginBottom="16dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerEjercicios"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginBottom="16dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
