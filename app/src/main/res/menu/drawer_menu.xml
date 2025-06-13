@@ -22,11 +22,8 @@
             android:title="Boton 4" />
         <item
             android:id="@+id/nav_profile"
+            android:icon="@android:drawable/ic_menu_gallery"
             android:title="Perfil" />
-        <item
-            android:id="@+id/nav_settings"
-            android:icon="@android:drawable/ic_menu_preferences"
-            android:title="Configuraciones" />
     </group>
 
     <item android:title="Otras Opciones">

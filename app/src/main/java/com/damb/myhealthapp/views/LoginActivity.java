@@ -27,14 +27,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
-import com.google.firebase.auth.FacebookAuthProvider;
-import java.util.Arrays;
-import com.google.firebase.auth.OAuthProvider;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -45,18 +37,9 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
-    // Google Sign In
+    private TextView appName;
     private GoogleSignInClient mGoogleSignInClient;
     private ActivityResultLauncher<Intent> googleSignInLauncher;
-
-    // Facebook Sign In
-    private CallbackManager mCallbackManager;
-
-    // Microsoft Sign In
-    private OAuthProvider.Builder microsoftProvider;
-
-    // Yahoo Sign In
-    private OAuthProvider.Builder yahooProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,52 +84,17 @@ public class LoginActivity extends AppCompatActivity {
 
         emailEditText = findViewById(R.id.emailInput);
         passwordEditText = findViewById(R.id.passwordInput);
-        loginButton = findViewById(R.id.loginButton);
+        loginButton = findViewById(R.id.btnSignUp);
         registerButton = findViewById(R.id.registerLink);
-        Button googleSignInButton = findViewById(R.id.buttonGoogle);
-        Button facebookSignInButton = findViewById(R.id.buttonFacebook);
-        Button buttonMicrosoft = findViewById(R.id.buttonMicrosoft);
-        Button buttonYahoo = findViewById(R.id.buttonYahoo);
+        Button googleSignInButton = findViewById(R.id.btnGoogleSignUp);
 
         loginButton.setOnClickListener(v -> loginUser());
         registerButton.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
         });
+
         googleSignInButton.setOnClickListener(v -> signInWithGoogle());
-
-        // Initialize Facebook CallbackManager
-        mCallbackManager = CallbackManager.Factory.create();
-
-        // Set up Facebook Login
-        LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                firebaseAuthWithFacebook(loginResult.getAccessToken().getToken());
-            }
-
-            @Override
-            public void onCancel() {
-                Toast.makeText(LoginActivity.this, "Inicio de sesión con Facebook cancelado.", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(@NonNull FacebookException error) {
-                Toast.makeText(LoginActivity.this, "Error en el inicio de sesión con Facebook: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        facebookSignInButton.setOnClickListener(v -> LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email", "public_profile")));
-
-        // Configure Microsoft Sign In
-        microsoftProvider = OAuthProvider.newBuilder("microsoft.com");
-        microsoftProvider.addCustomParameter("prompt", "consent");
-
-        // Configure Yahoo Sign In
-        yahooProvider = OAuthProvider.newBuilder("yahoo.com");
-
-        buttonMicrosoft.setOnClickListener(v -> signInWithMicrosoft());
-        buttonYahoo.setOnClickListener(v -> signInWithYahoo());
     }
 
     @Override
@@ -211,58 +159,6 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(LoginActivity.this, "Autenticación con Google fallida: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                });
-    }
-
-    private void firebaseAuthWithFacebook(String accessToken) {
-        AuthCredential credential = FacebookAuthProvider.getCredential(accessToken);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        // Después de la autenticación con Facebook, verificar en Firestore
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            checkUserInFirestoreAndNavigate(user);
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Error: Usuario de Firebase nulo después de la autenticación con Facebook.", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(LoginActivity.this, "Autenticación con Facebook fallida: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void signInWithMicrosoft() {
-        mAuth.startActivityForSignInWithProvider(this, microsoftProvider.build())
-                .addOnSuccessListener(authResult -> {
-                    // Sign-in successful
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    if (user != null) {
-                        // Verificar si el usuario existe en Firestore
-                        checkUserInFirestoreAndNavigate(user);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    // Handle sign-in failure
-                    Toast.makeText(LoginActivity.this, "Error al iniciar sesión con Microsoft: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e("MicrosoftAuth", "Error signing in with Microsoft", e);
-                });
-    }
-
-    private void signInWithYahoo() {
-        mAuth.startActivityForSignInWithProvider(this, yahooProvider.build())
-                .addOnSuccessListener(authResult -> {
-                    // Sign-in successful
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    if (user != null) {
-                        // Verificar si el usuario existe en Firestore
-                        checkUserInFirestoreAndNavigate(user);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    // Handle sign-in failure
-                    Toast.makeText(LoginActivity.this, "Error al iniciar sesión con Yahoo: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e("YahooAuth", "Error signing in with Yahoo", e);
                 });
     }
 

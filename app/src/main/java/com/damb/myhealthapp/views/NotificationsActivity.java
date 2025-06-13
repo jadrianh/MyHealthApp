@@ -19,9 +19,9 @@ import android.util.Log;
 import com.damb.myhealthapp.R;
 import com.damb.myhealthapp.receivers.NotificationReceiver;
 
-public class SettingsActivity extends AppCompatActivity {
+public class NotificationsActivity extends AppCompatActivity {
 
-    private static final String TAG = "SettingsActivity";
+    private static final String TAG = "NotificationsActivity";
 
     private Switch switchWaterReminder;
     private EditText editTextWaterInterval;
@@ -38,7 +38,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_notifications);
 
         // Inicializar vistas
         switchWaterReminder = findViewById(R.id.switchWaterReminder);

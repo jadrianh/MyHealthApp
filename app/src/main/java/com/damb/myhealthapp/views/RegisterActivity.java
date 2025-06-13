@@ -8,17 +8,13 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.annotation.NonNull;
 
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.views.LoginActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.auth.FacebookAuthProvider;
-import com.google.firebase.auth.OAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -26,37 +22,23 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
     private static final int RC_SIGN_IN = 9001;
-    private static final int RC_MICROSOFT_SIGN_IN = 9002;
-    
+    private TextInputEditText nameInput;
     private TextInputEditText emailInput;
     private TextInputEditText passwordInput;
     private TextInputEditText confirmPasswordInput;
-    private MaterialButton confirmButton;
+    private MaterialButton btnSignUp;
     private MaterialButton buttonGoogle;
-    private MaterialButton buttonFacebook;
-    private MaterialButton buttonMicrosoft;
-    private MaterialButton buttonYahoo;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private GoogleSignInClient mGoogleSignInClient;
-    private CallbackManager mCallbackManager;
-    private OAuthProvider.Builder microsoftProvider;
-    private OAuthProvider.Builder yahooProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +50,12 @@ public class RegisterActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         // Initialize views
+        nameInput = findViewById(R.id.nameInput);
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
-        confirmButton = findViewById(R.id.confirmButton);
-        buttonGoogle = findViewById(R.id.buttonGoogle);
-        buttonFacebook = findViewById(R.id.buttonFacebook);
-        buttonMicrosoft = findViewById(R.id.buttonMicrosoft);
-        buttonYahoo = findViewById(R.id.buttonYahoo);
+        btnSignUp = findViewById(R.id.btnSignUp);
+        buttonGoogle = findViewById(R.id.btnGoogleSignUp);
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -86,55 +66,12 @@ public class RegisterActivity extends AppCompatActivity {
         // Forzar cierre de sesión de Google para mostrar el selector de cuentas
         mGoogleSignInClient.signOut();
 
-        // Configure Facebook Sign In
-        mCallbackManager = CallbackManager.Factory.create();
-        LoginManager.getInstance().registerCallback(mCallbackManager,
-                new FacebookCallback<LoginResult>() {
-                    @Override
-                    public void onSuccess(LoginResult loginResult) {
-                        handleFacebookAccessToken(loginResult.getAccessToken());
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        Toast.makeText(RegisterActivity.this, "Facebook login cancelado",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onError(FacebookException error) {
-                        Toast.makeText(RegisterActivity.this, "Error en login de Facebook: " + error.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-        // Configure Microsoft Sign In
-        microsoftProvider = OAuthProvider.newBuilder("microsoft.com");
-        // Optional: Add custom parameters or scopes if needed for Microsoft
-        // microsoftProvider.addCustomParameter("prompt", "consent");
-        // microsoftProvider.setScopes(Arrays.asList("mail.read"));
-
-        // Configure Yahoo Sign In
-        yahooProvider = OAuthProvider.newBuilder("yahoo.com");
-
         // Set up social media buttons
         buttonGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "Botón de Google clickeado");
                 signInWithGoogle();
             }
-        });
-        buttonFacebook.setOnClickListener(v -> signInWithFacebook());
-        buttonMicrosoft.setOnClickListener(v -> {
-            Toast.makeText(RegisterActivity.this, 
-                "Registro con Microsoft próximamente disponible", 
-                Toast.LENGTH_SHORT).show();
-        });
-        buttonYahoo.setOnClickListener(v -> {
-            Toast.makeText(RegisterActivity.this, 
-                "Registro con Yahoo próximamente disponible", 
-                Toast.LENGTH_SHORT).show();
         });
 
         // Get onboarding data
@@ -145,8 +82,9 @@ public class RegisterActivity extends AppCompatActivity {
         String activityLevel = getIntent().getStringExtra("activity_level");
 
         // Set up confirmation button
-        confirmButton.setOnClickListener(v -> {
+        btnSignUp.setOnClickListener(v -> {
             if (validateInputs()) {
+                String name = nameInput.getText().toString().trim();
                 String email = emailInput.getText().toString().trim();
                 String password = passwordInput.getText().toString().trim();
 
@@ -163,6 +101,7 @@ public class RegisterActivity extends AppCompatActivity {
                                             if (verificationTask.isSuccessful()) {
                                                 // Create map with user data
                                                 Map<String, Object> userData = new HashMap<>();
+                                                userData.put("displayName", name);
                                                 userData.put("email", email);
                                                 userData.put("birthday", birthdayMillis);
                                                 userData.put("gender", gender);
@@ -217,79 +156,6 @@ public class RegisterActivity extends AppCompatActivity {
         Log.d(TAG, "startActivityForResult llamado con RC_SIGN_IN: " + RC_SIGN_IN);
     }
 
-    private void signInWithFacebook() {
-        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile"));
-    }
-
-    private void signInWithMicrosoft() {
-        mAuth.startActivityForSignInWithProvider(this, microsoftProvider.build())
-                .addOnSuccessListener(authResult -> {
-                    // User is signed in. Get the User object
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    if (user != null) {
-                        // Verificar si el usuario ya existe en Firestore
-                        db.collection("users").document(user.getUid())
-                            .get()
-                            .addOnCompleteListener(documentTask -> {
-                                if (documentTask.isSuccessful() && documentTask.getResult().exists()) {
-                                    // Usuario ya existe, mostrar mensaje y redirigir a login
-                                    mAuth.signOut();
-                                    Toast.makeText(RegisterActivity.this,
-                                        "Esta cuenta ya está registrada. Por favor, inicia sesión.",
-                                        Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                } else {
-                                    // Usuario no existe, guardar datos y continuar
-                                    saveUserData(user);
-                                    startMainActivity();
-                                }
-                            });
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    // Handle failure
-                    Log.w(TAG, "Microsoft sign in failed", e);
-                    Toast.makeText(RegisterActivity.this, "Error en login de Microsoft: " + e.getMessage(),
-                            Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void signInWithYahoo() {
-        mAuth.startActivityForSignInWithProvider(this, yahooProvider.build())
-                .addOnSuccessListener(authResult -> {
-                    // Sign-in successful
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    if (user != null) {
-                        // Verificar si el usuario ya existe en Firestore
-                        db.collection("users").document(user.getUid())
-                            .get()
-                            .addOnCompleteListener(documentTask -> {
-                                if (documentTask.isSuccessful() && documentTask.getResult().exists()) {
-                                    // Usuario ya existe, mostrar mensaje y redirigir a login
-                                    mAuth.signOut();
-                                    Toast.makeText(RegisterActivity.this,
-                                        "Esta cuenta ya está registrada. Por favor, inicia sesión.",
-                                        Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                } else {
-                                    // Usuario no existe, guardar datos y continuar
-                                    saveUserData(user);
-                                    startMainActivity();
-                                }
-                            });
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    // Handle sign-in failure
-                    Toast.makeText(RegisterActivity.this, "Error al iniciar sesión con Yahoo: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e("YahooAuth", "Error signing in with Yahoo", e);
-                });
-    }
-
     private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
@@ -310,24 +176,24 @@ public class RegisterActivity extends AppCompatActivity {
                         if (user != null) {
                             // Verificar si el usuario ya existe en Firestore
                             db.collection("users").document(user.getUid())
-                                .get()
-                                .addOnCompleteListener(documentTask -> {
-                                    if (documentTask.isSuccessful() && documentTask.getResult().exists()) {
-                                        // Usuario ya existe, mostrar mensaje y redirigir a login
-                                        mAuth.signOut();
-                                        mGoogleSignInClient.signOut();
-                                        Toast.makeText(RegisterActivity.this,
-                                            "Esta cuenta ya está registrada. Por favor, inicia sesión.",
-                                            Toast.LENGTH_LONG).show();
-                                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    } else {
-                                        // Usuario no existe, guardar datos y continuar
-                                        saveUserData(user);
-                                        startMainActivity();
-                                    }
-                                });
+                                    .get()
+                                    .addOnCompleteListener(documentTask -> {
+                                        if (documentTask.isSuccessful() && documentTask.getResult().exists()) {
+                                            // Usuario ya existe, mostrar mensaje y redirigir a login
+                                            mAuth.signOut();
+                                            mGoogleSignInClient.signOut();
+                                            Toast.makeText(RegisterActivity.this,
+                                                    "Esta cuenta ya está registrada. Por favor, inicia sesión.",
+                                                    Toast.LENGTH_LONG).show();
+                                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        } else {
+                                            // Usuario no existe, guardar datos y continuar
+                                            saveUserData(user);
+                                            startMainActivity();
+                                        }
+                                    });
                         }
                     } else {
                         // Si la autenticación con credencial falla
@@ -338,40 +204,6 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
-    private void handleFacebookAccessToken(AccessToken token) {
-        mAuth.signInWithCredential(FacebookAuthProvider.getCredential(token.getToken()))
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            // Verificar si el usuario ya existe en Firestore
-                            db.collection("users").document(user.getUid())
-                                .get()
-                                .addOnCompleteListener(documentTask -> {
-                                    if (documentTask.isSuccessful() && documentTask.getResult().exists()) {
-                                        // Usuario ya existe, mostrar mensaje y redirigir a login
-                                        mAuth.signOut();
-                                        LoginManager.getInstance().logOut();
-                                        Toast.makeText(RegisterActivity.this,
-                                            "Esta cuenta ya está registrada. Por favor, inicia sesión.",
-                                            Toast.LENGTH_LONG).show();
-                                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    } else {
-                                        // Usuario no existe, guardar datos y continuar
-                                        saveUserData(user);
-                                        startMainActivity();
-                                    }
-                                });
-                        }
-                    } else {
-                        Log.w(TAG, "signInWithCredential:failure", task.getException());
-                        Toast.makeText(RegisterActivity.this, "Error en autenticación: " + task.getException().getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
 
     private void saveUserData(FirebaseUser user) {
         if (user != null) {
@@ -393,21 +225,6 @@ public class RegisterActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleGoogleSignInResult(task);
-        } else {
-            // Pass the activity result back to the Facebook SDK
-            mCallbackManager.onActivityResult(requestCode, resultCode, data);
-        }
-        // Note: Microsoft login is handled by startActivityForSignInWithProvider and doesn't use onActivityResult
     }
 
     private boolean validateInputs() {

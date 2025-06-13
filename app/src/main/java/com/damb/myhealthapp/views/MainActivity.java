@@ -194,9 +194,6 @@ public class MainActivity extends AppCompatActivity implements
         } else if (id == R.id.nav_button4) {
             // Acción para "Boton 4"
             Toast.makeText(this, "Navegar a Botón 4", Toast.LENGTH_SHORT).show();
-        } else if (id == R.id.nav_settings) {
-            // Acción para "Boton 4"
-            intent = new Intent(MainActivity.this, SettingsActivity.class);
         } else if (id == R.id.nav_logout) {
             // Acción para "Cerrar sesión"
             logout();

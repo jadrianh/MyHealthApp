@@ -9,7 +9,7 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <!-- Icono de perfil de usuario (puedes reemplazarlo con una imagen real si tienes) -->
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/imageView_drawer_user_profile"
         android:layout_width="64dp"
         android:layout_height="64dp"
