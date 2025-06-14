@@ -11,6 +11,9 @@ import androidx.core.app.NotificationManagerCompat;
 import android.content.SharedPreferences;
 import com.damb.myhealthapp.utils.GoogleFitManager;
 import android.util.Log;
+import android.content.pm.PackageManager;
+import android.Manifest;
+import com.damb.myhealthapp.R;
 
 public class NotificationReceiver extends BroadcastReceiver {
 
@@ -64,27 +67,56 @@ public class NotificationReceiver extends BroadcastReceiver {
 
     private void createNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID,
+                    CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription(CHANNEL_DESCRIPTION);
+            channel.enableVibration(true);
+            channel.setVibrationPattern(new long[]{0, 500, 200, 500});
+            channel.enableLights(true);
+            channel.setLightColor(android.graphics.Color.BLUE);
+
             NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(channel);
-                Log.d(TAG, "createNotificationChannel: Canal de notificación creado.");
+                Log.d(TAG, "createNotificationChannel: Canal de notificaciones creado exitosamente");
+            } else {
+                Log.e(TAG, "createNotificationChannel: NotificationManager es nulo");
             }
         }
     }
 
     private void showNotification(Context context, String title, String message, int notificationId) {
-        Log.d(TAG, "showNotification: Intentando mostrar notificación - Título: " + title + ", Mensaje: " + message + ", ID: " + notificationId);
+        Log.d(TAG, "showNotification: Intentando mostrar notificación - Título: " + title + ", Mensaje: " + message);
+        
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true);
+                .setAutoCancel(true)
+                .setVibrate(new long[]{0, 500, 200, 500})
+                .setLights(android.graphics.Color.BLUE, 3000, 3000);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(notificationId, builder.build());
-        Log.d(TAG, "showNotification: Notificación lanzada.");
+        
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                    notificationManager.notify(notificationId, builder.build());
+                    Log.d(TAG, "showNotification: Notificación mostrada exitosamente");
+                } else {
+                    Log.e(TAG, "showNotification: No se tiene permiso para mostrar notificaciones");
+                }
+            } else {
+                notificationManager.notify(notificationId, builder.build());
+                Log.d(TAG, "showNotification: Notificación mostrada exitosamente (Android < 13)");
+            }
+        } catch (SecurityException e) {
+            Log.e(TAG, "showNotification: Error de seguridad al mostrar notificación", e);
+        } catch (Exception e) {
+            Log.e(TAG, "showNotification: Error al mostrar notificación", e);
+        }
     }
 } 

@@ -30,6 +30,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private static final String TAG = "LoginActivity";
     private EditText emailEditText;
     private EditText passwordEditText;
     private Button loginButton;
@@ -73,14 +74,9 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
 
-        // Check if user is signed in (non-null) and update UI accordingly.
-        // Si hay un usuario logueado al iniciar la actividad, verificarlo en Firestore
-        if (mAuth.getCurrentUser() != null) {
-            checkUserInFirestoreAndNavigate(mAuth.getCurrentUser());
-        } else {
-            // Si no hay usuario logueado, asegurarse de que la pantalla de login esté visible
-            // No es necesario hacer nada aquí explícitamente, ya que setContentView() ya lo hace.
-        }
+        // Hemos eliminado la lógica de redirección automática desde onCreate.
+        // Esto asegura que la pantalla de inicio de sesión siempre sea visible al lanzar LoginActivity.
+        // La verificación de la sesión actual ahora se maneja en MainActivity al iniciar.
 
         emailEditText = findViewById(R.id.emailInput);
         passwordEditText = findViewById(R.id.passwordInput);
@@ -121,27 +117,58 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso.", Toast.LENGTH_SHORT).show();
-                            // Después de la autenticación con email/password, verificar en Firestore
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                checkUserInFirestoreAndNavigate(user);
-                            } else {
-                                Toast.makeText(LoginActivity.this, "Error: Usuario de Firebase nulo después del inicio de sesión.", Toast.LENGTH_SHORT).show();
+                                if (user.isEmailVerified()) {
+                                    // El correo está verificado, proceder con el inicio de sesión
+                                    // Cerrar cualquier sesión de Google existente para evitar conflictos
+                                    if (mGoogleSignInClient != null) {
+                                        mGoogleSignInClient.signOut()
+                                                .addOnCompleteListener(signOutTask -> {
+                                                    Log.d(TAG, "Cierre de sesión de Google completado después de iniciar sesión con correo/contraseña.");
+                                                    checkUserInFirestoreAndNavigate(user);
+                                                });
+                                    } else {
+                                        checkUserInFirestoreAndNavigate(user);
+                                    }
+                                } else {
+                                    // El correo no está verificado
+                                    mAuth.signOut();
+                                    Toast.makeText(LoginActivity.this, 
+                                        "Por favor, verifica tu correo electrónico antes de iniciar sesión.", 
+                                        Toast.LENGTH_LONG).show();
+                                }
                             }
                         } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(LoginActivity.this, "Error de inicio de sesión: " + task.getException().getMessage(),
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, 
+                                "Error de inicio de sesión: " + task.getException().getMessage(),
+                                Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
 
     private void signInWithGoogle() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        googleSignInLauncher.launch(signInIntent);
+        Log.d(TAG, "Iniciando signInWithGoogle");
+        
+        // Cerrar sesión de Google primero para forzar el selector de cuentas
+        mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
+            Log.d(TAG, "Sesión de Google cerrada, iniciando nuevo flujo de inicio de sesión");
+            // Configurar las opciones de Google Sign-In para forzar el selector de cuentas
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build();
+            
+            // Crear un nuevo cliente con las opciones actualizadas
+            mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+            
+            // Lanzar el intent de inicio de sesión
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            Log.d(TAG, "Intent de Google Sign-In creado: " + signInIntent);
+            googleSignInLauncher.launch(signInIntent);
+            Log.d(TAG, "googleSignInLauncher.launch llamado");
+        });
     }
 
     private void firebaseAuthWithGoogle(String idToken) {

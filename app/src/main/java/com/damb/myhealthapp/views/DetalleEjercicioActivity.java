@@ -51,13 +51,13 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
         nombrePlan = nombre;
         String detalle = "";
         rutina = new ArrayList<>();
-        int ic_run = android.R.drawable.ic_media_play;
-        int ic_fitness = android.R.drawable.ic_menu_gallery;
-        int ic_strength = android.R.drawable.ic_menu_manage;
-        int ic_timer = android.R.drawable.ic_menu_recent_history;
-        int ic_list = android.R.drawable.ic_menu_agenda;
-        int ic_bike = android.R.drawable.ic_menu_compass;
-        int ic_walk = android.R.drawable.ic_menu_directions;
+        int ic_run = R.drawable.ic_launcher_foreground;
+        int ic_fitness = R.drawable.ic_launcher_background;
+        int ic_strength = R.drawable.ic_launcher_foreground;
+        int ic_timer = R.drawable.ic_launcher_background;
+        int ic_list = R.drawable.ic_launcher_foreground;
+        int ic_bike = R.drawable.ic_launcher_background;
+        int ic_walk = R.drawable.ic_launcher_foreground;
         switch (nombre) {
             case "Pérdida de Peso (Quema de Grasa)":
                 detalle = "Pérdida de Peso (Quema de Grasa)\n" +
@@ -192,7 +192,8 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_ENTRENAMIENTO) {
-            MainActivity.setViewPagerEnabled(true);
+            // Eliminada la llamada a MainActivity.setViewPagerEnabled(true);
+            // MainActivity habilitará el ViewPager en su onResume()
         }
     }
 } 

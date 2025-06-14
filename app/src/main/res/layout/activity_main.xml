@@ -131,63 +131,86 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
+            <!-- Contenido de pasos y calorías (inicialmente oculto) -->
             <LinearLayout
+                android:id="@+id/stepsCaloriesDataLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/ic_run"
-                    app:tint="@color/green" />
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                    <TextView
-                        android:id="@+id/stepsTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Pasos hoy: 0"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_run"
+                        app:tint="@color/green" />
 
-                    <TextView
-                        android:id="@+id/caloriesTextView"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Calorías: 0"
-                        android:textColor="@color/gray_dark"
-                        android:textSize="14sp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+
+                        <TextView
+                            android:id="@+id/stepsTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Pasos hoy: 0"
+                            android:textColor="@color/black"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/caloriesTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Calorías: 0"
+                            android:textColor="@color/gray_dark"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
                 </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/stepsProgressBar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:progressTint="@color/green"
+                    android:max="10000" />
+
+                <TextView
+                    android:id="@+id/stepsGoalTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_horizontal"
+                    android:text="Meta: 0 / 10000 pasos"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
-            <ProgressBar
-                android:id="@+id/stepsProgressBar"
-                style="?android:attr/progressBarStyleHorizontal"
+            <!-- Botón para conectar a Google Fit (inicialmente visible) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnConnectGoogleFit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:progressTint="@color/green"
-                android:max="10000" />
-
-            <TextView
-                android:id="@+id/stepsGoalTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center_horizontal"
-                android:text="Meta: 0 / 10000 pasos"
-                android:textColor="@color/gray_dark"
-                android:textSize="14sp" />
+                android:text="Conectar a Google Fitness"
+                android:visibility="visible"
+                android:layout_marginTop="16dp"
+                android:padding="12dp"
+                android:backgroundTint="@color/green"
+                android:textColor="@color/white"
+                app:cornerRadius="8dp"/>
 
         </LinearLayout>
 

@@ -13,13 +13,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.damb.myhealthapp.R;
 import com.damb.myhealthapp.views.LoginActivity;
 import com.damb.myhealthapp.onboarding.BirthdayProfileActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class WelcomeActivity extends AppCompatActivity {
+
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+
+        mAuth = FirebaseAuth.getInstance();
 
         ImageView welcomeImage = findViewById(R.id.welcomeImage);
         TextView welcomeTitle = findViewById(R.id.welcomeTitle);
@@ -69,4 +75,8 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         });
     }
+
+    // Eliminada la lógica de redirección automática en onStart().
+    // WelcomeActivity ahora siempre mostrará su UI, permitiendo al usuario elegir si inicia sesión o se registra.
+    // Esto aborda el problema de "me mandó a la ventana home no pude escribir el correo ni la contraseña".
 }

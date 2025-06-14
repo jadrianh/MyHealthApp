@@ -15,6 +15,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.Calendar;
 import android.util.Log;
+import android.Manifest;
+import android.os.Build;
 
 import com.damb.myhealthapp.R;
 import com.damb.myhealthapp.receivers.NotificationReceiver;
@@ -39,6 +41,15 @@ public class NotificationsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifications);
+
+        // Solicitar permisos necesarios
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(new String[]{
+                    Manifest.permission.POST_NOTIFICATIONS,
+                    Manifest.permission.SCHEDULE_EXACT_ALARM,
+                    Manifest.permission.USE_EXACT_ALARM
+            }, 1);
+        }
 
         // Inicializar vistas
         switchWaterReminder = findViewById(R.id.switchWaterReminder);
@@ -68,13 +79,18 @@ public class NotificationsActivity extends AppCompatActivity {
 
         TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                 (view, selectedHour, selectedMinute) -> {
-                    textView.setText(String.format("Hora seleccionada: %02d:%02d", selectedHour, selectedMinute));
+                    // Convertir a formato 12 horas para mostrar
+                    String amPm = selectedHour < 12 ? "AM" : "PM";
+                    int displayHour = selectedHour == 0 ? 12 : (selectedHour > 12 ? selectedHour - 12 : selectedHour);
+                    textView.setText(String.format("Hora seleccionada: %d:%02d %s", displayHour, selectedMinute, amPm));
+                    
+                    // Guardar en formato 24 horas
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putInt(hourKey, selectedHour);
                     editor.putInt(minuteKey, selectedMinute);
                     editor.apply();
                 },
-                hour, minute, true);
+                hour, minute, false); // false para formato 12 horas
         timePickerDialog.show();
     }
 
@@ -86,14 +102,20 @@ public class NotificationsActivity extends AppCompatActivity {
         int exerciseHour = sharedPreferences.getInt("exercise_hour", -1);
         int exerciseMinute = sharedPreferences.getInt("exercise_minute", -1);
         if (exerciseHour != -1 && exerciseMinute != -1) {
-            textViewExerciseTime.setText(String.format("Hora seleccionada: %02d:%02d", exerciseHour, exerciseMinute));
+            // Convertir a formato 12 horas para mostrar
+            String amPm = exerciseHour < 12 ? "AM" : "PM";
+            int displayHour = exerciseHour == 0 ? 12 : (exerciseHour > 12 ? exerciseHour - 12 : exerciseHour);
+            textViewExerciseTime.setText(String.format("Hora seleccionada: %d:%02d %s", displayHour, exerciseMinute, amPm));
         }
 
         switchStepGoalReminder.setChecked(sharedPreferences.getBoolean("step_goal_reminder_enabled", false));
         int stepGoalHour = sharedPreferences.getInt("step_goal_hour", -1);
         int stepGoalMinute = sharedPreferences.getInt("step_goal_minute", -1);
         if (stepGoalHour != -1 && stepGoalMinute != -1) {
-            textViewStepGoalTime.setText(String.format("Hora seleccionada: %02d:%02d", stepGoalHour, stepGoalMinute));
+            // Convertir a formato 12 horas para mostrar
+            String amPm = stepGoalHour < 12 ? "AM" : "PM";
+            int displayHour = stepGoalHour == 0 ? 12 : (stepGoalHour > 12 ? stepGoalHour - 12 : stepGoalHour);
+            textViewStepGoalTime.setText(String.format("Hora seleccionada: %d:%02d %s", displayHour, stepGoalMinute, amPm));
         }
     }
 
@@ -170,11 +192,17 @@ public class NotificationsActivity extends AppCompatActivity {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         if (alarmManager != null) {
-            long triggerTime = System.currentTimeMillis() + intervalMillis;
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, triggerTime, intervalMillis, pendingIntent);
-            Log.d(TAG, "scheduleRepeatingAlarm: Alarma repetida programada para acción: " + action + ", intervalo: " + intervalMillis + "ms, requestCode: " + requestCode);
+            try {
+                long triggerTime = System.currentTimeMillis() + intervalMillis;
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, triggerTime, intervalMillis, pendingIntent);
+                Log.d(TAG, "scheduleRepeatingAlarm: Alarma repetida programada para acción: " + action + 
+                      ", intervalo: " + intervalMillis + "ms, requestCode: " + requestCode);
+            } catch (SecurityException e) {
+                Log.e(TAG, "scheduleRepeatingAlarm: Error de seguridad al programar alarma", e);
+                Toast.makeText(context, "No se pudo programar la alarma. Verifica los permisos.", Toast.LENGTH_LONG).show();
+            }
         } else {
-            Log.e(TAG, "scheduleRepeatingAlarm: AlarmManager es nulo.");
+            Log.e(TAG, "scheduleRepeatingAlarm: AlarmManager es nulo");
         }
     }
 
@@ -188,16 +216,29 @@ public class NotificationsActivity extends AppCompatActivity {
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
 
+        // Si la hora ya pasó hoy, programar para mañana
         if (calendar.before(Calendar.getInstance())) {
             calendar.add(Calendar.DATE, 1);
         }
 
         if (alarmManager != null) {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
-            Log.d(TAG, "scheduleDailyAlarm: Alarma diaria programada para acción: " + action + ", hora: " + hour + ":" + minute + ", requestCode: " + requestCode + ", triggerTime: " + calendar.getTimeInMillis());
+            try {
+                // Usar setAlarmClock para mayor precisión
+                AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), pendingIntent);
+                alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
+                
+                Log.d(TAG, "scheduleDailyAlarm: Alarma diaria programada para acción: " + action + 
+                      ", hora: " + hour + ":" + minute + 
+                      ", requestCode: " + requestCode + 
+                      ", triggerTime: " + calendar.getTimeInMillis());
+            } catch (SecurityException e) {
+                Log.e(TAG, "scheduleDailyAlarm: Error de seguridad al programar alarma", e);
+                Toast.makeText(context, "No se pudo programar la alarma. Verifica los permisos.", Toast.LENGTH_LONG).show();
+            }
         } else {
-            Log.e(TAG, "scheduleDailyAlarm: AlarmManager es nulo.");
+            Log.e(TAG, "scheduleDailyAlarm: AlarmManager es nulo");
         }
     }
 

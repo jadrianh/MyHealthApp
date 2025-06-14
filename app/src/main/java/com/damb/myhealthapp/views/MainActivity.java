@@ -10,6 +10,7 @@ import android.view.MenuItem; // Importar para manejar clicks en items del menú
 import android.view.View;
 // import android.widget.Button; // Unused, removed
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,9 +26,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.damb.myhealthapp.R;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.damb.myhealthapp.adapters.ViewPagerEjercicioAdapter;
 // import com.google.android.material.tabs.TabLayout; // Unused, removed
 // import com.google.android.material.tabs.TabLayoutMediator; // Unused, removed
@@ -37,6 +41,10 @@ import android.content.SharedPreferences;
 import java.util.ArrayList;
 // import java.util.Arrays; // Unused, removed
 import java.util.List;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleFitManager.OnFitDataReceivedListener,
@@ -69,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements
     private TextView caloriesTextView;
     private TextView stepsGoalTextView;
     private ProgressBar stepsProgressBar;
+    private LinearLayout stepsCaloriesDataLayout;
+    private MaterialButton btnConnectGoogleFit;
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -80,68 +90,33 @@ public class MainActivity extends AppCompatActivity implements
 
     private boolean isRequestingGoogleFitPermissions = false; // Nueva bandera para permisos de runtime
     private boolean isGoogleFitOAuthRequesting = false; // Nueva bandera para la solicitud OAuth de Google Fit
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                } else {
-                    moveTaskToBack(true);
-                }
-            }
-        });
-
         setContentView(R.layout.activity_main);
+
         mAuth = FirebaseAuth.getInstance();
 
-        // Guardar la meta de pasos en SharedPreferences al iniciar la aplicación
-        SharedPreferences sharedPreferences = getSharedPreferences("ReminderPrefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putLong("daily_step_goal", DAILY_STEP_GOAL);
-        editor.apply();
-
-        // Solicitar permiso de notificaciones si es necesario
-        checkAndRequestNotificationPermission();
-
-        // Inicialización de componentes UI que permanecen
+        // Initialize views and other components
         Username = findViewById(R.id.Username);
-        titleTextView = findViewById(R.id.title);
+        titleTextView = findViewById(R.id.titleTextView);
         menuIcon = findViewById(R.id.menuIcon);
-
-        // Inicialización de componentes del DrawerLayout y NavigationView
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
 
-        // Configurar listener para el NavigationView
+        View headerView = navigationView.getHeaderView(0);
+        textViewDrawerUsername = headerView.findViewById(R.id.textView_drawer_username);
+        textViewDrawerUserEmail = headerView.findViewById(R.id.textView_drawer_user_email);
+
+        // Set up navigation listener
         navigationView.setNavigationItemSelectedListener(this);
 
-        // Configurar el encabezado del NavigationView
-        View headerView = navigationView.getHeaderView(0);
-        if (headerView != null) { // Añadir una comprobación de nulidad para mayor seguridad
-            textViewDrawerUsername = headerView.findViewById(R.id.textView_drawer_username);
-            textViewDrawerUserEmail = headerView.findViewById(R.id.textView_drawer_user_email);
-        }
+        // Set up drawer menu icon click listener
+        menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
 
-        // Lógica para mostrar el nombre de usuario y correo (en el UI principal y en el drawer)
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) {
-            String correo = user.getEmail();
-            String nombre = correo != null ? correo.split("@")[0] : "Usuario";
-            Username.setText(nombre);
-            if (textViewDrawerUsername != null) {
-                textViewDrawerUsername.setText(nombre);
-            }
-            if (textViewDrawerUserEmail != null && correo != null) {
-                textViewDrawerUserEmail.setText(correo);
-            }
-        }
-
-        // Configuración del ViewPager2 para los planes de entrenamiento
+        // Set up ViewPager2
         viewPagerEjercicios = findViewById(R.id.viewPagerEjercicios);
         List<String> tiposEjercicio = new ArrayList<>();
         tiposEjercicio.add("Pérdida de Peso (Quema de Grasa)");
@@ -152,65 +127,77 @@ public class MainActivity extends AppCompatActivity implements
         tiposEjercicio.add("Entrenamiento Funcional");
         tiposEjercicio.add("Plan Rápido para Tonificación");
         tiposEjercicio.add("Plan para Principiantes");
-
         ViewPagerEjercicioAdapter viewPagerEjercicioAdapter = new ViewPagerEjercicioAdapter(this, tiposEjercicio);
         viewPagerEjercicios.setAdapter(viewPagerEjercicioAdapter);
 
-        // Listener para el icono de menú: ahora abre el Drawer
-        menuIcon.setOnClickListener(v -> {
-            drawerLayout.openDrawer(GravityCompat.START);
-        });
-
-        // Las siguientes líneas se moverán a onResume()
+        // Initialize Google Fit views
         stepsTextView = findViewById(R.id.stepsTextView);
         caloriesTextView = findViewById(R.id.caloriesTextView);
         stepsGoalTextView = findViewById(R.id.stepsGoalTextView);
         stepsProgressBar = findViewById(R.id.stepsProgressBar);
+        stepsCaloriesDataLayout = findViewById(R.id.stepsCaloriesDataLayout);
+        btnConnectGoogleFit = findViewById(R.id.btnConnectGoogleFit);
+
+        // Initial visibility: Hide data, show connect button
+        stepsCaloriesDataLayout.setVisibility(View.GONE);
+        btnConnectGoogleFit.setVisibility(View.VISIBLE);
+
+        // Handle back press to close drawer if open
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    finishAffinity();
+                }
+            }
+        });
+
+        // Mostrar el nombre de usuario si está logueado
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            Username.setText(currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "Usuario");
+            textViewDrawerUsername.setText(currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "Usuario");
+            textViewDrawerUserEmail.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "N/A");
+
+            // Initialize GoogleFitManager for all authenticated users
+            googleFitManager = new GoogleFitManager(this, this);
+
+            // Set click listener for the connect button
+            btnConnectGoogleFit.setOnClickListener(v -> {
+                if (googleFitManager != null) {
+                    Log.d(TAG, "btnConnectGoogleFit clicked. Initiating Google Fit flow.");
+                    googleFitManager.initiateFitSignInFlow();
+                }
+            });
+
+        } else {
+            // Si no hay usuario, redirigir a LoginActivity
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }
+
+        // Verificar y solicitar permiso de notificaciones
+        checkAndRequestNotificationPermission();
     }
 
-    /**
-     * Maneja la selección de ítems en el Navigation Drawer.
-     * @param item El ítem del menú seleccionado.
-     * @return true si el ítem fue manejado, false en caso contrario.
-     */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Manejar clicks de elementos del menú de navegación aquí
         int id = item.getItemId();
-        Intent intent = null;
-
-        if (id == R.id.nav_home) {
-            // Acción para "Inicio"
-            Toast.makeText(this, "Navegar a Inicio", Toast.LENGTH_SHORT).show();
-            // Implementa aquí la lógica para ir a la pantalla de inicio o refrescar la actual
-        } else if (id == R.id.nav_activity_record) {
-            // Acción para "Registro de actividad"
-            intent = new Intent(MainActivity.this, ExerciseLogActivity.class);
-        } else if (id == R.id.nav_profile) {
-            //PERFIL PARA USUARIO
-            intent = new Intent(MainActivity.this, UserProfileActivity.class);
-        } else if (id == R.id.nav_button3) {
-            // Acción para "Boton 3"
-            Toast.makeText(this, "Navegar a Botón 3", Toast.LENGTH_SHORT).show();
-        } else if (id == R.id.nav_button4) {
-            // Acción para "Boton 4"
-            Toast.makeText(this, "Navegar a Botón 4", Toast.LENGTH_SHORT).show();
+        if (id == R.id.nav_profile) {
+            Intent profileIntent = new Intent(MainActivity.this, UserProfileActivity.class);
+            startActivity(profileIntent);
         } else if (id == R.id.nav_logout) {
-            // Acción para "Cerrar sesión"
             logout();
         }
-
-        if (intent != null) {
-            startActivity(intent);
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START); // Cerrar el drawer después de seleccionar un ítem
+        drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
-
-    /**
-     * Verifica y solicita el permiso de notificaciones para Android 13+
-     */
     private void checkAndRequestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13 (API 33) y superiores
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
@@ -229,14 +216,17 @@ public class MainActivity extends AppCompatActivity implements
 
     /**
      * Verifica los permisos de Google Fit y lo inicializa.
+     * Este método asume que el usuario es un usuario de Google.
      */
     private void checkAndSetupGoogleFit() {
         if (checkPermissions(FIT_PERMISSIONS)) {
             // Permisos de runtime ya concedidos
             if (googleFitManager == null) {
-                googleFitManager = new GoogleFitManager(this, this);
+                // This case should be handled by onCreate's initialization
+                Log.e(TAG, "checkAndSetupGoogleFit: googleFitManager is null after onCreate. This should not happen.");
+                return;
             }
-            if (googleFitManager != null && !isGoogleFitOAuthRequesting) {
+            if (!isGoogleFitOAuthRequesting) {
                 isGoogleFitOAuthRequesting = true;
                 googleFitManager.initiateFitSignInFlow();
             }
@@ -252,6 +242,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        // Only handle activity result for GoogleFitManager if it's not null
         if (googleFitManager != null) {
             googleFitManager.handleActivityResult(requestCode, resultCode, data);
         }
@@ -263,6 +254,9 @@ public class MainActivity extends AppCompatActivity implements
             stepsTextView.setText(String.format("Pasos hoy: %d", steps));
             stepsGoalTextView.setText(String.format("Meta: %d / %d pasos", steps, DAILY_STEP_GOAL));
             stepsProgressBar.setProgress((int) Math.min(steps, DAILY_STEP_GOAL)); // Actualiza el progreso de la barra
+            // Show data, hide connect button
+            stepsCaloriesDataLayout.setVisibility(View.VISIBLE);
+            btnConnectGoogleFit.setVisibility(View.GONE);
         });
     }
 
@@ -270,6 +264,9 @@ public class MainActivity extends AppCompatActivity implements
     public void onCaloriesReceived(float calories) {
         runOnUiThread(() -> {
             caloriesTextView.setText(String.format("Calorías: %.0f", calories));
+            // Show data, hide connect button
+            stepsCaloriesDataLayout.setVisibility(View.VISIBLE);
+            btnConnectGoogleFit.setVisibility(View.GONE);
         });
     }
 
@@ -277,24 +274,62 @@ public class MainActivity extends AppCompatActivity implements
     public void onError(String error) {
         runOnUiThread(() -> {
             Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Google Fit Error: " + error);
+            // If there's an error, keep the connect button visible
+            stepsCaloriesDataLayout.setVisibility(View.GONE);
+            btnConnectGoogleFit.setVisibility(View.VISIBLE);
         });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Asegura que el ViewPager2 esté habilitado para la interacción del usuario
         setViewPagerEnabled(true);
-        // Inicializar Google Fit aquí para mayor estabilidad
-        checkAndSetupGoogleFit();
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            Log.d(TAG, "onResume: Current Firebase user email: " + currentUser.getEmail());
+            
+            // Initialize GoogleFitManager if it's null
+            if (googleFitManager == null) {
+                googleFitManager = new GoogleFitManager(this, this);
+            }
+
+            // Show connect button and hide data initially
+            stepsCaloriesDataLayout.setVisibility(View.GONE);
+            btnConnectGoogleFit.setVisibility(View.VISIBLE);
+
+        } else {
+            Log.d(TAG, "onResume: No hay usuario autenticado en Firebase. Redirigiendo a WelcomeActivity.");
+            googleFitManager = null;
+            Intent intent = new Intent(this, WelcomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }
     }
 
     /**
      * Cierra la sesión del usuario de Firebase y redirige a la pantalla de bienvenida.
      */
     private void logout() {
+        Log.d(TAG, "Iniciando logout.");
         mAuth.signOut();
 
+        // También cierra la sesión de Google si el usuario inició sesión con Google
+        GoogleSignInAccount googleAccount = GoogleSignIn.getLastSignedInAccount(this);
+        if (googleAccount != null) {
+            GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN).signOut()
+                    .addOnCompleteListener(task -> {
+                        Log.d(TAG, "Cierre de sesión de Google completado.");
+                        navigateToWelcomeActivity();
+                    });
+        } else {
+            navigateToWelcomeActivity();
+        }
+    }
+
+    private void navigateToWelcomeActivity() {
         Intent intent = new Intent(this, WelcomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -305,29 +340,15 @@ public class MainActivity extends AppCompatActivity implements
      * Habilita o deshabilita la interacción del usuario con el ViewPager2.
      * @param enabled true para habilitar, false para deshabilitar.
      */
-    public static void setViewPagerEnabled(boolean enabled) {
+    public void setViewPagerEnabled(boolean enabled) {
         if (viewPagerEjercicios != null) {
             viewPagerEjercicios.setUserInputEnabled(enabled);
         }
     }
 
-    // Este método está duplicado por el onBackPressedCallback. Se puede eliminar o dejar por compatibilidad
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            moveTaskToBack(true);
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    /**
-     * Comprueba si un conjunto de permisos han sido concedidos.
-     * @param permissionsToCheck Arreglo de permisos a verificar.
-     * @return true si todos los permisos están concedidos, false en caso contrario.
-     */
-    private boolean checkPermissions(String[] permissionsToCheck) {
-        for (String permission : permissionsToCheck) {
+    // Método para verificar los permisos de runtime
+    private boolean checkPermissions(String[] permissions) {
+        for (String permission : permissions) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                 return false;
             }
@@ -335,13 +356,9 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-    /**
-     * Solicita un conjunto de permisos a la aplicación.
-     * @param permissionsToRequest Arreglo de permisos a solicitar.
-     * @param requestCode Código de solicitud para identificar la respuesta.
-     */
-    private void requestAppPermissions(String[] permissionsToRequest, int requestCode) {
-        ActivityCompat.requestPermissions(this, permissionsToRequest, requestCode);
+    // Método para solicitar permisos de runtime
+    private void requestAppPermissions(String[] permissions, int requestCode) {
+        ActivityCompat.requestPermissions(this, permissions, requestCode);
     }
 
     @Override
@@ -357,17 +374,14 @@ public class MainActivity extends AppCompatActivity implements
             }
             if (allFitPermissionsGranted) {
                 isRequestingGoogleFitPermissions = false;
-                // Permisos de runtime concedidos. Ahora, inicializar GoogleFitManager e iniciar flujo OAuth.
-                if (googleFitManager == null) {
-                    googleFitManager = new GoogleFitManager(this, this);
-                }
-                if (googleFitManager != null && !isGoogleFitOAuthRequesting) {
-                    isGoogleFitOAuthRequesting = true; // Establecer la bandera de solicitud OAuth
-                    googleFitManager.initiateFitSignInFlow();
-                }
+                // Permisos concedidos. Ahora, inicializa GoogleFitManager e inicia el flujo OAuth.
+                // El método checkAndSetupGoogleFit() ya maneja esta lógica verificando el proveedor del usuario actual.
+                checkAndSetupGoogleFit();
             } else {
                 Toast.makeText(this, "Permisos de Google Fit denegados. La función de conteo de pasos no estará disponible.", Toast.LENGTH_LONG).show();
-                // Si los permisos son denegados, isRequestingGoogleFitPermissions permanece en true para evitar solicitudes repetidas.
+                // If the permissions are denied, keep the connect button visible
+                stepsCaloriesDataLayout.setVisibility(View.GONE);
+                btnConnectGoogleFit.setVisibility(View.VISIBLE);
             }
         } else if (requestCode == REQUEST_NOTIFICATION_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.damb.myhealthapp.R;
@@ -39,6 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private GoogleSignInClient mGoogleSignInClient;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +66,25 @@ public class RegisterActivity extends AppCompatActivity {
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        // Forzar cierre de sesión de Google para mostrar el selector de cuentas
-        mGoogleSignInClient.signOut();
+
+        // Initialize Google Sign In Launcher
+        googleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                        try {
+                            GoogleSignInAccount account = task.getResult(ApiException.class);
+                            firebaseAuthWithGoogle(account.getIdToken());
+                        } catch (ApiException e) {
+                            Log.w(TAG, "Google sign in failed", e);
+                            Toast.makeText(RegisterActivity.this, 
+                                "Error en login de Google: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
 
         // Set up social media buttons
         buttonGoogle.setOnClickListener(new View.OnClickListener() {
@@ -82,63 +102,67 @@ public class RegisterActivity extends AppCompatActivity {
         String activityLevel = getIntent().getStringExtra("activity_level");
 
         // Set up confirmation button
-        btnSignUp.setOnClickListener(v -> {
-            if (validateInputs()) {
+        btnSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 String name = nameInput.getText().toString().trim();
                 String email = emailInput.getText().toString().trim();
                 String password = passwordInput.getText().toString().trim();
+                String confirmPassword = confirmPasswordInput.getText().toString().trim();
 
-                // Create user in Firebase Auth
+                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)) {
+                    Toast.makeText(RegisterActivity.this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (!password.equals(confirmPassword)) {
+                    Toast.makeText(RegisterActivity.this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(this, task -> {
+                        .addOnCompleteListener(RegisterActivity.this, task -> {
                             if (task.isSuccessful()) {
-                                // User created successfully
                                 FirebaseUser user = mAuth.getCurrentUser();
+                                if (user != null) {
+                                    // Enviar correo de verificación
+                                    user.sendEmailVerification()
+                                            .addOnCompleteListener(verificationTask -> {
+                                                if (verificationTask.isSuccessful()) {
+                                                    // Guardar datos del usuario en Firestore
+                                                    Map<String, Object> userData = new HashMap<>();
+                                                    userData.put("email", email);
+                                                    userData.put("displayName", name);
+                                                    userData.put("provider", "email");
 
-                                // Send verification email
-                                user.sendEmailVerification()
-                                        .addOnCompleteListener(verificationTask -> {
-                                            if (verificationTask.isSuccessful()) {
-                                                // Create map with user data
-                                                Map<String, Object> userData = new HashMap<>();
-                                                userData.put("displayName", name);
-                                                userData.put("email", email);
-                                                userData.put("birthday", birthdayMillis);
-                                                userData.put("gender", gender);
-                                                userData.put("height", height);
-                                                userData.put("weight", weight);
-                                                userData.put("activityLevel", activityLevel);
-                                                userData.put("emailVerified", false);
-
-                                                // Save data to Firestore
-                                                db.collection("users").document(user.getUid())
-                                                        .set(userData)
-                                                        .addOnSuccessListener(aVoid -> {
-                                                            Log.d(TAG, "User data saved successfully");
-                                                            Toast.makeText(RegisterActivity.this,
-                                                                    "Se ha enviado un correo de verificación. Por favor, verifica tu correo antes de iniciar sesión.",
-                                                                    Toast.LENGTH_LONG).show();
-                                                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                            startActivity(intent);
-                                                            finish();
-                                                        })
-                                                        .addOnFailureListener(e -> {
-                                                            Log.w(TAG, "Error saving user data", e);
-                                                            Toast.makeText(RegisterActivity.this,
-                                                                    "Error al guardar datos: " + e.getMessage(),
-                                                                    Toast.LENGTH_SHORT).show();
-                                                        });
-                                            } else {
-                                                Log.w(TAG, "Error sending verification email", verificationTask.getException());
-                                                Toast.makeText(RegisterActivity.this,
-                                                        "Error al enviar correo de verificación: " + verificationTask.getException().getMessage(),
-                                                        Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                                                    db.collection("users").document(user.getUid())
+                                                            .set(userData)
+                                                            .addOnSuccessListener(aVoid -> {
+                                                                Log.d(TAG, "User data saved successfully");
+                                                                Toast.makeText(RegisterActivity.this,
+                                                                        "Se ha enviado un correo de verificación. Por favor, verifica tu correo antes de iniciar sesión.",
+                                                                        Toast.LENGTH_LONG).show();
+                                                                // Cerrar sesión y redirigir al login
+                                                                mAuth.signOut();
+                                                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                                startActivity(intent);
+                                                                finish();
+                                                            })
+                                                            .addOnFailureListener(e -> {
+                                                                Log.w(TAG, "Error saving user data", e);
+                                                                Toast.makeText(RegisterActivity.this,
+                                                                        "Error al guardar datos: " + e.getMessage(),
+                                                                        Toast.LENGTH_SHORT).show();
+                                                            });
+                                                } else {
+                                                    Toast.makeText(RegisterActivity.this,
+                                                            "Error al enviar correo de verificación: " + verificationTask.getException().getMessage(),
+                                                            Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                }
                             } else {
-                                // Registration error
-                                Log.w(TAG, "Registration error", task.getException());
                                 Toast.makeText(RegisterActivity.this,
                                         "Error en el registro: " + task.getException().getMessage(),
                                         Toast.LENGTH_SHORT).show();
@@ -150,28 +174,33 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void signInWithGoogle() {
         Log.d(TAG, "Iniciando signInWithGoogle");
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        Log.d(TAG, "Intent de Google Sign-In creado: " + signInIntent);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-        Log.d(TAG, "startActivityForResult llamado con RC_SIGN_IN: " + RC_SIGN_IN);
-    }
-
-    private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            firebaseAuthWithGoogle(account.getIdToken());
-        } catch (ApiException e) {
-            Log.w(TAG, "Google sign in failed", e);
-            Toast.makeText(RegisterActivity.this, "Error en login de Google: " + e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
-        }
+        
+        // Cerrar sesión de Google primero para forzar el selector de cuentas
+        mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
+            Log.d(TAG, "Sesión de Google cerrada, iniciando nuevo flujo de inicio de sesión");
+            // Configurar las opciones de Google Sign-In para forzar el selector de cuentas
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build();
+            
+            // Crear un nuevo cliente con las opciones actualizadas
+            mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+            
+            // Lanzar el intent de inicio de sesión
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            Log.d(TAG, "Intent de Google Sign-In creado: " + signInIntent);
+            googleSignInLauncher.launch(signInIntent);
+            Log.d(TAG, "googleSignInLauncher.launch llamado");
+        });
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
+        Log.d(TAG, "Iniciando firebaseAuthWithGoogle");
         mAuth.signInWithCredential(GoogleAuthProvider.getCredential(idToken, null))
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        // Inicio de sesión con Google exitoso
+                        Log.d(TAG, "Autenticación con Google exitosa");
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
                             // Verificar si el usuario ya existe en Firestore
@@ -179,45 +208,40 @@ public class RegisterActivity extends AppCompatActivity {
                                     .get()
                                     .addOnCompleteListener(documentTask -> {
                                         if (documentTask.isSuccessful() && documentTask.getResult().exists()) {
-                                            // Usuario ya existe, mostrar mensaje y redirigir a login
-                                            mAuth.signOut();
-                                            mGoogleSignInClient.signOut();
-                                            Toast.makeText(RegisterActivity.this,
-                                                    "Esta cuenta ya está registrada. Por favor, inicia sesión.",
-                                                    Toast.LENGTH_LONG).show();
-                                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                            startActivity(intent);
-                                            finish();
+                                            // Usuario ya existe, redirigir directamente al home
+                                            Log.d(TAG, "Usuario existente, redirigiendo al home");
+                                            startMainActivity();
                                         } else {
                                             // Usuario no existe, guardar datos y continuar
-                                            saveUserData(user);
-                                            startMainActivity();
+                                            Log.d(TAG, "Usuario nuevo, guardando datos");
+                                            Map<String, Object> userData = new HashMap<>();
+                                            userData.put("email", user.getEmail());
+                                            userData.put("displayName", user.getDisplayName());
+                                            userData.put("photoUrl", user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null);
+                                            userData.put("provider", "google");
+
+                                            db.collection("users").document(user.getUid())
+                                                    .set(userData)
+                                                    .addOnSuccessListener(aVoid -> {
+                                                        Log.d(TAG, "Datos de usuario guardados exitosamente");
+                                                        startMainActivity();
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        Log.w(TAG, "Error al guardar datos del usuario", e);
+                                                        Toast.makeText(RegisterActivity.this,
+                                                                "Error al guardar datos: " + e.getMessage(),
+                                                                Toast.LENGTH_SHORT).show();
+                                                    });
                                         }
                                     });
                         }
                     } else {
-                        // Si la autenticación con credencial falla
-                        Log.w(TAG, "signInWithCredential[Google]:failure", task.getException());
-                        Toast.makeText(RegisterActivity.this, "Error en autenticación con Google: " + task.getException().getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                        Log.w(TAG, "Error en autenticación con Google", task.getException());
+                        Toast.makeText(RegisterActivity.this, 
+                            "Error en autenticación con Google: " + task.getException().getMessage(),
+                            Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
-
-
-    private void saveUserData(FirebaseUser user) {
-        if (user != null) {
-            Map<String, Object> userData = new HashMap<>();
-            userData.put("email", user.getEmail());
-            userData.put("displayName", user.getDisplayName());
-            userData.put("photoUrl", user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null);
-            userData.put("provider", user.getProviderData().get(0).getProviderId());
-
-            db.collection("users").document(user.getUid())
-                    .set(userData)
-                    .addOnSuccessListener(aVoid -> Log.d(TAG, "User data saved successfully"))
-                    .addOnFailureListener(e -> Log.w(TAG, "Error saving user data", e));
-        }
     }
 
     private void startMainActivity() {
