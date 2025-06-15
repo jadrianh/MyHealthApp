@@ -55,4 +55,17 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    // Dependencias para Glide (Cargar imágenes y GIFs)
+    implementation 'com.github.bumptech.glide:glide:4.14.2'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
+}
+
+android {
+    // ... otras configuraciones como compileSdk, defaultConfig, etc.
+
+
+    buildFeatures {
+        viewBinding = true
+    }
 }

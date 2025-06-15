@@ -1,185 +1,207 @@
 package com.damb.myhealthapp.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.damb.myhealthapp.R;
+import com.damb.myhealthapp.databinding.ActivityEntrenamientoGuiadoBinding;
 import com.damb.myhealthapp.models.EjercicioSugerido;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class EntrenamientoGuiadoActivity extends AppCompatActivity {
+
+    private ActivityEntrenamientoGuiadoBinding binding;
     private List<EjercicioSugerido> rutina;
     private int indiceActual;
     private int completados;
-    private TextView nombre, detalleTextView, contador, titulo;
-    private ImageView imagen;
-    private Button btnSiguiente;
     private CountDownTimer timer;
-    private boolean enDescanso = false;
-    private static final int DURACION_EJERCICIO = 40; // segundos
-    private static final int DURACION_DESCANSO = 20; // segundos
+
+    private static final int DURACION_EJERCICIO = 40;
+    private static final long DURACION_DESCANSO_MS = 20000; // 20 segundos
     private static final String PREFS = "entrenamiento_prefs";
     private static final String KEY_INDICE = "indice_actual";
     private static final String KEY_COMPLETADOS = "completados";
-    private static final String KEY_PLAN = "plan_actual";
     private String nombrePlan;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private FirebaseStorage storage;
-    private StorageReference storageRef;
+
+    // Launcher para esperar el resultado de DescansoActivity
+    private ActivityResultLauncher<Intent> restActivityLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_entrenamiento_guiado);
+        binding = ActivityEntrenamientoGuiadoBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        // --- INICIALIZACIÓN DEL LAUNCHER ---
+        restActivityLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // El descanso terminó, avanzamos al siguiente ejercicio
+                        indiceActual++;
+                        if (indiceActual < rutina.size()) {
+                            mostrarEjercicio();
+                        } else {
+                            finalizarEntrenamiento();
+                        }
+                    }
+                });
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference();
-
-        nombre = findViewById(R.id.nombreEjercicioGuiado);
-        detalleTextView = findViewById(R.id.detalleEjercicioGuiado);
-        contador = findViewById(R.id.cronometroSuperior);
-        imagen = findViewById(R.id.imagenEjercicioGuiado);
-        btnSiguiente = findViewById(R.id.btnSiguienteEjercicio);
-        titulo = findViewById(R.id.tituloPlanGuiado);
 
         rutina = (ArrayList<EjercicioSugerido>) getIntent().getSerializableExtra("ejercicios");
         nombrePlan = getIntent().getStringExtra("nombre_plan");
         if (rutina == null) rutina = new ArrayList<>();
+
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         int guardado = prefs.getInt(KEY_INDICE + nombrePlan, 0);
         completados = prefs.getInt(KEY_COMPLETADOS + nombrePlan, 0);
         indiceActual = getIntent().getIntExtra("indice_actual", guardado);
-        titulo.setText(nombrePlan);
 
-        if (indiceActual >= rutina.size()) {
+        binding.tituloPlanGuiado.setText(nombrePlan);
+
+        if (rutina.isEmpty()) {
             Toast.makeText(this, "La rutina está vacía.", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        EjercicioSugerido ej = rutina.get(indiceActual);
-        nombre.setText(ej.getNombre());
-        detalleTextView.setText(ej.getSeriesReps());
-        imagen.setImageResource(ej.getImagenResId());
-        btnSiguiente.setText("Terminar ejercicio");
-        enDescanso = false;
-        iniciarCronometro(DURACION_EJERCICIO, "Ejercicio");
+        binding.workoutProgressBar.setMax(rutina.size());
 
-        btnSiguiente.setOnClickListener(v -> {
-            if (!enDescanso) {
-                completados++;
-                iniciarDescanso();
+        // Listener para el botón de cerrar
+        binding.closeButton.setOnClickListener(v -> finish());
+
+        // Listener para el botón principal
+        binding.btnSiguienteEjercicio.setOnClickListener(v -> {
+            completados++;
+            if (timer != null) {
+                timer.cancel(); // Detiene el cronómetro del ejercicio actual
+            }
+
+            if (indiceActual >= rutina.size() - 1) {
+                finalizarEntrenamiento();
             } else {
-                indiceActual++;
-                if (indiceActual < rutina.size()) {
-                    mostrarEjercicio();
-                } else {
-                    guardarProgreso(100);
+                // Lanza la actividad de descanso
+                Intent intent = new Intent(this, DescansoActivity.class);
+                intent.putExtra("DURACION_DESCANSO", DURACION_DESCANSO_MS);
+                restActivityLauncher.launch(intent);
 
-                    // Guardar el tipo de rutina completada en Firebase
-                    FirebaseUser currentUser = mAuth.getCurrentUser();
-                    if (currentUser != null) {
-                        String userId = currentUser.getUid();
-                        Date fechaActual = new Date();
-
-                        Map<String, Object> registroRutina = new HashMap<>();
-                        registroRutina.put("fecha", fechaActual);
-                        registroRutina.put("tipoRutina", nombrePlan); // Guardar el nombre del plan/rutina
-
-                        db.collection("users").document(userId).collection("registrosEjercicio")
-                                .add(registroRutina)
-                                .addOnSuccessListener(documentReference -> {
-                                    // Opcional: Log de éxito
-                                    // Log.d("EntrenamientoGuiado", "Registro de rutina guardado con éxito");
-                                })
-                                .addOnFailureListener(e -> {
-                                    // Opcional: Log de error
-                                    // Log.e("EntrenamientoGuiado", "Error al guardar registro de rutina", e);
-                                });
-
-                        Toast.makeText(EntrenamientoGuiadoActivity.this, "haz finalizado el ejercicio", Toast.LENGTH_SHORT).show();
-
-                    } else {
-                        Toast.makeText(EntrenamientoGuiadoActivity.this, "Usuario no autenticado. No se pudo guardar el registro.", Toast.LENGTH_SHORT).show();
-                    }
-
-                    // Regresar directamente al Home (MainActivity) limpiando la pila de actividades
-                    Intent intent = new Intent(EntrenamientoGuiadoActivity.this, MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish(); // Finalizar esta actividad después de iniciar MainActivity
-                }
+                // Aplica la transición de "fade"
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
         });
+
+        mostrarEjercicio();
     }
 
     private void mostrarEjercicio() {
         if (indiceActual >= rutina.size()) {
-            guardarProgreso(100);
-            Toast.makeText(this, "La rutina está vacía.", Toast.LENGTH_SHORT).show();
-            finish();
+            finalizarEntrenamiento();
             return;
         }
+
+        binding.workoutProgressBar.setProgress(indiceActual + 1);
         EjercicioSugerido ej = rutina.get(indiceActual);
-        nombre.setText(ej.getNombre());
-        detalleTextView.setText(ej.getSeriesReps());
-        imagen.setImageResource(ej.getImagenResId());
-        btnSiguiente.setText("Terminar ejercicio");
-        enDescanso = false;
-        iniciarCronometro(DURACION_EJERCICIO, "Ejercicio");
+
+        binding.nombreEjercicioGuiado.setText(ej.getNombre());
+        binding.detalleEjercicioGuiado.setText(ej.getDetalle());
+        binding.progresoSuperior.setText((indiceActual + 1) + "/" + rutina.size());
+        binding.indicadorReps.setText(String.valueOf(ej.getRepeticiones()));
+        binding.indicadorSeries.setText(ej.getSeries());
+
+        binding.btnSiguienteEjercicio.setText("TERMINAR EJERCICIO");
+
+        Glide.with(this)
+                .load(ej.getImagenResId())
+                .placeholder(R.drawable.exercise_placeholder)
+                .into(binding.imagenEjercicioGuiado);
+
+        iniciarCronometro(DURACION_EJERCICIO);
     }
 
-    private void iniciarDescanso() {
-        btnSiguiente.setText("Siguiente ejercicio");
-        enDescanso = true;
-        iniciarCronometro(DURACION_DESCANSO, "Descanso");
-    }
+    private void iniciarCronometro(int segundos) {
+        if (timer != null) {
+            timer.cancel();
+        }
+        long milisegundos = segundos * 1000L;
 
-    private void iniciarCronometro(int segundos, String tipo) {
-        if (timer != null) timer.cancel();
-        contador.setText(tipo + ": " + segundos + "s");
-        timer = new CountDownTimer(segundos * 1000, 1000) {
-            int restante = segundos;
+        timer = new CountDownTimer(milisegundos, 1000) {
             public void onTick(long millisUntilFinished) {
-                restante--;
-                contador.setText(tipo + ": " + restante + "s");
+                String tiempoFormateado = String.format("%02d:%02d",
+                        TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) % 60,
+                        TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) % 60);
+                binding.indicadorDescanso.setText(tiempoFormateado);
             }
+
             public void onFinish() {
-                contador.setText(tipo + ": 0s");
-                if (tipo.equals("Ejercicio")) btnSiguiente.setText("Siguiente ejercicio");
-                else btnSiguiente.setText("Continuar");
+                binding.indicadorDescanso.setText("00:00");
+                // Simula un clic para pasar a la pantalla de descanso automáticamente
+                binding.btnSiguienteEjercicio.performClick();
             }
         };
         timer.start();
     }
 
+    private void finalizarEntrenamiento() {
+        if (binding.workoutProgressBar != null) {
+            binding.workoutProgressBar.setProgress(binding.workoutProgressBar.getMax());
+        }
+
+        guardarProgreso(100);
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            Date fechaActual = new Date();
+            Map<String, Object> registroRutina = new HashMap<>();
+            registroRutina.put("fecha", fechaActual);
+            registroRutina.put("tipoRutina", nombrePlan);
+
+            db.collection("users").document(userId).collection("registrosEjercicio")
+                    .add(registroRutina)
+                    .addOnSuccessListener(documentReference -> Toast.makeText(EntrenamientoGuiadoActivity.this, "¡Entrenamiento finalizado y guardado!", Toast.LENGTH_LONG).show())
+                    .addOnFailureListener(e -> Toast.makeText(EntrenamientoGuiadoActivity.this, "Error al guardar el registro.", Toast.LENGTH_SHORT).show());
+        } else {
+            Toast.makeText(EntrenamientoGuiadoActivity.this, "Usuario no autenticado.", Toast.LENGTH_SHORT).show();
+        }
+
+        Intent intent = new Intent(EntrenamientoGuiadoActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        int porcentaje = rutina.size() == 0 ? 0 : (int) (100.0 * completados / rutina.size());
+        int porcentaje = rutina.isEmpty() ? 0 : (int) (100.0 * completados / rutina.size());
         guardarProgreso(porcentaje);
-        if (timer != null) timer.cancel();
+        if (timer != null) {
+            timer.cancel();
+        }
     }
 
     private void guardarProgreso(int porcentaje) {
@@ -200,4 +222,4 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
         SharedPreferences prefs = ctx.getSharedPreferences(PREFS, MODE_PRIVATE);
         return prefs.getInt(KEY_INDICE + nombrePlan, 0) > 0;
     }
-} 
+}
