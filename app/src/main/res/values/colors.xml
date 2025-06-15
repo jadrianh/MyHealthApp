@@ -1,17 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="backgroundColor">#48a3fe</color>
-    <color name="backgroundDeg">#005FCB</color>
-    <color name="purple">#4d1195</color>
-    <color name="teal">#14ebe3</color>
-    <color name="black">#1F1F1F</color>
-    <color name="white">#FFFFFF</color>
-    <color name="green">#23d46a</color>
-    <color name="red">#fa6474</color>
+    <color name="skyBlueLight">#DEF3FF</color>
+    <color name="skyBlue">#38e8ff</color>
+    <color name="skyBlueDark">#5D9CC9</color>
+
+    <color name="blueLight">#A7D4F2</color>
+    <color name="blue">#48A3FE</color>
+    <color name="blueDark">#2f5fff</color>
+
+    <color name="purpleLight">#C79FEF</color>
+    <color name="purple">#8F65D5</color>
+    <color name="purpleDark">#4d1195</color>
+
+    <color name="greenLight">#B2F2C9</color>
+    <color name="green">#55D48A</color>
+    <color name="greenDark">#23d46a</color>
+
+    <color name="redLight">#F9B4BB</color>
+    <color name="red">#FA6474</color>
+    <color name="redDark">#c33040</color>
+
+    <color name="orangeLight">#F7C2B2</color>
     <color name="orange">#f16b48</color>
-    <color name="light_green">#d4edda</color>
-    <color name="light_gray">#bababa</color>
-    <color name="gray">#888888</color>
-    <color name="gray_dark">#484848</color>
-    <color name="disabled_text">#9E9E9E</color>
+    <color name="orangeDark">#bc4c32</color>
+
+    <color name="grayLight">#CACACA</color>
+    <color name="gray">#A2A2A2</color>
+    <color name="grayDark">#484848</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#1F1F1F</color>
+
+    <color name="button_selected_background">#23d46a</color> <!-- Green for selected -->
+    <color name="button_selected_text">#FFFFFF</color>     <!-- White text for selected -->
+    <color name="button_selected_icon">#FFFFFF</color>     <!-- White icon for selected -->
+
+    <color name="button_unselected_background">#FFFFFF</color> <!-- White for unselected -->
+    <color name="button_unselected_border">#BDBDBD</color>   <!-- Gray border for unselected -->
+    <color name="button_unselected_text">#757575</color>     <!-- Gray text for unselected -->
+    <color name="button_unselected_icon">#757575</color>     <!-- Gray icon for unselected -->
+
+    <color name="button_pressed_background">#DDDDDD</color> <!-- Light gray for pressed (optional) -->
+    <color name="button_disabled_background">#E0E0E0</color> <!-- Light gray for disabled -->
+    <color name="button_disabled_text">#BDBDBD</color>       <!-- Darker gray for disabled text -->
+    <color name="button_disabled_icon">#BDBDBD</color>       <!-- Darker gray for disabled icon -->
 </resources>

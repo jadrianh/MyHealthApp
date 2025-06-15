@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.views.DetalleEjercicioActivity;
+import com.damb.myhealthapp.views.TrainingPlanDetailsActivity;
 import java.util.List;
 
 public class SliderEjerciciosAdapter extends RecyclerView.Adapter<SliderEjerciciosAdapter.EjercicioViewHolder> {
@@ -34,7 +34,7 @@ public class SliderEjerciciosAdapter extends RecyclerView.Adapter<SliderEjercici
         String nombre = tiposEjercicio.get(position);
         holder.nombreEjercicio.setText(nombre);
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, DetalleEjercicioActivity.class);
+            Intent intent = new Intent(context, TrainingPlanDetailsActivity.class);
             intent.putExtra("nombre_ejercicio", nombre);
             context.startActivity(intent);
         });

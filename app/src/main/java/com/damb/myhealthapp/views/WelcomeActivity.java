@@ -3,12 +3,14 @@ package com.damb.myhealthapp.views;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.damb.myhealthapp.R;
 import com.damb.myhealthapp.views.LoginActivity;
@@ -28,7 +30,7 @@ public class WelcomeActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         ImageView welcomeImage = findViewById(R.id.welcomeImage);
-        TextView welcomeTitle = findViewById(R.id.welcomeTitle);
+        ImageView logoImageView = findViewById(R.id.logoImageView);
         TextView welcomeSubtitle = findViewById(R.id.welcomeSubtitle);
         Button registerButton = findViewById(R.id.registerButton);
         Button signInButton = findViewById(R.id.signInButton);
@@ -39,8 +41,8 @@ public class WelcomeActivity extends AppCompatActivity {
         ObjectAnimator imageFadeIn = ObjectAnimator.ofFloat(welcomeImage, "alpha", 0f, 1f);
         imageFadeIn.setDuration(800);
 
-        ObjectAnimator titleFadeIn = ObjectAnimator.ofFloat(welcomeTitle, "alpha", 0f, 1f);
-        titleFadeIn.setStartDelay(200); // Retraso para que aparezca después de la imagen
+        ObjectAnimator titleFadeIn = ObjectAnimator.ofFloat(logoImageView, "alpha", 0f, 1f);
+        titleFadeIn.setStartDelay(200);
         titleFadeIn.setDuration(800);
 
         ObjectAnimator subtitleFadeIn = ObjectAnimator.ofFloat(welcomeSubtitle, "alpha", 0f, 1f);
@@ -58,7 +60,6 @@ public class WelcomeActivity extends AppCompatActivity {
         animatorSet.playTogether(imageFadeIn, titleFadeIn, subtitleFadeIn, registerButtonFadeIn, signInButtonFadeIn);
         animatorSet.start();
 
-        // Implementa los listeners para tus botones aquí
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,8 +76,4 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         });
     }
-
-    // Eliminada la lógica de redirección automática en onStart().
-    // WelcomeActivity ahora siempre mostrará su UI, permitiendo al usuario elegir si inicia sesión o se registra.
-    // Esto aborda el problema de "me mandó a la ventana home no pude escribir el correo ni la contraseña".
 }

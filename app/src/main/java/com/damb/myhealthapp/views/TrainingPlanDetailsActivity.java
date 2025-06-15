@@ -3,7 +3,6 @@ import android.view.View;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import androidx.annotation.Nullable;
 
-public class DetalleEjercicioActivity extends AppCompatActivity {
+public class TrainingPlanDetailsActivity extends AppCompatActivity {
     private static final int REQ_ENTRENAMIENTO = 1001;
     private List<EjercicioSugerido> rutina;
     private TextView titulo;
@@ -25,26 +24,15 @@ public class DetalleEjercicioActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detalle_ejercicio);
-
-
+        setContentView(R.layout.activity_training_plan_details);
 
         titulo = findViewById(R.id.tituloDetalle);
         TextView info = findViewById(R.id.infoDetalle);
         RecyclerView recyclerEjercicios = findViewById(R.id.recyclerEjercicios);
         Button btnComenzar = findViewById(R.id.btnComenzar);
 
-        ImageView btnRegresar = findViewById(R.id.btnBack);
-        btnRegresar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(DetalleEjercicioActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-
-
+        ImageView backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> finish());
 
         String nombre = getIntent().getStringExtra("nombre_ejercicio");
         if (nombre == null) nombre = "";

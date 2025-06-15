@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -31,13 +32,9 @@ import java.util.Map;
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
     private static final int RC_SIGN_IN = 9001;
-    private TextInputEditText nameInput;
-    private TextInputEditText emailInput;
-    private TextInputEditText passwordInput;
-    private TextInputEditText confirmPasswordInput;
-    private MaterialButton btnSignUp;
-    private MaterialButton buttonGoogle;
-
+    private TextInputEditText nameInput, emailInput, passwordInput, confirmPasswordInput;
+    private MaterialButton btnSignUp, buttonGoogle;
+    private TextView loginButton;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private GoogleSignInClient mGoogleSignInClient;
@@ -58,7 +55,13 @@ public class RegisterActivity extends AppCompatActivity {
         passwordInput = findViewById(R.id.passwordInput);
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
         btnSignUp = findViewById(R.id.btnSignUp);
+        loginButton = findViewById(R.id.loginLink);
         buttonGoogle = findViewById(R.id.btnGoogleSignUp);
+
+        loginButton.setOnClickListener(v -> {
+            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            startActivity(intent);
+        });
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

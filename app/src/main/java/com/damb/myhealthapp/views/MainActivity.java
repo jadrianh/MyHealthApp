@@ -26,6 +26,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.damb.myhealthapp.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -45,6 +47,9 @@ import java.util.List;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleFitManager.OnFitDataReceivedListener,
@@ -69,7 +74,6 @@ public class MainActivity extends AppCompatActivity implements
 
     // Declaraciones de UI que permanecen
     private TextView Username;
-    private TextView titleTextView;
     private ImageView menuIcon;
     private static ViewPager2 viewPagerEjercicios;
     private GoogleFitManager googleFitManager;
@@ -86,8 +90,9 @@ public class MainActivity extends AppCompatActivity implements
     private TextView textViewDrawerUserEmail;
 
     private FirebaseAuth mAuth;
-    private final long DAILY_STEP_GOAL = 10000; // cambiar esta meta
+    private FirebaseFirestore db;
 
+    private final long DAILY_STEP_GOAL = 10000; // cambiar esta meta
     private boolean isRequestingGoogleFitPermissions = false; // Nueva bandera para permisos de runtime
     private boolean isGoogleFitOAuthRequesting = false; // Nueva bandera para la solicitud OAuth de Google Fit
     private static final String TAG = "MainActivity";
@@ -98,17 +103,19 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-        // Initialize views and other components
         Username = findViewById(R.id.Username);
-        titleTextView = findViewById(R.id.titleTextView);
         menuIcon = findViewById(R.id.menuIcon);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
 
         View headerView = navigationView.getHeaderView(0);
-        textViewDrawerUsername = headerView.findViewById(R.id.textView_drawer_username);
-        textViewDrawerUserEmail = headerView.findViewById(R.id.textView_drawer_user_email);
+
+        if (headerView != null) {
+            textViewDrawerUsername = headerView.findViewById(R.id.textView_drawer_username);
+            textViewDrawerUserEmail = headerView.findViewById(R.id.textView_drawer_user_email);
+        }
 
         // Set up navigation listener
         navigationView.setNavigationItemSelectedListener(this);
@@ -154,34 +161,67 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-        // Mostrar el nombre de usuario si está logueado
+        checkCurrentUserAndLoadData();
+
+        // Verificar y solicitar permiso de notificaciones
+        checkAndRequestNotificationPermission();
+    }
+
+    private void checkCurrentUserAndLoadData() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            Username.setText(currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "Usuario");
-            textViewDrawerUsername.setText(currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "Usuario");
-            textViewDrawerUserEmail.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "N/A");
-
-            // Initialize GoogleFitManager for all authenticated users
             googleFitManager = new GoogleFitManager(this, this);
 
-            // Set click listener for the connect button
             btnConnectGoogleFit.setOnClickListener(v -> {
-                if (googleFitManager != null) {
+                if (googleFitManager != null) { // Siempre será true aquí si currentUser != null
                     Log.d(TAG, "btnConnectGoogleFit clicked. Initiating Google Fit flow.");
                     googleFitManager.initiateFitSignInFlow();
                 }
             });
 
+            loadDisplayNameFromFirestore(currentUser.getUid());
+
+            textViewDrawerUserEmail.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "N/A");
+
         } else {
-            // Si no hay usuario, redirigir a LoginActivity
+            Log.d(TAG, "No authenticated user found. Redirecting to LoginActivity.");
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         }
+    }
 
-        // Verificar y solicitar permiso de notificaciones
-        checkAndRequestNotificationPermission();
+    private void loadDisplayNameFromFirestore(String userId) {
+        // Asumo que tienes una colección "users" y cada documento de usuario tiene el UID como ID.
+        // Y dentro de ese documento, tienes un campo llamado "displayName".
+        DocumentReference userDocRef = db.collection("users").document(userId);
+
+        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        String firestoreDisplayName = document.getString("displayName");
+                        // Asignar el nombre de usuario desde Firestore o "Usuario"
+                        Username.setText(firestoreDisplayName != null && !firestoreDisplayName.trim().isEmpty() ? firestoreDisplayName : "Usuario");
+                        textViewDrawerUsername.setText(firestoreDisplayName != null && !firestoreDisplayName.trim().isEmpty() ? firestoreDisplayName : "Usuario");
+                        Log.d(TAG, "Display name from Firestore: " + firestoreDisplayName);
+                    } else {
+                        Log.d(TAG, "No such document for user ID: " + userId);
+                        // Documento no existe, mostrar "Usuario"
+                        Username.setText("Usuario");
+                        textViewDrawerUsername.setText("Usuario");
+                    }
+                } else {
+                    Log.e(TAG, "Failed to get user document: ", task.getException());
+                    // Error al obtener el documento, mostrar "Usuario"
+                    Username.setText("Usuario");
+                    textViewDrawerUsername.setText("Usuario");
+                }
+            }
+        });
     }
 
     @Override
@@ -214,10 +254,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    /**
-     * Verifica los permisos de Google Fit y lo inicializa.
-     * Este método asume que el usuario es un usuario de Google.
-     */
     private void checkAndSetupGoogleFit() {
         if (checkPermissions(FIT_PERMISSIONS)) {
             // Permisos de runtime ya concedidos
@@ -309,9 +345,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    /**
-     * Cierra la sesión del usuario de Firebase y redirige a la pantalla de bienvenida.
-     */
     private void logout() {
         Log.d(TAG, "Iniciando logout.");
         mAuth.signOut();

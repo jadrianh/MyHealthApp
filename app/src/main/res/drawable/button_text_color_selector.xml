@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true" android:color="@color/button_selected_text" />
+    <item android:state_enabled="false" android:color="@color/button_disabled_text" />
+    <item android:color="@color/button_unselected_text" /> <!-- Default/Unselected -->
+</selector>

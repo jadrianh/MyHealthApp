@@ -7,99 +7,93 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.content.ContextCompat;
 
 import com.damb.myhealthapp.R;
 
 public class GenderProfileActivity extends AppCompatActivity {
 
-    private Button maleButton;
-    private Button femaleButton;
+    private AppCompatButton maleButton;
+    private AppCompatButton femaleButton;
     private Button acceptButton;
     private String selectedGender = null;
     private long birthday;
+    private AppCompatButton currentlySelectedButton = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gender_profile);
 
-        Intent GETintent = getIntent();
-        if (GETintent != null && GETintent.hasExtra("birthday")) {
-            birthday = GETintent.getLongExtra("birthday", 0L);
-        } else {
-            // Manejar el caso donde no se recibió la fecha de nacimiento
-            Toast.makeText(this, "No se recibió la fecha de nacimiento", Toast.LENGTH_SHORT).show();
-            // Puedes decidir qué hacer aquí: finalizar la actividad, usar una fecha por defecto, etc.
-        }
-
         maleButton = findViewById(R.id.maleButton);
         femaleButton = findViewById(R.id.femaleButton);
         acceptButton = findViewById(R.id.acceptButton);
 
-        // Inicialmente, el botón Aceptar debe estar deshabilitado
-        acceptButton.setEnabled(false);
 
-        maleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                selectGender("Masculino");
-            }
-        });
+        Intent GETintent = getIntent();
+        if (GETintent != null && GETintent.hasExtra("birthday")) {
+            birthday = GETintent.getLongExtra("birthday", 0L);
+        } else {
+            Toast.makeText(this, "No se recibió la fecha de nacimiento", Toast.LENGTH_SHORT).show();
+        }
 
-        femaleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                selectGender("Femenino");
-            }
-        });
+        if (acceptButton != null) {
+            acceptButton.setEnabled(false);
+        }
 
-        acceptButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (selectedGender != null) {
-                    Intent intent = new Intent(GenderProfileActivity.this, HeightProfileActivity.class);
-                    intent.putExtra("birthday", birthday);
-                    intent.putExtra("gender", selectedGender);
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(GenderProfileActivity.this, "Por favor, selecciona un género", Toast.LENGTH_SHORT).show();
+
+        if (maleButton != null) {
+            maleButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    selectGenderButton(maleButton, "male");
                 }
-            }
-        });
-    }
+            });
+        }
 
-    private void selectGender(String gender) {
-        selectedGender = gender;
-        acceptButton.setEnabled(true);
+        if (femaleButton != null) {
+            femaleButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    selectGenderButton(femaleButton, "female");
+                }
+            });
+        }
 
-        // Resetea los estilos de los botones
-        resetGenderButtonStyles();
-
-        // Aplica estilos al botón seleccionado
-        if ("Masculino".equals(gender)) {
-            applySelectedStyle(maleButton);
-            applyDisabledStyle(femaleButton);
-        } else if ("Femenino".equals(gender)) {
-            applySelectedStyle(femaleButton);
-            applyDisabledStyle(maleButton);
+        if (acceptButton != null) {
+            acceptButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (selectedGender != null) {
+                        Intent intent = new Intent(GenderProfileActivity.this, HeightProfileActivity.class);
+                        intent.putExtra("birthday", birthday);
+                        intent.putExtra("gender", selectedGender);
+                        startActivity(intent);
+                    } else {
+                        // This toast might be redundant if the button is disabled,
+                        // but good as a fallback.
+                        Toast.makeText(GenderProfileActivity.this, "Por favor, selecciona un género", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     }
 
-    private void resetGenderButtonStyles() {
-        maleButton.setBackgroundResource(R.drawable.gender_button_background);
-        femaleButton.setBackgroundResource(R.drawable.gender_button_background);
-        maleButton.setTextColor(ContextCompat.getColor(this, android.R.color.black)); // Color por defecto
-        femaleButton.setTextColor(ContextCompat.getColor(this, android.R.color.black));
-    }
+    private void selectGenderButton(AppCompatButton selectedButtonView, String genderValue) {
+        if (currentlySelectedButton != null && currentlySelectedButton != selectedButtonView) {
+            currentlySelectedButton.setSelected(false);
+            currentlySelectedButton.setBackground(ContextCompat.getDrawable(this, R.drawable.button_unselected_background));
+        }
 
-    private void applySelectedStyle(Button button) {
-        button.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.green));
-        button.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-    }
+        selectedButtonView.setSelected(true);
+        selectedButtonView.setBackground(ContextCompat.getDrawable(this, R.drawable.button_selected_background));
 
-    private void applyDisabledStyle(Button button) {
-        button.setBackgroundTintList(ContextCompat.getColorStateList(this, android.R.color.darker_gray));
-        button.setTextColor(ContextCompat.getColor(this, android.R.color.secondary_text_dark));
+        currentlySelectedButton = selectedButtonView;
+        selectedGender = genderValue;
+
+        if (acceptButton != null) {
+            acceptButton.setEnabled(true);
+        }
     }
 }

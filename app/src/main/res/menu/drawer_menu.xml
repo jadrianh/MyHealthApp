@@ -14,15 +14,14 @@
             android:title="Registro de actividad" />
         <item
             android:id="@+id/nav_button3"
-            android:icon="@android:drawable/ic_menu_edit"
-            android:title="Boton 3" />
+            android:icon="@drawable/ic_alarm"
+            android:title="Registro de Sueño" />
         <item
             android:id="@+id/nav_profile"
             android:icon="@android:drawable/ic_menu_gallery"
             android:title="Perfil" />
     </group>
-
-    <item android:title="Otras Opciones">
+    <item android:title="otras opciones">
         <menu>
             <item
                 android:id="@+id/nav_logout"

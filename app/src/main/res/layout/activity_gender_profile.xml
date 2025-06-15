@@ -4,7 +4,7 @@
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_background"
+    android:background="@drawable/background_main_gradient"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="32dp">
@@ -55,45 +55,45 @@
             android:layout_marginTop="32dp"
             android:orientation="vertical">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/maleButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/gender_button_unselected"
+                android:layout_marginTop="16dp"
                 android:text="Masculino"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:drawableEnd="@drawable/ic_face_male"
-                android:drawablePadding="16dp"
-                android:gravity="start|center_vertical"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="16dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:textAllCaps="false"
-                style="@style/Widget.AppCompat.Button" />
+                android:textColor="@drawable/button_text_color_selector"
+                android:drawableEnd="@drawable/ic_face_male"
+                android:drawableTint="@drawable/button_icon_tint_selector"
+                android:gravity="center"
+                android:padding="16dp"
+                android:background="@drawable/button_unselected_background" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/femaleButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/gender_button_unselected"
                 android:layout_marginTop="16dp"
                 android:text="Femenino"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:drawableEnd="@drawable/ic_face_female"
-                android:drawablePadding="16dp"
-                android:gravity="start|center_vertical"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="16dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:textAllCaps="false"
-                style="@style/Widget.AppCompat.Button" />
+                android:textColor="@drawable/button_text_color_selector"
+                android:drawableEnd="@drawable/ic_face_female"
+                android:drawableTint="@drawable/button_icon_tint_selector"
+                android:gravity="center"
+                android:padding="16dp"
+                android:background="@drawable/button_unselected_background" />
+
         </LinearLayout>
 
         <Button
             android:id="@+id/acceptButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/green"
+            android:backgroundTint="@color/greenDark"
             android:layout_marginTop="16dp"
             android:enabled="false"
             android:text="Aceptar"

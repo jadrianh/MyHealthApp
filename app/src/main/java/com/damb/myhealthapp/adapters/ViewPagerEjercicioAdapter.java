@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.damb.myhealthapp.views.DetalleEjercicioActivity;
+import com.damb.myhealthapp.views.TrainingPlanDetailsActivity;
 import com.damb.myhealthapp.R;
 import java.util.List;
 
@@ -78,7 +78,7 @@ public class ViewPagerEjercicioAdapter extends RecyclerView.Adapter<ViewPagerEje
             int position = getAdapterPosition(); // Obtener la posición del elemento cliqueado
             if (position != RecyclerView.NO_POSITION) {
                 String nombre = tiposEjercicio.get(position);
-                Intent intent = new Intent(context, DetalleEjercicioActivity.class);
+                Intent intent = new Intent(context, TrainingPlanDetailsActivity.class);
                 intent.putExtra("nombre_ejercicio", nombre);
                 if (!(context instanceof android.app.Activity)) {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

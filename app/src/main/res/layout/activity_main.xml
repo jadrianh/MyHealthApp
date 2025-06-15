@@ -20,7 +20,7 @@
             android:id="@+id/topBackground"
             android:layout_width="0dp"
             android:layout_height="380dp"
-            android:background="@drawable/gradient_background"
+            android:background="@drawable/background_main_gradient"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/titleLayout"
             app:layout_constraintStart_toStartOf="parent"
@@ -62,8 +62,8 @@
             <!-- Icono menú hamburguesa (ahora abre el Drawer) -->
             <ImageView
                 android:id="@+id/menuIcon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@drawable/ic_menu"
                 app:tint="#FFFFFF"
                 app:layout_constraintTop_toTopOf="parent"
@@ -172,7 +172,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Calorías: 0"
-                            android:textColor="@color/gray_dark"
+                            android:textColor="@color/grayDark"
                             android:textSize="14sp" />
                     </LinearLayout>
 
@@ -194,7 +194,7 @@
                     android:layout_marginTop="4dp"
                     android:gravity="center_horizontal"
                     android:text="Meta: 0 / 10000 pasos"
-                    android:textColor="@color/gray_dark"
+                    android:textColor="@color/grayDark"
                     android:textSize="14sp" />
 
             </LinearLayout>

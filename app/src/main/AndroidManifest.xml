@@ -70,7 +70,7 @@
             android:exported="true">
         </activity>
         <activity
-            android:name=".views.DetalleEjercicioActivity"
+            android:name=".views.TrainingPlanDetailsActivity"
             android:exported="true">
         </activity>
         <activity
@@ -80,14 +80,6 @@
         <activity android:name=".views.EntrenamientoGuiadoActivity" />
         <activity android:name=".views.ExerciseLogActivity" />
         <activity android:name=".views.NotificationsActivity" />
-
-        <!-- Facebook Configuration -->
-        <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
-            android:value="@strings/facebook_client_token" />
-        <meta-data
-            android:name="com.facebook.sdk.ClientToken"
-            android:value="@strings/facebook_client_token" />
 
         <receiver
             android:name=".receivers.NotificationReceiver"

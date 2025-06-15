@@ -4,7 +4,7 @@
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_background"
+    android:background="@drawable/background_main_gradient"
     android:orientation="vertical"
     android:gravity="center"
     android:padding="32dp">
