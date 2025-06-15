@@ -228,7 +228,10 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Manejar clicks de elementos del menú de navegación aquí
         int id = item.getItemId();
-        if (id == R.id.nav_profile) {
+        if (id == R.id.nav_activity_record) {
+            Intent recordIntent = new Intent(MainActivity.this, TrainingPlanDetailsActivity.class);
+            startActivity(recordIntent);
+        } else if (id == R.id.nav_profile) {
             Intent profileIntent = new Intent(MainActivity.this, UserProfileActivity.class);
             startActivity(profileIntent);
         } else if (id == R.id.nav_logout) {
