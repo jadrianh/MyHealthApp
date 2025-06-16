@@ -1,7 +1,7 @@
 package com.damb.myhealthapp.views;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton; // Importación necesaria para ImageButton
 import android.widget.Button;
 import android.widget.EditText;
@@ -53,6 +53,29 @@ public class UserProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(UserProfileActivity.this, NotificationsActivity.class);
             startActivity(intent); // Iniciar la nueva Activity
         });
+        //BOTON EDITAR LOS DATOS DEL USUARIO
+        LinearLayout manageUserItem = findViewById(R.id.manageUserItem);
+        manageUserItem.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UserProfileActivity.this, EditUserProfileActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        //FIN boton
+        //BOTON EDITAR PASSWORD
+        LinearLayout changePasswordItem = findViewById(R.id.changePasswordItem);
+        changePasswordItem.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UserProfileActivity.this, ChangePasswordActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        //FIN boton
+
 
         cargarDatosUsuario();
     }

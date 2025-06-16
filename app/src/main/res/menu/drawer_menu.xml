@@ -18,7 +18,7 @@
             android:title="Registro de Sueño" />
         <item
             android:id="@+id/nav_profile"
-            android:icon="@android:drawable/ic_menu_gallery"
+            android:icon="@drawable/baseline_person_24"
             android:title="Perfil" />
     </group>
     <item android:title="otras opciones">

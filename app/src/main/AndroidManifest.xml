@@ -80,6 +80,8 @@
         <activity android:name=".views.EntrenamientoGuiadoActivity" />
         <activity android:name=".views.ExerciseLogActivity" />
         <activity android:name=".views.NotificationsActivity" />
+        <activity android:name=".views.EditUserProfileActivity" />
+        <activity android:name=".views.ChangePasswordActivity"/>
         <activity
             android:name=".views.DescansoActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
