@@ -62,6 +62,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
     private void guardarCambios() {
         String name = editName.getText().toString();
         double height = Double.parseDouble(editHeight.getText().toString());
+        height = Math.round(height * 100.0) / 100.0;
+
         double weight = Double.parseDouble(editWeight.getText().toString());
         String birthdayStr = editBirthday.getText().toString();
 

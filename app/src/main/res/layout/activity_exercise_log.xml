@@ -27,6 +27,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Ojo que la flecha no funciona, ahi se la agregan gente-->
         <ImageView
             android:id="@+id/backButton"
             android:layout_width="40dp"
