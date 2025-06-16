@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,6 +36,9 @@ public class ViewPagerEjercicioAdapter extends RecyclerView.Adapter<ViewPagerEje
         String nombre = tiposEjercicio.get(position);
         holder.nombreEjercicio.setText(nombre);
 
+        int imageResId = getImageResource(nombre);
+        holder.imagenEjercicio.setImageResource(imageResId);
+
         // Si tienes una ImageView en tu layout item_viewpager_ejercicio.xml,
         // aquí es donde cargarías la imagen.
         // Ejemplo usando Glide (si lo has añadido a tus dependencias):
@@ -60,6 +64,8 @@ public class ViewPagerEjercicioAdapter extends RecyclerView.Adapter<ViewPagerEje
 
     static class EjercicioViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView nombreEjercicio;
+        ImageView imagenEjercicio;
+
         private Context context;
         private List<String> tiposEjercicio;
 
@@ -68,6 +74,7 @@ public class ViewPagerEjercicioAdapter extends RecyclerView.Adapter<ViewPagerEje
             this.context = context;
             this.tiposEjercicio = tiposEjercicio;
             nombreEjercicio = itemView.findViewById(R.id.nombreEjercicioViewPager);
+            imagenEjercicio = itemView.findViewById(R.id.imagenEjercicio);
             // imagenEjercicio = itemView.findViewById(R.id.imagenEjercicio); // Descomentar si añades un ImageView
 
             itemView.setOnClickListener(this); // Establecer el listener una sola vez
@@ -88,16 +95,26 @@ public class ViewPagerEjercicioAdapter extends RecyclerView.Adapter<ViewPagerEje
         }
     }
 
-    // TODO: Add a helper method to get image resource based on exercise name
-    // private int getImageResource(String exerciseName) {
-    //     switch (exerciseName) {
-    //         case "Pérdida de Peso (Quema de Grasa)":
-    //             return R.drawable.ic_weight_loss; // replace with actual drawable
-    //         case "Ganancia de Masa Muscular (Hipertrofia)":
-    //             return R.drawable.ic_muscle_gain; // replace with actual drawable
-    //         // ... more cases
-    //         default:
-    //             return R.drawable.ic_default_exercise; // replace with a default drawable
-    //     }
-    // }
+    private int getImageResource(String nombreEjercicio) {
+        if (nombreEjercicio.equalsIgnoreCase("Pérdida de Peso (Quema de Grasa)")) {
+            return R.drawable.perdida_de_grasa;
+        } else if (nombreEjercicio.equalsIgnoreCase("Ganancia de Masa Muscular (Hipertrofia)")) {
+            return R.drawable.ganancia_de_masa_muscular;
+        } else if (nombreEjercicio.equalsIgnoreCase("Flexibilidad y Movilidad")) {
+            return R.drawable.flexibilidad_y_movilidad;
+        } else if (nombreEjercicio.equalsIgnoreCase("Salud General y Bienestar")) {
+            return R.drawable.salud_general_y_bienestar;
+        } else if (nombreEjercicio.equalsIgnoreCase("Resistencia y Cardio")) {
+            return R.drawable.resistencia_y_cardio;
+        } else if (nombreEjercicio.equalsIgnoreCase("Entrenamiento Funcional")) {
+            return R.drawable.entrenamiento_funcional;
+        } else if (nombreEjercicio.equalsIgnoreCase("Plan Rápido para Tonificación")) {
+            return R.drawable.plan_rapido_para_tonificacion;
+        } else if (nombreEjercicio.equalsIgnoreCase("Plan para Principiantes")) {
+            return R.drawable.plan_para_principiantes;
+        } else {
+            return R.drawable.ic_face_female;
+        }
+    }
+
 }

@@ -56,7 +56,7 @@
                 android:layout_marginBottom="16dp"
                 android:gravity="center"
                 android:lineSpacingExtra="4dp"
-                android:text="Información del\nplan de entrenamiento"
+                android:text="Información del \n plan de entrenamiento"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold"
