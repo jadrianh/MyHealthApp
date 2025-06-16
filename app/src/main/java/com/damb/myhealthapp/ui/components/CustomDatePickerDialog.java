@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.utils;
+package com.damb.myhealthapp.ui.components;
 
 import android.app.Dialog;
 import android.content.Context;

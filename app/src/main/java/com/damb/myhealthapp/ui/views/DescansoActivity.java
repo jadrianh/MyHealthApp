@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.views;
+package com.damb.myhealthapp.ui.views;
 
 import android.app.Activity;
 import android.os.Bundle;

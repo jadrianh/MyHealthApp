@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.utils;
+package com.damb.myhealthapp.ui.components;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,7 +22,6 @@ import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
-import com.google.android.gms.fitness.result.DataReadResponse;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;

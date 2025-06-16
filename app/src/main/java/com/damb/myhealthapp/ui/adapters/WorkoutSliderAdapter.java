@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.adapters;
+package com.damb.myhealthapp.ui.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,14 +9,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.views.TrainingPlanDetailsActivity;
+import com.damb.myhealthapp.ui.views.TrainingPlanDetailsActivity;
 import java.util.List;
 
-public class SliderEjerciciosAdapter extends RecyclerView.Adapter<SliderEjerciciosAdapter.EjercicioViewHolder> {
+public class WorkoutSliderAdapter extends RecyclerView.Adapter<WorkoutSliderAdapter.EjercicioViewHolder> {
     private List<String> tiposEjercicio;
     private Context context;
 
-    public SliderEjerciciosAdapter(Context context, List<String> tiposEjercicio) {
+    public WorkoutSliderAdapter(Context context, List<String> tiposEjercicio) {
         this.context = context;
         this.tiposEjercicio = tiposEjercicio;
     }

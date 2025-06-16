@@ -2,16 +2,16 @@ package com.damb.myhealthapp.models;
 
 import java.util.Date;
 
-public class RegistroEjercicio {
+public class WorkoutLog {
     private Date fecha;
     private String tipoEjercicio;
     // Podemos añadir más campos aquí según sea necesario, como duracion, calorias, etc.
 
-    public RegistroEjercicio() {
+    public WorkoutLog() {
         // Constructor vacío requerido para Firebase u otras operaciones de deserialización
     }
 
-    public RegistroEjercicio(Date fecha, String tipoEjercicio) {
+    public WorkoutLog(Date fecha, String tipoEjercicio) {
         this.fecha = fecha;
         this.tipoEjercicio = tipoEjercicio;
     }

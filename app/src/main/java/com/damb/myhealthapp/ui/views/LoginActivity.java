@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.views;
+package com.damb.myhealthapp.ui.views;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.onboarding.BirthdayProfileActivity;
+import com.damb.myhealthapp.ui.views.onboarding.BirthdayProfileActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;

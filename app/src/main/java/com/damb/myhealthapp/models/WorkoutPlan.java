@@ -1,6 +1,6 @@
 package com.damb.myhealthapp.models;
 
-public class PlanEntrenamiento {
+public class WorkoutPlan {
     private String titulo;
     private String duracion;
     private String modalidad;
@@ -8,7 +8,7 @@ public class PlanEntrenamiento {
     private String ejercicios;
     private String idealPara;
 
-    public PlanEntrenamiento(String titulo, String duracion, String modalidad, String frecuencia, String ejercicios, String idealPara) {
+    public WorkoutPlan(String titulo, String duracion, String modalidad, String frecuencia, String ejercicios, String idealPara) {
         this.titulo = titulo;
         this.duracion = duracion;
         this.modalidad = modalidad;

@@ -30,7 +30,7 @@
         android:theme="@style/Theme.MyHealthApp"
         tools:targetApi="31">
         <activity
-            android:name=".views.WelcomeActivity"
+            android:name=".ui.views.WelcomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,52 +38,52 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".views.MainActivity"
+            android:name=".ui.views.MainActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".views.LoginActivity"
+            android:name=".ui.views.LoginActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".views.RegisterActivity"
+            android:name=".ui.views.RegisterActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".onboarding.BirthdayProfileActivity"
+            android:name=".ui.views.onboarding.BirthdayProfileActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".onboarding.GenderProfileActivity"
+            android:name=".ui.views.onboarding.GenderProfileActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".onboarding.HeightProfileActivity"
+            android:name=".ui.views.onboarding.HeightProfileActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".onboarding.WeightProfileActivity"
+            android:name=".ui.views.onboarding.WeightProfileActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".onboarding.ActivityLevelProfileActivity"
+            android:name=".ui.views.onboarding.ActivityLevelProfileActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".views.TrainingPlanDetailsActivity"
+            android:name=".ui.views.TrainingPlanDetailsActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".views.UserProfileActivity"
+            android:name=".ui.views.UserProfileActivity"
             android:exported="true">
         </activity>
-        <activity android:name=".views.EntrenamientoGuiadoActivity" />
-        <activity android:name=".views.ExerciseLogActivity" />
-        <activity android:name=".views.NotificationsActivity" />
-        <activity android:name=".views.EditUserProfileActivity" />
-        <activity android:name=".views.ChangePasswordActivity"/>
+        <activity android:name=".ui.views.EntrenamientoGuiadoActivity" />
+        <activity android:name=".ui.views.ExerciseLogActivity" />
+        <activity android:name=".ui.views.NotificationsActivity" />
+        <activity android:name=".ui.views.EditUserProfileActivity" />
+        <activity android:name=".ui.views.ChangePasswordActivity"/>
         <activity
-            android:name=".views.DescansoActivity"
+            android:name=".ui.views.DescansoActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
 
         <receiver
