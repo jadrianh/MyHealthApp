@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.views;
+package com.damb.myhealthapp.ui.views;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.damb.myhealthapp.R;
 import com.damb.myhealthapp.databinding.ActivityEntrenamientoGuiadoBinding;
-import com.damb.myhealthapp.models.EjercicioSugerido;
+import com.damb.myhealthapp.models.SuggestedExcercise;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class EntrenamientoGuiadoActivity extends AppCompatActivity {
 
     private ActivityEntrenamientoGuiadoBinding binding;
-    private List<EjercicioSugerido> rutina;
+    private List<SuggestedExcercise> rutina;
     private int indiceActual;
     private int completados;
     private CountDownTimer timer;
@@ -72,7 +72,7 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        rutina = (ArrayList<EjercicioSugerido>) getIntent().getSerializableExtra("ejercicios");
+        rutina = (ArrayList<SuggestedExcercise>) getIntent().getSerializableExtra("ejercicios");
         nombrePlan = getIntent().getStringExtra("nombre_plan");
         if (rutina == null) rutina = new ArrayList<>();
 
@@ -124,7 +124,7 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
         }
 
         binding.workoutProgressBar.setProgress(indiceActual + 1);
-        EjercicioSugerido ej = rutina.get(indiceActual);
+        SuggestedExcercise ej = rutina.get(indiceActual);
 
         binding.nombreEjercicioGuiado.setText(ej.getNombre());
         binding.detalleEjercicioGuiado.setText(ej.getDetalle());

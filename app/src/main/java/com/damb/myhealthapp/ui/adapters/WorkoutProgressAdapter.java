@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.adapters;
+package com.damb.myhealthapp.ui.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,15 +11,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide; // Importamos Glide
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.models.EjercicioSugerido;
+import com.damb.myhealthapp.models.SuggestedExcercise;
 import java.util.List;
 import java.util.Locale;
 
-public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdapter.ViewHolder> {
-    private List<EjercicioSugerido> ejercicios;
+public class WorkoutProgressAdapter extends RecyclerView.Adapter<WorkoutProgressAdapter.ViewHolder> {
+    private List<SuggestedExcercise> ejercicios;
     private List<Boolean> completados;
 
-    public EntrenamientoAdapter(List<EjercicioSugerido> ejercicios, List<Boolean> completados) {
+    public WorkoutProgressAdapter(List<SuggestedExcercise> ejercicios, List<Boolean> completados) {
         this.ejercicios = ejercicios;
         this.completados = completados;
     }
@@ -33,7 +33,7 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        EjercicioSugerido ejercicio = ejercicios.get(position);
+        SuggestedExcercise ejercicio = ejercicios.get(position);
         holder.nombre.setText(ejercicio.getNombre());
 
         // --- CORRECCIÓN 1: Construir el texto de series/reps ---

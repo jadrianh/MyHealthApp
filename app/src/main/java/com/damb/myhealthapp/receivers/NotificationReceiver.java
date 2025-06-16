@@ -9,7 +9,7 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import android.content.SharedPreferences;
-import com.damb.myhealthapp.utils.GoogleFitManager;
+import com.damb.myhealthapp.ui.components.GoogleFitManager;
 import android.util.Log;
 import android.content.pm.PackageManager;
 import android.Manifest;

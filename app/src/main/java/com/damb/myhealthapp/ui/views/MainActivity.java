@@ -1,11 +1,10 @@
-package com.damb.myhealthapp.views;
+package com.damb.myhealthapp.ui.views;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.MenuItem; // Importar para manejar clicks en items del menú
 import android.view.View;
 // import android.widget.Button; // Unused, removed
@@ -32,13 +31,10 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
-import com.google.firebase.auth.GoogleAuthProvider;
-import com.damb.myhealthapp.adapters.ViewPagerEjercicioAdapter;
+import com.damb.myhealthapp.ui.adapters.ExerciseViewPagerAdapter;
 // import com.google.android.material.tabs.TabLayout; // Unused, removed
 // import com.google.android.material.tabs.TabLayoutMediator; // Unused, removed
-import com.damb.myhealthapp.utils.GoogleFitManager;
-import android.content.SharedPreferences;
+import com.damb.myhealthapp.ui.components.GoogleFitManager;
 
 import java.util.ArrayList;
 // import java.util.Arrays; // Unused, removed
@@ -92,9 +88,9 @@ public class MainActivity extends AppCompatActivity implements
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
-    private final long DAILY_STEP_GOAL = 10000; // cambiar esta meta
-    private boolean isRequestingGoogleFitPermissions = false; // Nueva bandera para permisos de runtime
-    private boolean isGoogleFitOAuthRequesting = false; // Nueva bandera para la solicitud OAuth de Google Fit
+    private final long DAILY_STEP_GOAL = 10000;
+    private boolean isRequestingGoogleFitPermissions = false;
+    private boolean isGoogleFitOAuthRequesting = false;
     private static final String TAG = "MainActivity";
 
     @Override
@@ -134,8 +130,8 @@ public class MainActivity extends AppCompatActivity implements
         tiposEjercicio.add("Entrenamiento Funcional");
         tiposEjercicio.add("Plan Rápido para Tonificación");
         tiposEjercicio.add("Plan para Principiantes");
-        ViewPagerEjercicioAdapter viewPagerEjercicioAdapter = new ViewPagerEjercicioAdapter(this, tiposEjercicio);
-        viewPagerEjercicios.setAdapter(viewPagerEjercicioAdapter);
+        ExerciseViewPagerAdapter exerciseViewPagerAdapter = new ExerciseViewPagerAdapter(this, tiposEjercicio);
+        viewPagerEjercicios.setAdapter(exerciseViewPagerAdapter);
 
         // Initialize Google Fit views
         stepsTextView = findViewById(R.id.stepsTextView);
@@ -226,7 +222,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Manejar clicks de elementos del menú de navegación aquí
         int id = item.getItemId();
         if (id == R.id.nav_activity_record) {
             Intent recordIntent = new Intent(MainActivity.this, TrainingPlanDetailsActivity.class);
@@ -244,14 +239,11 @@ public class MainActivity extends AppCompatActivity implements
     private void checkAndRequestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13 (API 33) y superiores
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-                // Permiso ya concedido
                 Log.d("MainActivity", "Permiso de notificación ya concedido");
             } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                // Explicar por qué se necesita el permiso (opcional, para una mejor UX)
                 Toast.makeText(this, "Se necesita el permiso de notificaciones para los recordatorios.", Toast.LENGTH_LONG).show();
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_NOTIFICATION_PERMISSION_CODE);
             } else {
-                // Solicitar el permiso directamente
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_NOTIFICATION_PERMISSION_CODE);
             }
         }
@@ -259,9 +251,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void checkAndSetupGoogleFit() {
         if (checkPermissions(FIT_PERMISSIONS)) {
-            // Permisos de runtime ya concedidos
             if (googleFitManager == null) {
-                // This case should be handled by onCreate's initialization
                 Log.e(TAG, "checkAndSetupGoogleFit: googleFitManager is null after onCreate. This should not happen.");
                 return;
             }
@@ -270,7 +260,6 @@ public class MainActivity extends AppCompatActivity implements
                 googleFitManager.initiateFitSignInFlow();
             }
         } else {
-            // Permisos de runtime NO concedidos
             if (!isRequestingGoogleFitPermissions) {
                 isRequestingGoogleFitPermissions = true;
                 requestAppPermissions(FIT_PERMISSIONS, GOOGLE_FIT_PERMISSIONS_REQUEST_CODE);
@@ -281,7 +270,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // Only handle activity result for GoogleFitManager if it's not null
         if (googleFitManager != null) {
             googleFitManager.handleActivityResult(requestCode, resultCode, data);
         }
@@ -292,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements
         runOnUiThread(() -> {
             stepsTextView.setText(String.format("Pasos hoy: %d", steps));
             stepsGoalTextView.setText(String.format("Meta: %d / %d pasos", steps, DAILY_STEP_GOAL));
-            stepsProgressBar.setProgress((int) Math.min(steps, DAILY_STEP_GOAL)); // Actualiza el progreso de la barra
+            stepsProgressBar.setProgress((int) Math.min(steps, DAILY_STEP_GOAL));
             // Show data, hide connect button
             stepsCaloriesDataLayout.setVisibility(View.VISIBLE);
             btnConnectGoogleFit.setVisibility(View.GONE);

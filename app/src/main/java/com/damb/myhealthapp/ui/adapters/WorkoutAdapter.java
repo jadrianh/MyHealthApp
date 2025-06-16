@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.adapters;
+package com.damb.myhealthapp.ui.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,13 +7,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.models.PlanEntrenamiento;
+import com.damb.myhealthapp.models.WorkoutPlan;
 import java.util.List;
 
-public class PlanesEntrenamientoAdapter extends RecyclerView.Adapter<PlanesEntrenamientoAdapter.PlanViewHolder> {
-    private List<PlanEntrenamiento> planes;
+public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.PlanViewHolder> {
+    private List<WorkoutPlan> planes;
 
-    public PlanesEntrenamientoAdapter(List<PlanEntrenamiento> planes) {
+    public WorkoutAdapter(List<WorkoutPlan> planes) {
         this.planes = planes;
     }
 
@@ -27,7 +27,7 @@ public class PlanesEntrenamientoAdapter extends RecyclerView.Adapter<PlanesEntre
 
     @Override
     public void onBindViewHolder(@NonNull PlanViewHolder holder, int position) {
-        PlanEntrenamiento plan = planes.get(position);
+        WorkoutPlan plan = planes.get(position);
         holder.tituloPlan.setText(plan.getTitulo());
         holder.duracionPlan.setText(plan.getDuracion());
         holder.modalidadPlan.setText(plan.getModalidad());

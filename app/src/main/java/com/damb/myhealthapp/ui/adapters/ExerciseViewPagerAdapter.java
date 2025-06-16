@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.adapters;
+package com.damb.myhealthapp.ui.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,16 +9,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.damb.myhealthapp.views.TrainingPlanDetailsActivity;
+import com.damb.myhealthapp.ui.views.TrainingPlanDetailsActivity;
 import com.damb.myhealthapp.R;
 import java.util.List;
 
-public class ViewPagerEjercicioAdapter extends RecyclerView.Adapter<ViewPagerEjercicioAdapter.EjercicioViewHolder> {
+public class ExerciseViewPagerAdapter extends RecyclerView.Adapter<ExerciseViewPagerAdapter.EjercicioViewHolder> {
 
     private List<String> tiposEjercicio;
     private Context context;
 
-    public ViewPagerEjercicioAdapter(Context context, List<String> tiposEjercicio) {
+    public ExerciseViewPagerAdapter(Context context, List<String> tiposEjercicio) {
         this.context = context;
         this.tiposEjercicio = tiposEjercicio;
     }
@@ -38,23 +38,6 @@ public class ViewPagerEjercicioAdapter extends RecyclerView.Adapter<ViewPagerEje
 
         int imageResId = getImageResource(nombre);
         holder.imagenEjercicio.setImageResource(imageResId);
-
-        // Si tienes una ImageView en tu layout item_viewpager_ejercicio.xml,
-        // aquí es donde cargarías la imagen.
-        // Ejemplo usando Glide (si lo has añadido a tus dependencias):
-        // int imageResId = getImageResource(nombre);
-        // if (holder.imagenEjercicio != null && imageResId != 0) {
-        //     Glide.with(holder.itemView.getContext())
-        //          .load(imageResId)
-        //          .centerCrop() // O scaleType que necesites
-        //          .placeholder(R.drawable.ic_loading) // Opcional: drawable mientras carga
-        //          .error(R.drawable.ic_error) // Opcional: drawable si hay error
-        //          .into(holder.imagenEjercicio);
-        // } else if (holder.imagenEjercicio != null) {
-        //     holder.imagenEjercicio.setImageResource(R.drawable.ic_default_exercise); // Un default si no hay imagen específica
-        // }
-
-        // El OnClickListener ya está configurado en el ViewHolder y usa getAdapterPosition()
     }
 
     @Override

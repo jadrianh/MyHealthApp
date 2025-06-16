@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.onboarding;
+package com.damb.myhealthapp.ui.views.onboarding;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,7 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.views.RegisterActivity;
+import com.damb.myhealthapp.ui.views.RegisterActivity;
 
 public class ActivityLevelProfileActivity extends AppCompatActivity {
 

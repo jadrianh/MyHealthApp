@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.onboarding;
+package com.damb.myhealthapp.ui.views.onboarding;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
@@ -12,7 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.utils.CustomDatePickerDialog;
+import com.damb.myhealthapp.ui.components.CustomDatePickerDialog;
 
 import java.util.Calendar;
 import java.util.Locale;

@@ -1,22 +1,18 @@
-package com.damb.myhealthapp.views;
+package com.damb.myhealthapp.ui.views;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.damb.myhealthapp.R;
-import com.damb.myhealthapp.views.LoginActivity;
-import com.damb.myhealthapp.onboarding.BirthdayProfileActivity;
+import com.damb.myhealthapp.ui.views.onboarding.BirthdayProfileActivity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class WelcomeActivity extends AppCompatActivity {
 

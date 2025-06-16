@@ -1,4 +1,4 @@
-package com.damb.myhealthapp.onboarding;
+package com.damb.myhealthapp.ui.views.onboarding;
 
 import android.content.Intent;
 import android.os.Bundle;

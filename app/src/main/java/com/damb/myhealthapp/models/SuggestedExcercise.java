@@ -2,14 +2,14 @@ package com.damb.myhealthapp.models;
 
 import java.io.Serializable;
 
-public class EjercicioSugerido implements Serializable {
+public class SuggestedExcercise implements Serializable {
     private String nombre;
     private int repeticiones;
     private String series;
     private String detalle;
     private int imagenResId; // Usamos un ID de recurso local
 
-    public EjercicioSugerido(String nombre, int repeticiones, String series, String detalle, int imagenResId) {
+    public SuggestedExcercise(String nombre, int repeticiones, String series, String detalle, int imagenResId) {
         this.nombre = nombre;
         this.repeticiones = repeticiones;
         this.series = series;
