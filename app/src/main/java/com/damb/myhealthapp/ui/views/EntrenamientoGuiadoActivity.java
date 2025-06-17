@@ -37,6 +37,7 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
     private int indiceActual;
     private int completados;
     private CountDownTimer timer;
+    private long tiempoInicio;
 
     private static final int DURACION_EJERCICIO = 40;
     private static final long DURACION_DESCANSO_MS = 20000; // 20 segundos
@@ -56,6 +57,9 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityEntrenamientoGuiadoBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Inicializar el tiempo de inicio
+        tiempoInicio = System.currentTimeMillis();
 
         // --- INICIALIZACIÓN DEL LAUNCHER ---
         restActivityLauncher = registerForActivityResult(
@@ -175,32 +179,129 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
 
         guardarProgreso(100);
 
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
+        // Calcular la duración total del entrenamiento
+        long duracionTotal = (System.currentTimeMillis() - tiempoInicio);
+        
+        // Calcular calorías y esperar el resultado
+        calcularCaloriasQuemadas(duracionTotal, calorias -> {
+            Log.d("EntrenamientoGuiado", "Calorías calculadas: " + calorias);
+            Log.d("EntrenamientoGuiado", "Duración total: " + duracionTotal);
+            Log.d("EntrenamientoGuiado", "Nombre del plan: " + nombrePlan);
+
+            // Redirigir a la vista de resumen solo después de calcular las calorías
+            Intent intent = new Intent(EntrenamientoGuiadoActivity.this, WorkoutSummaryActivity.class);
+            intent.putExtra("workout_name", nombrePlan);
+            intent.putExtra("duration", duracionTotal);
+            intent.putExtra("calories", calorias);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | 
+                          Intent.FLAG_ACTIVITY_CLEAR_TOP | 
+                          Intent.FLAG_ACTIVITY_SINGLE_TOP);
             
-            // Obtener la fecha actual en formato yyyy-MM-dd para el ID del documento diario
-            String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+            // Asegurarnos de que la actividad actual se cierre correctamente
+            finish();
+            
+            // Iniciar la nueva actividad
+            startActivity(intent);
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        });
+    }
 
-            // Crear el mapa para el registro de la rutina
-            Map<String, Object> registroRutina = new HashMap<>();
-            registroRutina.put("fecha", new Date()); // Timestamp exacto del entrenamiento
-            registroRutina.put("tipoRutina", nombrePlan);
+    @Override
+    public void onBackPressed() {
+        // Prevenir que el usuario regrese durante el entrenamiento
+        if (indiceActual < rutina.size()) {
+            Toast.makeText(this, "No puedes salir durante el entrenamiento", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        super.onBackPressed();
+    }
 
-            // Guardar el registro de la rutina en la subcolección 'workouts' bajo el documento del día
-            db.collection("users").document(userId)
-                    .collection("registrosEjercicio").document(todayDate)
-                    .collection("workouts").add(registroRutina)
-                    .addOnSuccessListener(documentReference -> Log.d("EntrenamientoGuiadoActivity", "¡Entrenamiento finalizado y guardado exitosamente!"))
-                    .addOnFailureListener(e -> Log.e("EntrenamientoGuiadoActivity", "Error al guardar el registro del entrenamiento.", e));
-        } else {
-            Toast.makeText(EntrenamientoGuiadoActivity.this, "Usuario no autenticado.", Toast.LENGTH_SHORT).show();
+    private void calcularCaloriasQuemadas(long duracionMs, OnCaloriasCalculadasListener listener) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onCaloriasCalculadas(0);
+            return;
         }
 
-        Intent intent = new Intent(EntrenamientoGuiadoActivity.this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
+        // Obtener datos del usuario de Firestore
+        db.collection("users").document(currentUser.getUid())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> onboardingData = (Map<String, Object>) documentSnapshot.get("onboardingData");
+                        if (onboardingData != null) {
+                            Object weightObj = onboardingData.get("weight");
+                            Object birthdayObj = onboardingData.get("birthday");
+                            Object genderObj = onboardingData.get("gender");
+                            if (weightObj != null && birthdayObj != null && genderObj != null) {
+                                double peso = Double.parseDouble(weightObj.toString());
+                                long birthdayMillis = Long.parseLong(birthdayObj.toString());
+                                String genero = genderObj.toString();
+
+                                // Calcular la edad a partir del timestamp de cumpleaños
+                                java.util.Calendar birthCal = java.util.Calendar.getInstance();
+                                birthCal.setTimeInMillis(birthdayMillis);
+                                java.util.Calendar today = java.util.Calendar.getInstance();
+                                int edad = today.get(java.util.Calendar.YEAR) - birthCal.get(java.util.Calendar.YEAR);
+                                if (today.get(java.util.Calendar.DAY_OF_YEAR) < birthCal.get(java.util.Calendar.DAY_OF_YEAR)) {
+                                    edad--;
+                                }
+
+                                // Calcular calorías sumando cada ejercicio
+                                double totalCalorias = 0;
+                                for (SuggestedExcercise ejercicio : rutina) {
+                                    double duracionEjercicioHoras = ejercicio.getDuracionSegundos() / 3600.0;
+                                    totalCalorias += ejercicio.getMet() * peso * duracionEjercicioHoras;
+                                }
+                                int calorias = (int) Math.round(totalCalorias);
+                                // Notificar el resultado
+                                listener.onCaloriasCalculadas(calorias);
+                            } else {
+                                Toast.makeText(this, "Faltan datos de usuario para calcular calorías.", Toast.LENGTH_LONG).show();
+                                listener.onCaloriasCalculadas(0);
+                            }
+                        } else {
+                            Toast.makeText(this, "No se encontró información de usuario.", Toast.LENGTH_LONG).show();
+                            listener.onCaloriasCalculadas(0);
+                        }
+                    } else {
+                        Toast.makeText(this, "No se encontró el usuario en la base de datos.", Toast.LENGTH_LONG).show();
+                        listener.onCaloriasCalculadas(0);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error al obtener datos del usuario.", Toast.LENGTH_LONG).show();
+                    listener.onCaloriasCalculadas(0);
+                });
+    }
+
+    // Interfaz para el callback de calorías
+    private interface OnCaloriasCalculadasListener {
+        void onCaloriasCalculadas(int calorias);
+    }
+
+    private double calcularMET(String tipoEjercicio) {
+        // Valores MET aproximados para diferentes tipos de ejercicio
+        switch (tipoEjercicio) {
+            case "Pérdida de Peso (Quema de Grasa)":
+                return 8.0; // HIIT y cardio intenso
+            case "Ganancia de Masa Muscular (Hipertrofia)":
+                return 6.0; // Entrenamiento de fuerza
+            case "Flexibilidad y Movilidad":
+                return 2.5; // Yoga y estiramientos
+            case "Salud General y Bienestar":
+                return 4.0; // Ejercicio moderado
+            case "Resistencia y Cardio":
+                return 7.0; // Cardio moderado
+            case "Entrenamiento Funcional":
+                return 7.5; // Ejercicio funcional intenso
+            case "Plan Rápido para Tonificación":
+                return 6.5; // Circuito de tonificación
+            case "Plan para Principiantes":
+                return 3.5; // Ejercicio suave
+            default:
+                return 5.0; // Valor por defecto
+        }
     }
 
     @Override
