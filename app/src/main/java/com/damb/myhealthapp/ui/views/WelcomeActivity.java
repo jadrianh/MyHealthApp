@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,6 +29,7 @@ public class WelcomeActivity extends AppCompatActivity {
         ImageView welcomeImage = findViewById(R.id.welcomeImage);
         ImageView logoImageView = findViewById(R.id.logoImageView);
         TextView welcomeSubtitle = findViewById(R.id.welcomeSubtitle);
+        LinearLayout registerLayout = findViewById(R.id.registerLayout);
         Button registerButton = findViewById(R.id.registerButton);
         Button signInButton = findViewById(R.id.signInButton);
 
@@ -45,15 +47,15 @@ public class WelcomeActivity extends AppCompatActivity {
         subtitleFadeIn.setStartDelay(400);
         subtitleFadeIn.setDuration(800);
 
-        ObjectAnimator registerButtonFadeIn = ObjectAnimator.ofFloat(registerButton, "alpha", 0f, 1f);
-        registerButtonFadeIn.setStartDelay(600);
-        registerButtonFadeIn.setDuration(800);
+        ObjectAnimator registerLayoutFadeIn = ObjectAnimator.ofFloat(registerLayout, "alpha", 0f, 1f);
+        registerLayoutFadeIn.setStartDelay(600);
+        registerLayoutFadeIn.setDuration(800);
 
         ObjectAnimator signInButtonFadeIn = ObjectAnimator.ofFloat(signInButton, "alpha", 0f, 1f);
         signInButtonFadeIn.setStartDelay(800);
         signInButtonFadeIn.setDuration(800);
 
-        animatorSet.playTogether(imageFadeIn, titleFadeIn, subtitleFadeIn, registerButtonFadeIn, signInButtonFadeIn);
+        animatorSet.playTogether(imageFadeIn, titleFadeIn, subtitleFadeIn, registerLayoutFadeIn, signInButtonFadeIn);
         animatorSet.start();
 
         registerButton.setOnClickListener(new View.OnClickListener() {

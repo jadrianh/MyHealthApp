@@ -65,7 +65,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_menu"
-                app:tint="#FFFFFF"
+                app:tint="@color/white"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 

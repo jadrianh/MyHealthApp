@@ -69,6 +69,6 @@ public class DescansoActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // Se deja vacío para evitar que el usuario cierre la pantalla con el botón de atrás
+        super.onBackPressed();
     }
 }

@@ -1,9 +1,10 @@
 package com.damb.myhealthapp.ui.views;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton; // Importación necesaria para ImageButton
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;

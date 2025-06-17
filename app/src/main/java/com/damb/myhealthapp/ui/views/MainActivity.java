@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.damb.myhealthapp.ui.adapters.ExerciseViewPagerAdapter;
@@ -105,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        FirebaseApp.initializeApp(this);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -211,8 +213,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void loadDisplayNameFromFirestore(String userId) {
-        // Asumo que tienes una colección "users" y cada documento de usuario tiene el UID como ID.
-        // Y dentro de ese documento, tienes un campo llamado "displayName".
         DocumentReference userDocRef = db.collection("users").document(userId);
 
         userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -245,11 +245,13 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.nav_activity_record) {
-            startActivity(new Intent(MainActivity.this, ExerciseLogActivity.class));
+        if (id == R.id.nav_workout_log) {
+            startActivity(new Intent(MainActivity.this, WorkoutLogActivity.class));
         } else if (id == R.id.nav_profile) {
             Intent profileIntent = new Intent(MainActivity.this, UserProfileActivity.class);
             startActivity(profileIntent);
+        } else if (id == R.id.nav_water_log) {
+            startActivity(new Intent(MainActivity.this, WaterLogActivity.class));
         } else if (id == R.id.nav_logout) {
             logout();
         }
@@ -358,17 +360,12 @@ public class MainActivity extends AppCompatActivity implements
         finish();
     }
 
-    /**
-     * Habilita o deshabilita la interacción del usuario con el ViewPager2.
-     * @param enabled true para habilitar, false para deshabilitar.
-     */
     public void setViewPagerEnabled(boolean enabled) {
         if (viewPagerEjercicios != null) {
             viewPagerEjercicios.setUserInputEnabled(enabled);
         }
     }
 
-    // Método para verificar los permisos de runtime
     private boolean checkPermissions(String[] permissions) {
         for (String permission : permissions) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
@@ -378,7 +375,6 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-    // Método para solicitar permisos de runtime
     private void requestAppPermissions(String[] permissions, int requestCode) {
         ActivityCompat.requestPermissions(this, permissions, requestCode);
     }
@@ -396,8 +392,6 @@ public class MainActivity extends AppCompatActivity implements
             }
             if (allFitPermissionsGranted) {
                 isRequestingGoogleFitPermissions = false;
-                // Permisos concedidos. Ahora, inicializa GoogleFitManager e inicia el flujo OAuth.
-                // El método checkAndSetupGoogleFit() ya maneja esta lógica verificando el proveedor del usuario actual.
                 checkAndSetupGoogleFit();
             } else {
                 Toast.makeText(this, "Permisos de Google Fit denegados. La función de conteo de pasos no estará disponible.", Toast.LENGTH_LONG).show();

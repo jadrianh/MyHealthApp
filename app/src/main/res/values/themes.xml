@@ -1,12 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Theme.MyHealthApp" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
-        <!-- ... tus otros ítems de tema ... -->
-
     </style>
-    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar"></style>
-
-
 </resources>

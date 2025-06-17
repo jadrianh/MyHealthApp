@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.damb.myhealthapp">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -39,53 +38,45 @@
         </activity>
         <activity
             android:name=".ui.views.MainActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.views.LoginActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.views.RegisterActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.views.onboarding.BirthdayProfileActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.views.onboarding.GenderProfileActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.views.onboarding.HeightProfileActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.views.onboarding.WeightProfileActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.views.onboarding.ActivityLevelProfileActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.views.TrainingPlanDetailsActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.views.UserProfileActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
         <activity android:name=".ui.views.EntrenamientoGuiadoActivity" />
-        <activity android:name=".ui.views.ExerciseLogActivity" />
+        <activity android:name=".ui.views.WorkoutLogActivity" />
         <activity android:name=".ui.views.NotificationsActivity" />
         <activity android:name=".ui.views.EditUserProfileActivity" />
         <activity android:name=".ui.views.ChangePasswordActivity"/>
         <activity
             android:name=".ui.views.DescansoActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
-
+        <activity
+            android:name=".ui.views.WaterLogActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
         <receiver
             android:name=".receivers.NotificationReceiver"
             android:enabled="true"

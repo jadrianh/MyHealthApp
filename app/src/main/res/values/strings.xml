@@ -2,6 +2,6 @@
     <string name="app_name">MyHealthApp</string>
     <string name="no_tienes_cuenta_reg_strate">¿No tienes cuenta? Regístrate</string>
     <string name="correo_electr_nico">Correo electrónico</string>
-    <string name="facebook_client_token">b863acb91df980b2a783da279f102938</string>
     <string name="cambio_de_contrase_a">Cambio de contraseña</string>
+    <string name="default_web_client_id" />
 </resources>

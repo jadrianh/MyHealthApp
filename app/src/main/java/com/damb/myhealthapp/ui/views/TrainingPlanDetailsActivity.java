@@ -2,9 +2,9 @@ package com.damb.myhealthapp.ui.views;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import com.damb.myhealthapp.R;
 import com.damb.myhealthapp.ui.adapters.SuggestedExercisesAdapter;
 import com.damb.myhealthapp.databinding.ActivityTrainingPlanDetailsBinding;
@@ -24,7 +24,8 @@ public class TrainingPlanDetailsActivity extends AppCompatActivity {
         binding = ActivityTrainingPlanDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.backButton.setOnClickListener(v -> finish());
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> finish());
 
         nombrePlan = getIntent().getStringExtra("nombre_ejercicio");
         if (nombrePlan == null) nombrePlan = "";

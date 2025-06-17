@@ -12,11 +12,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class ExerciseLogActivity extends AppCompatActivity {
+public class WorkoutLogActivity extends AppCompatActivity {
 
     private TextView textViewListaRegistros;
     private FirebaseAuth mAuth;
@@ -25,7 +24,7 @@ public class ExerciseLogActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_exercise_log);
+        setContentView(R.layout.activity_workout_log);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -62,7 +61,7 @@ public class ExerciseLogActivity extends AppCompatActivity {
                     textViewListaRegistros.setText(registrosTexto.toString());
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("ExerciseLogActivity", "Error al cargar registros de ejercicio", e);
+                    Log.e("WorkoutLogActivity", "Error al cargar registros de ejercicio", e);
                     textViewListaRegistros.setText("Error al cargar registros: " + e.getMessage());
                 });
     }

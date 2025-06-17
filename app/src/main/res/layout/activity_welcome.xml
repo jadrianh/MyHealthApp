@@ -63,17 +63,18 @@
             android:layout_height="36dp"
             android:background="@color/blue" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/registerButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginHorizontal="10dp"
             android:text="¡Registrate ahora!"
-            android:backgroundTint="@color/blue"
+            app:backgroundTint="@color/blue"
             android:textColor="@color/white"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:cornerRadius="0dp" />
 
         <View
             android:layout_width="12dp"
