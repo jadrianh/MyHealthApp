@@ -1,15 +1,21 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# Ignorar directorios de Android Studio y configuraciones del proyecto
+.idea/
+.gradle/
+build/
 local.properties
+*.iml
+.DS_Store # Para usuarios de macOS
+
+# Archivos de depuración y logs
+*.log
+captures/
+.externalNativeBuild/
+
+# Directorio de los SDKs de Android
+.cxx/
+platform_build/
+
+# Archivos generados por Android Studio/Gradle
+**/.idea/
+**/build/
+**/.gradle/
