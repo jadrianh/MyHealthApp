@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -20,10 +21,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -175,15 +178,21 @@ public class EntrenamientoGuiadoActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
-            Date fechaActual = new Date();
+            
+            // Obtener la fecha actual en formato yyyy-MM-dd para el ID del documento diario
+            String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+            // Crear el mapa para el registro de la rutina
             Map<String, Object> registroRutina = new HashMap<>();
-            registroRutina.put("fecha", fechaActual);
+            registroRutina.put("fecha", new Date()); // Timestamp exacto del entrenamiento
             registroRutina.put("tipoRutina", nombrePlan);
 
-            db.collection("users").document(userId).collection("registrosEjercicio")
-                    .add(registroRutina)
-                    .addOnSuccessListener(documentReference -> Toast.makeText(EntrenamientoGuiadoActivity.this, "¡Entrenamiento finalizado y guardado!", Toast.LENGTH_LONG).show())
-                    .addOnFailureListener(e -> Toast.makeText(EntrenamientoGuiadoActivity.this, "Error al guardar el registro.", Toast.LENGTH_SHORT).show());
+            // Guardar el registro de la rutina en la subcolección 'workouts' bajo el documento del día
+            db.collection("users").document(userId)
+                    .collection("registrosEjercicio").document(todayDate)
+                    .collection("workouts").add(registroRutina)
+                    .addOnSuccessListener(documentReference -> Log.d("EntrenamientoGuiadoActivity", "¡Entrenamiento finalizado y guardado exitosamente!"))
+                    .addOnFailureListener(e -> Log.e("EntrenamientoGuiadoActivity", "Error al guardar el registro del entrenamiento.", e));
         } else {
             Toast.makeText(EntrenamientoGuiadoActivity.this, "Usuario no autenticado.", Toast.LENGTH_SHORT).show();
         }

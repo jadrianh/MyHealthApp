@@ -17,6 +17,8 @@ import java.util.Date;
 import android.app.DatePickerDialog;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Map;
+
 public class EditUserProfileActivity extends AppCompatActivity {
     private EditText editName, editHeight, editWeight, editBirthday;
     private Button saveButton;
@@ -46,11 +48,24 @@ public class EditUserProfileActivity extends AppCompatActivity {
                     .addOnSuccessListener(document -> {
                         if (document.exists()) {
                             editName.setText(document.getString("displayName"));
-                            editHeight.setText(String.valueOf(document.getDouble("height")));
-                            editWeight.setText(String.valueOf(document.getDouble("weight")));
-                            Long birthday = document.getLong("birthday");
-                            if (birthday != null) {
-                                editBirthday.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(birthday)));
+                            
+                            // Leer datos de onboarding del mapa anidado
+                            Map<String, Object> onboardingData = (Map<String, Object>) document.get("onboardingData");
+                            if (onboardingData != null) {
+                                Double heightValue = ((Number) onboardingData.get("height")).doubleValue();
+                                if (heightValue != null) {
+                                    editHeight.setText(String.valueOf(heightValue));
+                                }
+
+                                Double weightValue = ((Number) onboardingData.get("weight")).doubleValue();
+                                if (weightValue != null) {
+                                    editWeight.setText(String.valueOf(weightValue));
+                                }
+
+                                Long birthday = (Long) onboardingData.get("birthday");
+                                if (birthday != null) {
+                                    editBirthday.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(birthday)));
+                                }
                             }
                         }
                     });
@@ -72,9 +87,9 @@ public class EditUserProfileActivity extends AppCompatActivity {
 
             db.collection("users").document(user.getUid())
                     .update("displayName", name,
-                            "height", height,
-                            "weight", weight,
-                            "birthday", birthday)
+                            "onboardingData.height", height,
+                            "onboardingData.weight", weight,
+                            "onboardingData.birthday", birthday)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Datos actualizados", Toast.LENGTH_SHORT).show();
                         finish(); // Volver al perfil

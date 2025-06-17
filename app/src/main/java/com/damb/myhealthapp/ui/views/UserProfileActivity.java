@@ -1,6 +1,7 @@
 package com.damb.myhealthapp.ui.views;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton; // Importación necesaria para ImageButton
 import android.widget.LinearLayout;
@@ -14,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 
 public class UserProfileActivity extends AppCompatActivity {
 
@@ -92,41 +94,48 @@ public class UserProfileActivity extends AppCompatActivity {
                         nameTextView.setText(documentSnapshot.getString("displayName"));
                         emailTextView.setText(documentSnapshot.getString("email"));
 
-                        Long birthdayTimestamp = documentSnapshot.getLong("birthday");
-                        if (birthdayTimestamp != null) {
-                            String formattedDate = convertTimestampToDate(birthdayTimestamp);
-                            birthdayTextView.setText(" : " + formattedDate);
+                        // Obtener datos de onboarding del mapa anidado
+                        Map<String, Object> onboardingData = (Map<String, Object>) documentSnapshot.get("onboardingData");
+                        if (onboardingData != null) {
+                            Long birthdayTimestamp = (Long) onboardingData.get("birthday");
+                            if (birthdayTimestamp != null) {
+                                String formattedDate = convertTimestampToDate(birthdayTimestamp);
+                                birthdayTextView.setText(" : " + formattedDate);
+                            } else {
+                                birthdayTextView.setText(" : N/A");
+                            }
+
+                            Double heightValue = ((Number) onboardingData.get("height")).doubleValue();
+                            if (heightValue != null) {
+                                heightTextView.setText(" : " + String.format(Locale.getDefault(), "%.1f cm", heightValue));
+                            } else {
+                                heightTextView.setText(": N/A cm");
+                            }
+
+                            Double weightValue = ((Number) onboardingData.get("weight")).doubleValue();
+                            if (weightValue != null) {
+                                weightTextView.setText(" : " + String.format(Locale.getDefault(), "%.1f kg", weightValue));
+                            } else {
+                                weightTextView.setText(": N/A kg");
+                            }
                         } else {
+                            // Si no hay datos de onboarding, establecer como N/A
                             birthdayTextView.setText(" : N/A");
-                        }
-
-                        // Optimización para altura y peso: obtener como Double para precisión
-                        Double heightValue = documentSnapshot.getDouble("height");
-                        if (heightValue != null) {
-                            heightTextView.setText(" : " + String.format(Locale.getDefault(), "%.1f cm", heightValue));
-                        } else {
                             heightTextView.setText(": N/A cm");
-                        }
-
-                        Double weightValue = documentSnapshot.getDouble("weight");
-                        if (weightValue != null) {
-                            weightTextView.setText(" : " + String.format(Locale.getDefault(), "%.1f kg", weightValue));
-                        } else {
                             weightTextView.setText(": N/A kg");
                         }
-
                     } else {
                         Toast.makeText(this, "No se encontraron datos del usuario.", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error al obtener datos: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
+                .addOnFailureListener(e -> {
+                    Log.e("UserProfileActivity", "Error al cargar datos del usuario", e);
+                    Toast.makeText(this, "Error al cargar datos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private String convertTimestampToDate(long timestamp) {
-        Date date = new Date(timestamp);
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        return sdf.format(date);
+        return sdf.format(new Date(timestamp));
     }
 }

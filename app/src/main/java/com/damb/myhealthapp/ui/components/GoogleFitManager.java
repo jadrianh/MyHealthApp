@@ -100,6 +100,19 @@ public class GoogleFitManager {
         Log.d(TAG, "Solicitando permisos de Google Fit.");
     }
 
+    // Nuevo método público para leer datos si los permisos ya están concedidos
+    public boolean readAggregatedData() {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(activity);
+        if (account != null && GoogleSignIn.hasPermissions(account, fitnessOptions)) {
+            Log.d(TAG, "readAggregatedData: Permisos de Google Fit concedidos. Leyendo datos.");
+            readFitData();
+            return true;
+        } else {
+            Log.d(TAG, "readAggregatedData: No hay permisos de Google Fit. No se leerán datos.");
+            return false;
+        }
+    }
+
     // Lee los datos de pasos y calorías de Google Fit
     private void readFitData() {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(activity);
@@ -237,39 +250,23 @@ public class GoogleFitManager {
 
         Fitness.getHistoryClient(context, account)
                 .readDailyTotal(DataType.TYPE_STEP_COUNT_DELTA)
-                .addOnSuccessListener(new OnSuccessListener<DataSet>() {
-                    @Override
-                    public void onSuccess(DataSet dataSet) {
-                        long totalSteps = 0;
-                        if (dataSet != null) {
-                            for (DataPoint dp : dataSet.getDataPoints()) {
-                                for (Field field : dp.getDataType().getFields()) {
-                                    totalSteps += dp.getValue(field).asInt();
-                                }
+                .addOnSuccessListener(dataSet -> {
+                    long totalSteps = 0;
+                    if (dataSet != null) {
+                        for (DataPoint dp : dataSet.getDataPoints()) {
+                            for (Field field : dp.getDataType().getFields()) {
+                                totalSteps += dp.getValue(field).asInt();
                             }
                         }
-                        if (listener != null) {
-                            listener.onStepCountReceived(totalSteps);
-                        }
-                        Log.d(TAG, "Pasos para notificación leídos: " + totalSteps);
+                    }
+                    if (listener != null) {
+                        listener.onStepCountReceived(totalSteps);
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        String errorMessage = "Error al obtener datos de Google Fit para la notificación.";
-                        if (e instanceof ApiException) {
-                            ApiException apiException = (ApiException) e;
-                            int statusCode = apiException.getStatusCode();
-                            errorMessage += " Código de error: " + statusCode;
-                            if (statusCode == CommonStatusCodes.RESOLUTION_REQUIRED) {
-                                errorMessage += ". Se requiere acción en la app principal.";
-                            }
-                        }
-                        if (listener != null) {
-                            listener.onError(errorMessage);
-                        }
-                        Log.e(TAG, "Error al leer datos de Google Fit para la notificación: " + errorMessage, e);
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error al leer pasos para notificación", e);
+                    if (listener != null) {
+                        listener.onError("Error al leer pasos para notificación: " + e.getMessage());
                     }
                 });
     }

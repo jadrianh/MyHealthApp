@@ -46,6 +46,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleFitManager.OnFitDataReceivedListener,
@@ -163,20 +171,34 @@ public class MainActivity extends AppCompatActivity implements
         checkAndRequestNotificationPermission();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Re-check user and load data, including Google Fit status
+        checkCurrentUserAndLoadData();
+    }
+
     private void checkCurrentUserAndLoadData() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             googleFitManager = new GoogleFitManager(this, this);
 
-            btnConnectGoogleFit.setOnClickListener(v -> {
-                if (googleFitManager != null) { // Siempre será true aquí si currentUser != null
+            // Intentar leer datos agregados de Google Fit si los permisos ya están concedidos
+            if (googleFitManager.readAggregatedData()) {
+                // Permisos ya concedidos y datos leídos, mostrar datos y ocultar botón
+                stepsCaloriesDataLayout.setVisibility(View.VISIBLE);
+                btnConnectGoogleFit.setVisibility(View.GONE);
+            } else {
+                // Permisos no concedidos, mostrar botón de conexión
+                stepsCaloriesDataLayout.setVisibility(View.GONE);
+                btnConnectGoogleFit.setVisibility(View.VISIBLE);
+                btnConnectGoogleFit.setOnClickListener(v -> {
                     Log.d(TAG, "btnConnectGoogleFit clicked. Initiating Google Fit flow.");
                     googleFitManager.initiateFitSignInFlow();
-                }
-            });
+                });
+            }
 
             loadDisplayNameFromFirestore(currentUser.getUid());
-
             textViewDrawerUserEmail.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "N/A");
 
         } else {
@@ -224,8 +246,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_activity_record) {
-            Intent recordIntent = new Intent(MainActivity.this, TrainingPlanDetailsActivity.class);
-            startActivity(recordIntent);
+            startActivity(new Intent(MainActivity.this, ExerciseLogActivity.class));
         } else if (id == R.id.nav_profile) {
             Intent profileIntent = new Intent(MainActivity.this, UserProfileActivity.class);
             startActivity(profileIntent);
@@ -278,62 +299,39 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onStepsReceived(long steps) {
         runOnUiThread(() -> {
-            stepsTextView.setText(String.format("Pasos hoy: %d", steps));
-            stepsGoalTextView.setText(String.format("Meta: %d / %d pasos", steps, DAILY_STEP_GOAL));
-            stepsProgressBar.setProgress((int) Math.min(steps, DAILY_STEP_GOAL));
-            // Show data, hide connect button
+            stepsTextView.setText(String.format(Locale.getDefault(), "%d pasos", steps));
+            stepsProgressBar.setMax((int) DAILY_STEP_GOAL);
+            stepsProgressBar.setProgress((int) steps);
+            stepsGoalTextView.setText(String.format(Locale.getDefault(), "Meta: %d pasos", DAILY_STEP_GOAL));
+            // Asegurarse de que los datos estén visibles y el botón oculto
             stepsCaloriesDataLayout.setVisibility(View.VISIBLE);
             btnConnectGoogleFit.setVisibility(View.GONE);
+            saveDailyMetrics(steps, -1.0f); // Guardar pasos, calorías se actualizarán por separado
         });
     }
 
     @Override
     public void onCaloriesReceived(float calories) {
         runOnUiThread(() -> {
-            caloriesTextView.setText(String.format("Calorías: %.0f", calories));
-            // Show data, hide connect button
+            caloriesTextView.setText(String.format(Locale.getDefault(), "%.2f kcal", calories));
+            // Asegurarse de que los datos estén visibles y el botón oculto
             stepsCaloriesDataLayout.setVisibility(View.VISIBLE);
             btnConnectGoogleFit.setVisibility(View.GONE);
+            saveDailyMetrics(-1L, calories); // Guardar calorías, pasos se actualizarán por separado
         });
     }
 
     @Override
     public void onError(String error) {
+        Log.e(TAG, "Google Fit Error: " + error);
         runOnUiThread(() -> {
-            Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Google Fit Error: " + error);
-            // If there's an error, keep the connect button visible
+            Toast.makeText(this, "Error de Google Fit: " + error, Toast.LENGTH_LONG).show();
+            stepsTextView.setText("Pasos: N/A");
+            caloriesTextView.setText("Calorías: N/A");
+            // Si hay un error, mostrar el botón de conexión nuevamente
             stepsCaloriesDataLayout.setVisibility(View.GONE);
             btnConnectGoogleFit.setVisibility(View.VISIBLE);
         });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setViewPagerEnabled(true);
-
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            Log.d(TAG, "onResume: Current Firebase user email: " + currentUser.getEmail());
-            
-            // Initialize GoogleFitManager if it's null
-            if (googleFitManager == null) {
-                googleFitManager = new GoogleFitManager(this, this);
-            }
-
-            // Show connect button and hide data initially
-            stepsCaloriesDataLayout.setVisibility(View.GONE);
-            btnConnectGoogleFit.setVisibility(View.VISIBLE);
-
-        } else {
-            Log.d(TAG, "onResume: No hay usuario autenticado en Firebase. Redirigiendo a WelcomeActivity.");
-            googleFitManager = null;
-            Intent intent = new Intent(this, WelcomeActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        }
     }
 
     private void logout() {
@@ -414,5 +412,32 @@ public class MainActivity extends AppCompatActivity implements
                 Toast.makeText(this, "Permiso de notificaciones denegado. Es posible que los recordatorios no funcionen.", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private void saveDailyMetrics(long steps, float calories) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            Log.e(TAG, "No authenticated user to save daily metrics.");
+            return;
+        }
+
+        String userId = currentUser.getUid();
+        String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        Map<String, Object> dailyMetrics = new HashMap<>();
+        dailyMetrics.put("date", Calendar.getInstance().getTime()); // Guarda el timestamp completo del día
+
+        if (steps != -1L) {
+            dailyMetrics.put("steps", steps);
+        }
+        if (calories != -1.0f) {
+            dailyMetrics.put("caloriesBurned", calories);
+        }
+
+        db.collection("users").document(userId)
+                .collection("dailyMetrics").document(todayDate)
+                .set(dailyMetrics, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Métricas diarias guardadas/actualizadas exitosamente para " + todayDate))
+                .addOnFailureListener(e -> Log.e(TAG, "Error al guardar métricas diarias: ", e));
     }
 }

@@ -11,8 +11,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class ExerciseLogActivity extends AppCompatActivity {
 
@@ -39,17 +41,12 @@ public class ExerciseLogActivity extends AppCompatActivity {
     }
 
     private void cargarRegistrosEjercicio(String userId) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        Date inicioDelDia = calendar.getTime();
+        // Obtener la fecha actual en formato yyyy-MM-dd para el ID del documento diario
+        String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-        db.collection("users").document(userId).collection("registrosEjercicio")
-                .whereGreaterThanOrEqualTo("fecha", inicioDelDia)
-                .get()
+        db.collection("users").document(userId)
+                .collection("registrosEjercicio").document(todayDate)
+                .collection("workouts").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     StringBuilder registrosTexto = new StringBuilder("Rutinas completadas hoy:\n");
                     if (queryDocumentSnapshots.isEmpty()) {
@@ -65,7 +62,7 @@ public class ExerciseLogActivity extends AppCompatActivity {
                     textViewListaRegistros.setText(registrosTexto.toString());
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("RegistrarEjercicioActivity", "Error al cargar registros de ejercicio", e);
+                    Log.e("ExerciseLogActivity", "Error al cargar registros de ejercicio", e);
                     textViewListaRegistros.setText("Error al cargar registros: " + e.getMessage());
                 });
     }

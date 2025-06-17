@@ -138,6 +138,26 @@ public class RegisterActivity extends AppCompatActivity {
                                                     userData.put("displayName", name);
                                                     userData.put("provider", "email");
 
+                                                    // Crear un mapa para los datos del onboarding
+                                                    Map<String, Object> onboardingData = new HashMap<>();
+                                                    long birthdayMillis = getIntent().getLongExtra("birthday", -1L);
+                                                    String gender = getIntent().getStringExtra("gender");
+                                                    int height = getIntent().getIntExtra("height", 0);
+                                                    int weight = getIntent().getIntExtra("weight", 0);
+                                                    String activityLevel = getIntent().getStringExtra("activity_level");
+
+                                                    if (birthdayMillis != -1L) {
+                                                        onboardingData.put("birthday", birthdayMillis);
+                                                        Log.d(TAG, "Guardando fecha de cumpleaños: " + birthdayMillis);
+                                                    }
+                                                    if (gender != null) onboardingData.put("gender", gender);
+                                                    if (height != 0) onboardingData.put("height", height);
+                                                    if (weight != 0) onboardingData.put("weight", weight);
+                                                    if (activityLevel != null) onboardingData.put("activity_level", activityLevel);
+
+                                                    // Añadir el mapa de onboarding al mapa principal del usuario
+                                                    userData.put("onboardingData", onboardingData);
+
                                                     db.collection("users").document(user.getUid())
                                                             .set(userData)
                                                             .addOnSuccessListener(aVoid -> {
@@ -158,16 +178,11 @@ public class RegisterActivity extends AppCompatActivity {
                                                                         "Error al guardar datos: " + e.getMessage(),
                                                                         Toast.LENGTH_SHORT).show();
                                                             });
-                                                } else {
-                                                    Toast.makeText(RegisterActivity.this,
-                                                            "Error al enviar correo de verificación: " + verificationTask.getException().getMessage(),
-                                                            Toast.LENGTH_SHORT).show();
                                                 }
                                             });
                                 }
                             } else {
-                                Toast.makeText(RegisterActivity.this,
-                                        "Error en el registro: " + task.getException().getMessage(),
+                                Toast.makeText(RegisterActivity.this, "Error en el registro: " + task.getException().getMessage(),
                                         Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -223,6 +238,26 @@ public class RegisterActivity extends AppCompatActivity {
                                             userData.put("photoUrl", user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null);
                                             userData.put("provider", "google");
 
+                                            // Crear un mapa para los datos del onboarding
+                                            Map<String, Object> onboardingData = new HashMap<>();
+                                            long birthdayMillis = getIntent().getLongExtra("birthday", -1L);
+                                            String gender = getIntent().getStringExtra("gender");
+                                            int height = getIntent().getIntExtra("height", 0);
+                                            int weight = getIntent().getIntExtra("weight", 0);
+                                            String activityLevel = getIntent().getStringExtra("activity_level");
+
+                                            if (birthdayMillis != -1L) {
+                                                onboardingData.put("birthday", birthdayMillis);
+                                                Log.d(TAG, "Guardando fecha de cumpleaños: " + birthdayMillis);
+                                            }
+                                            if (gender != null) onboardingData.put("gender", gender);
+                                            if (height != 0) onboardingData.put("height", height);
+                                            if (weight != 0) onboardingData.put("weight", weight);
+                                            if (activityLevel != null) onboardingData.put("activity_level", activityLevel);
+
+                                            // Añadir el mapa de onboarding al mapa principal del usuario
+                                            userData.put("onboardingData", onboardingData);
+
                                             db.collection("users").document(user.getUid())
                                                     .set(userData)
                                                     .addOnSuccessListener(aVoid -> {
@@ -239,10 +274,9 @@ public class RegisterActivity extends AppCompatActivity {
                                     });
                         }
                     } else {
-                        Log.w(TAG, "Error en autenticación con Google", task.getException());
-                        Toast.makeText(RegisterActivity.this, 
-                            "Error en autenticación con Google: " + task.getException().getMessage(),
-                            Toast.LENGTH_SHORT).show();
+                        Log.w(TAG, "Error en la autenticación con Google", task.getException());
+                        Toast.makeText(RegisterActivity.this, "Error en la autenticación con Google: " + task.getException().getMessage(),
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
     }
