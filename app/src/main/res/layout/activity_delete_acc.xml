@@ -31,7 +31,6 @@
                 android:layout_height="72dp"
                 android:src="@drawable/outline_account_circle_off_24"
                 android:contentDescription="Ícono de eliminar"
-                android:tint="@android:color/holo_red_dark"
                 android:layout_marginBottom="16dp"/>
 
             <TextView
