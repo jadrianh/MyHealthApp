@@ -76,7 +76,14 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         //FIN boton
+        // Boton para elminar la acc
+        LinearLayout DeleteAccItem = findViewById(R.id.DeleteAccItem);
 
+        DeleteAccItem.setOnClickListener(v -> {
+            Intent intent = new Intent(UserProfileActivity.this, DeleteAcc.class);
+            startActivity(intent);
+        });
+        //
 
         cargarDatosUsuario();
     }

@@ -77,6 +77,7 @@
         <activity
             android:name=".ui.views.WaterLogActivity"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
+        <activity android:name=".ui.views.DeleteAcc" />
         <receiver
             android:name=".receivers.NotificationReceiver"
             android:enabled="true"
