@@ -56,14 +56,11 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <TextView
-        android:id="@+id/textViewListaRegistros"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewRutinas"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="24dp"
-        android:text="Cargando registros..."
-        android:textColor="#444444"
-        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/titleLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
