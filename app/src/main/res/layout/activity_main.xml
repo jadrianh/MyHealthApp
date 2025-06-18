@@ -86,20 +86,31 @@
             android:paddingTop="8dp"/>
 
         <!-- Seleccion de plan de entrenamiento -->
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPagerEjercicios"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardViewPagerEjercicios"
             android:layout_width="0dp"
             android:layout_height="200dp"
-            android:layout_marginTop="8dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:elevation="8dp"
-            android:clipToPadding="false"
-            android:overScrollMode="never"
-            android:background="@drawable/rounded_white_background"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="40dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardPreventCornerOverlap="false"
+            app:cardUseCompatPadding="true"
             app:layout_constraintTop_toBottomOf="@id/title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPagerEjercicios"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:clipChildren="false"
+                android:overScrollMode="never"
+                android:background="@android:color/transparent"/>
+        </androidx.cardview.widget.CardView>
 
         <!-- Subtítulo -->
         <TextView
@@ -110,7 +121,7 @@
             android:textColor="@color/black"
             android:textStyle="bold"
             android:textSize="16sp"
-            app:layout_constraintTop_toBottomOf="@+id/viewPagerEjercicios"
+            app:layout_constraintTop_toBottomOf="@+id/cardViewPagerEjercicios"
             app:layout_constraintStart_toStartOf="parent"
             android:paddingStart="16dp"
             android:paddingTop="16dp"/>
