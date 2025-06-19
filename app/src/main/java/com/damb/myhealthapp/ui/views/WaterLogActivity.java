@@ -301,26 +301,21 @@ public class WaterLogActivity extends AppCompatActivity {
     }
 
     private void mostrarDialogoEditarMeta() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Nueva meta diaria (mL)");
-
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        input.setHint("Ej: 2000");
-
-        builder.setView(input);
-
-        builder.setPositiveButton("Guardar", (dialog, which) -> {
-            String texto = input.getText().toString();
-            if (!texto.isEmpty()) {
-                int nuevaMeta = Integer.parseInt(texto);
-                guardarMetaDiaria(nuevaMeta);
-            }
-        });
-
-        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
-
-        builder.show();
+        final int[] opciones = {1500, 2000, 2500, 3000};
+        String[] opcionesTexto = {"1500 mL", "2000 mL", "2500 mL", "3000 mL"};
+        int seleccionActual = 1; // Por defecto 2000
+        for (int i = 0; i < opciones.length; i++) {
+            if (metaDiaria == opciones[i]) seleccionActual = i;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle("Selecciona tu meta diaria de agua")
+                .setSingleChoiceItems(opcionesTexto, seleccionActual, (dialog, which) -> {
+                    int nuevaMeta = opciones[which];
+                    guardarMetaDiaria(nuevaMeta);
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
 

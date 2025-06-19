@@ -108,6 +108,12 @@ public class MainActivity extends AppCompatActivity implements
     // 1. Agregar campo para el launcher
     private ActivityResultLauncher<Intent> googleFitSignInLauncher;
 
+    // Variables para la meta de agua
+    private TextView textCurrentWater;
+    private TextView textGoalWater;
+    private TextView textProgressWaterPercentage;
+    private ProgressBar progressBarWater;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -196,6 +202,13 @@ public class MainActivity extends AppCompatActivity implements
             Log.d(TAG, "btnConnectGoogleFit clicked. Initiating Google Fit flow.");
             googleFitManager.initiateFitSignInFlow();
         });
+
+        textCurrentWater = findViewById(R.id.textCurrentWater);
+        textGoalWater = findViewById(R.id.textGoalWater);
+        textProgressWaterPercentage = findViewById(R.id.textProgressWaterPercentage);
+        progressBarWater = findViewById(R.id.progressBarWater);
+
+        cargarMetaYConsumoAgua();
     }
 
     @Override
@@ -450,5 +463,54 @@ public class MainActivity extends AppCompatActivity implements
                 .set(dailyMetrics, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Métricas diarias guardadas/actualizadas exitosamente para " + todayDate))
                 .addOnFailureListener(e -> Log.e(TAG, "Error al guardar métricas diarias: ", e));
+    }
+
+    private void cargarMetaYConsumoAgua() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) return;
+        String userId = user.getUid();
+
+        // Escuchar cambios en la meta diaria en tiempo real
+        db.collection("users").document(userId)
+                .addSnapshotListener((documentSnapshot, error) -> {
+                    if (error != null || documentSnapshot == null || !documentSnapshot.exists()) return;
+                    int metaDiaria = 2000;
+                    Long valor = documentSnapshot.getLong("dailyGoal");
+                    if (valor != null) metaDiaria = valor.intValue();
+                    final int metaFinal = metaDiaria;
+                    textGoalWater.setText(String.valueOf(metaFinal));
+
+                    // Escuchar cambios en los registros de agua del día en tiempo real
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.HOUR_OF_DAY, 0);
+                    calendar.set(Calendar.MINUTE, 0);
+                    calendar.set(Calendar.SECOND, 0);
+                    calendar.set(Calendar.MILLISECOND, 0);
+                    Date startOfDay = calendar.getTime();
+                    calendar.set(Calendar.HOUR_OF_DAY, 23);
+                    calendar.set(Calendar.MINUTE, 59);
+                    calendar.set(Calendar.SECOND, 59);
+                    calendar.set(Calendar.MILLISECOND, 999);
+                    Date endOfDay = calendar.getTime();
+
+                    db.collection("users")
+                            .document(userId)
+                            .collection("waterLogs")
+                            .whereGreaterThanOrEqualTo("timestamp", new com.google.firebase.Timestamp(startOfDay))
+                            .whereLessThan("timestamp", new com.google.firebase.Timestamp(endOfDay))
+                            .addSnapshotListener((value, error2) -> {
+                                if (error2 != null || value == null) return;
+                                int totalDelDia = 0;
+                                for (DocumentSnapshot doc : value.getDocuments()) {
+                                    Integer amount = doc.getLong("amount") != null ? doc.getLong("amount").intValue() : 0;
+                                    totalDelDia += amount;
+                                }
+                                textCurrentWater.setText(String.valueOf(totalDelDia));
+                                int porcentaje = (int) ((totalDelDia * 100.0f) / metaFinal);
+                                porcentaje = Math.min(porcentaje, 100);
+                                textProgressWaterPercentage.setText(porcentaje + "%");
+                                progressBarWater.setProgress(porcentaje);
+                            });
+                });
     }
 }
