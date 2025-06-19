@@ -92,7 +92,14 @@ public class UserProfileActivity extends AppCompatActivity {
 
         cargarDatosUsuario();
     }
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == EDIT_PROFILE_REQUEST && resultCode == RESULT_OK) {
+            cargarDatosUsuario();
+            Toast.makeText(this, "Perfil actualizado", Toast.LENGTH_SHORT).show();
+        }
+    }
     private void cargarDatosUsuario() {
         if (user == null) {
             Toast.makeText(this, "Usuario no autenticado.", Toast.LENGTH_SHORT).show();
