@@ -58,6 +58,8 @@ import java.util.Map;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import android.content.SharedPreferences;
+import android.graphics.drawable.GradientDrawable;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleFitManager.OnFitDataReceivedListener,
@@ -114,6 +116,10 @@ public class MainActivity extends AppCompatActivity implements
     private TextView textProgressWaterPercentage;
     private ProgressBar progressBarWater;
 
+    private de.hdodenhof.circleimageview.CircleImageView drawerProfileImageView;
+    private SharedPreferences prefs;
+    private static final String PREF_PROFILE_IMAGE = "profile_image_res";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        prefs = getSharedPreferences("MyHealthAppPrefs", MODE_PRIVATE);
 
         Username = findViewById(R.id.Username);
         menuIcon = findViewById(R.id.menuIcon);
@@ -133,6 +140,10 @@ public class MainActivity extends AppCompatActivity implements
         if (headerView != null) {
             textViewDrawerUsername = headerView.findViewById(R.id.textView_drawer_username);
             textViewDrawerUserEmail = headerView.findViewById(R.id.textView_drawer_user_email);
+            drawerProfileImageView = headerView.findViewById(R.id.imageView_drawer_user_profile);
+            // Cargar avatar guardado y fondo de color
+            int savedResId = prefs.getInt(PREF_PROFILE_IMAGE, R.drawable.ic_account_circle);
+            setDrawerProfileAvatar(savedResId);
         }
 
         // Set up navigation listener
@@ -214,6 +225,11 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        // Actualizar avatar del drawer en tiempo real
+        if (drawerProfileImageView != null && prefs != null) {
+            int savedResId = prefs.getInt(PREF_PROFILE_IMAGE, R.drawable.ic_account_circle);
+            setDrawerProfileAvatar(savedResId);
+        }
         // Re-check user and load data, including Google Fit status
         checkCurrentUserAndLoadData();
     }
@@ -512,5 +528,21 @@ public class MainActivity extends AppCompatActivity implements
                                 progressBarWater.setProgress(porcentaje);
                             });
                 });
+    }
+
+    private void setDrawerProfileAvatar(int resId) {
+        if (drawerProfileImageView == null) return;
+        drawerProfileImageView.setImageResource(resId);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.OVAL);
+        bg.setSize(180, 180);
+        if (resId == R.drawable.ic_face_male) {
+            bg.setColor(0xFF2196F3); // Azul
+        } else if (resId == R.drawable.ic_face_female) {
+            bg.setColor(0xFFE91E63); // Rosado
+        } else {
+            bg.setColor(0xFFE0E0E0); // Gris claro
+        }
+        drawerProfileImageView.setBackground(bg);
     }
 }
