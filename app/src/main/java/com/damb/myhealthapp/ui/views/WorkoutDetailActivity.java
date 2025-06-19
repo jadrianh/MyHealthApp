@@ -13,14 +13,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import com.damb.myhealthapp.ui.views.CaloriasProgressView;
 
 public class WorkoutDetailActivity extends AppCompatActivity {
     private TextView tvWorkoutName, tvDuration, tvCalories;
     private Button btnFinish;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
-    private CaloriasProgressView progressCalorias;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +32,6 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         tvDuration = findViewById(R.id.tvDuration);
         tvCalories = findViewById(R.id.tvCalories);
         btnFinish = findViewById(R.id.btnFinish);
-        progressCalorias = findViewById(R.id.progressCalorias);
 
         String rutinaId = getIntent().getStringExtra("rutina_id");
         String nombreRutina = getIntent().getStringExtra("nombre_rutina");
@@ -60,7 +57,6 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             int calorias = doc.contains("calorias") ? doc.getLong("calorias").intValue() : 0;
             tvDuration.setText(formatDuration(duracion));
             tvCalories.setText(String.valueOf(calorias));
-            progressCalorias.setCalorias(calorias);
         }
     }
 

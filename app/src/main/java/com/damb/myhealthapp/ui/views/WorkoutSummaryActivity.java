@@ -155,6 +155,10 @@ public class WorkoutSummaryActivity extends AppCompatActivity {
                     .collection("workouts").add(workoutRecord)
                     .addOnSuccessListener(documentReference -> {
                         Log.d(TAG, "Registro guardado exitosamente");
+                        // Marcar el día con hasWorkout: true
+                        db.collection("users").document(userId)
+                                .collection("registrosEjercicio").document(todayDate)
+                                .set(new HashMap<String, Object>() {{ put("hasWorkout", true); }}, com.google.firebase.firestore.SetOptions.merge());
                     })
                     .addOnFailureListener(e -> {
                         Log.e(TAG, "Error al guardar el registro: " + e.getMessage());

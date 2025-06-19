@@ -103,7 +103,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Racha actual"
+                    android:text="@string/racha_actual"
                     android:textSize="14sp"
                     android:textColor="#888888" />
             </LinearLayout>
@@ -142,12 +142,130 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Calorías"
+                    android:text="@string/calorias_totales"
                     android:textSize="14sp"
                     android:textColor="#888888" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
+
+    <!-- Sección de meta de calorías -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardCalorieGoal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:cardElevation="6dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/layoutResumen"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Header con título y botón de editar meta -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/meta_calorias"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_dark"
+                    android:textStyle="bold" />
+
+                <ImageButton
+                    android:id="@+id/btnEditCalorieGoal"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/button_edit_goal_selector"
+                    android:src="@drawable/ic_manage_account"
+                    android:contentDescription="@string/editar_meta_calorias"
+                    android:padding="8dp"
+                    app:tint="@android:color/white" />
+            </LinearLayout>
+
+            <!-- Información de progreso -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:id="@+id/textCurrentCalories"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="2,300"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_dark" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/de"
+                    android:textSize="14sp"
+                    android:textColor="@color/gray"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/textGoalCalories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3,000"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_dark"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cal"
+                    android:textSize="14sp"
+                    android:textColor="@color/gray"
+                    android:layout_marginStart="4dp" />
+            </LinearLayout>
+
+            <!-- Barra de progreso -->
+            <ProgressBar
+                android:id="@+id/progressBarCalories"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:progress="77"
+                android:max="100"
+                android:progressDrawable="@drawable/calorie_progress_bar" />
+
+            <!-- Porcentaje de progreso -->
+            <TextView
+                android:id="@+id/textProgressPercentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="77%"
+                android:textSize="12sp"
+                android:textColor="@color/orange"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <!-- Título sección -->
     <TextView
@@ -160,7 +278,7 @@
         android:textStyle="bold"
         android:layout_marginTop="12dp"
         android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@id/layoutResumen"
+        app:layout_constraintTop_toBottomOf="@id/cardCalorieGoal"
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- RecyclerView actualizado con tu ID -->

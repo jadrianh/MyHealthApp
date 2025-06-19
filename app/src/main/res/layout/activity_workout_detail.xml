@@ -141,16 +141,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvCongratulations" />
 
-    <com.damb.myhealthapp.ui.views.CaloriasProgressView
-        android:id="@+id/progressCalorias"
-        android:layout_width="220dp"
-        android:layout_height="220dp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardSummary" />
-
     <Button
         android:id="@+id/btnFinish"
         android:layout_width="match_parent"

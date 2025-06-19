@@ -4,4 +4,20 @@
     <string name="correo_electr_nico">Correo electrónico</string>
     <string name="cambio_de_contrase_a">Cambio de contraseña</string>
     <string name="default_web_client_id" />
+    
+    <!-- Meta de calorías -->
+    <string name="calorias_totales">Calorías totales</string>
+    <string name="meta_calorias">Meta de calorías</string>
+    <string name="editar_meta_calorias">Editar meta de calorías</string>
+    <string name="de">de</string>
+    <string name="cal">cal</string>
+    <string name="establecer_meta">Establecer meta</string>
+    <string name="meta_diaria">Meta diaria</string>
+    <string name="meta_semanal">Meta semanal</string>
+    <string name="meta_mensual">Meta mensual</string>
+    <string name="racha_actual">Racha actual</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="meta_actualizada">Meta actualizada a %1$d kcal</string>
+    <string name="felicitaciones_meta">¡Felicitaciones! Has alcanzado tu meta de calorías</string>
+    <string name="casi_meta">¡Casi alcanzas tu meta! Sigue así</string>
 </resources>
