@@ -1,6 +1,7 @@
 package com.damb.myhealthapp.ui.components;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +34,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Navigati
     protected android.widget.TextView textViewDrawerUsername;
     protected android.widget.TextView textViewDrawerUserEmail;
     protected android.widget.TextView Username;
+    protected SharedPreferences prefs;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,10 +44,12 @@ public abstract class BaseActivity extends AppCompatActivity implements Navigati
     // Método para establecer el contenido específico de la subclase
     protected void setContentViewWithDrawer(@LayoutRes int layoutResID) {
         super.setContentView(R.layout.drawer_layout);
-        View content = getLayoutInflater().inflate(layoutResID, findViewById(R.id.content_frame), true);
+        getLayoutInflater().inflate(layoutResID, findViewById(R.id.content_frame), true);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        prefs = getSharedPreferences("MyHealthAppPrefs", MODE_PRIVATE);
+
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -64,6 +69,23 @@ public abstract class BaseActivity extends AppCompatActivity implements Navigati
                 loadDisplayNameFromFirestore(uid);
                 textViewDrawerUserEmail.setText(currentUser.getEmail());
             }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadProfileImage();
+        // Asegurarse de que el nombre de usuario también se refresque si es necesario
+        if (mAuth.getCurrentUser() != null) {
+            loadDisplayNameFromFirestore(mAuth.getCurrentUser().getUid());
+        }
+    }
+
+    private void loadProfileImage() {
+        if (drawerProfileImageView != null && prefs != null) {
+            int savedResId = prefs.getInt("profile_image_res", R.drawable.ic_account_circle);
+            drawerProfileImageView.setImageResource(savedResId);
         }
     }
 
@@ -89,7 +111,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Navigati
         });
     }
 
-
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -106,8 +127,11 @@ public abstract class BaseActivity extends AppCompatActivity implements Navigati
         } else if (id == R.id.nav_sleep_log) {
             targetActivity = SleepLogActivity.class;
         } else if (id == R.id.nav_logout) {
-            // Aquí solo cerramos el drawer
-            drawerLayout.closeDrawer(GravityCompat.START);
+            mAuth.signOut();
+            Intent intent = new Intent(this, com.damb.myhealthapp.ui.views.LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
             return true;
         }
 
@@ -121,5 +145,4 @@ public abstract class BaseActivity extends AppCompatActivity implements Navigati
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
-
 }
