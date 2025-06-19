@@ -80,9 +80,17 @@ public class UserProfileActivity extends AppCompatActivity {
         LinearLayout DeleteAccItem = findViewById(R.id.DeleteAccItem);
 
         DeleteAccItem.setOnClickListener(v -> {
-            Intent intent = new Intent(UserProfileActivity.this, DeleteAcc.class);
-            startActivity(intent);
+            new androidx.appcompat.app.AlertDialog.Builder(UserProfileActivity.this)
+                    .setTitle("Eliminar cuenta")
+                    .setMessage("¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.")
+                    .setPositiveButton("Eliminar", (dialog, which) -> {
+                        eliminarCuentaUsuario();
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
         });
+
+
         //
 
         cargarDatosUsuario();
@@ -146,4 +154,24 @@ public class UserProfileActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         return sdf.format(new Date(timestamp));
     }
+
+
+    private void eliminarCuentaUsuario() {
+        if (user != null) {
+            user.delete()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(UserProfileActivity.this, "Cuenta eliminada exitosamente", Toast.LENGTH_SHORT).show();
+                            auth.signOut();
+                            Intent intent = new Intent(UserProfileActivity.this, LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Toast.makeText(UserProfileActivity.this, "Error al eliminar la cuenta: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+        }
+    }
+
 }
