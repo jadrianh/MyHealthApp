@@ -56,6 +56,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+
 public class MainActivity extends AppCompatActivity implements
         GoogleFitManager.OnFitDataReceivedListener,
         NavigationView.OnNavigationItemSelectedListener {
@@ -101,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements
     private boolean isRequestingGoogleFitPermissions = false;
     private boolean isGoogleFitOAuthRequesting = false;
     private static final String TAG = "MainActivity";
+
+    // 1. Agregar campo para el launcher
+    private ActivityResultLauncher<Intent> googleFitSignInLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,6 +177,25 @@ public class MainActivity extends AppCompatActivity implements
 
         // Verificar y solicitar permiso de notificaciones
         checkAndRequestNotificationPermission();
+
+        // Inicializar el launcher para Google Fit
+        googleFitSignInLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (googleFitManager != null) {
+                    googleFitManager.handleSignInResult(result.getResultCode(), result.getData());
+                }
+            }
+        );
+
+        // Cambiar la inicialización de GoogleFitManager para pasar el launcher
+        googleFitManager = new GoogleFitManager(this, this, googleFitSignInLauncher);
+
+        // Cambiar el click del botón para usar el launcher
+        btnConnectGoogleFit.setOnClickListener(v -> {
+            Log.d(TAG, "btnConnectGoogleFit clicked. Initiating Google Fit flow.");
+            googleFitManager.initiateFitSignInFlow();
+        });
     }
 
     @Override
@@ -183,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements
     private void checkCurrentUserAndLoadData() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            googleFitManager = new GoogleFitManager(this, this);
+            googleFitManager = new GoogleFitManager(this, this, googleFitSignInLauncher);
 
             // Intentar leer datos agregados de Google Fit si los permisos ya están concedidos
             if (googleFitManager.readAggregatedData()) {
@@ -287,14 +312,6 @@ public class MainActivity extends AppCompatActivity implements
                 isRequestingGoogleFitPermissions = true;
                 requestAppPermissions(FIT_PERMISSIONS, GOOGLE_FIT_PERMISSIONS_REQUEST_CODE);
             }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (googleFitManager != null) {
-            googleFitManager.handleActivityResult(requestCode, resultCode, data);
         }
     }
 
