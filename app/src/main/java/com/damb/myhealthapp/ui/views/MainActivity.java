@@ -332,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onCaloriesReceived(float calories) {
         runOnUiThread(() -> {
-            caloriesTextView.setText(String.format(Locale.getDefault(), "%.2f kcal", calories));
+            caloriesTextView.setText(String.format(Locale.getDefault(), "%d kcal", Math.round(calories)));
             // Asegurarse de que los datos estén visibles y el botón oculto
             stepsCaloriesDataLayout.setVisibility(View.VISIBLE);
             btnConnectGoogleFit.setVisibility(View.GONE);
