@@ -7,6 +7,9 @@ import android.content.IntentSender;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -39,6 +42,7 @@ public class GoogleFitManager {
     private GoogleSignInClient googleSignInClient;
     private FitnessOptions fitnessOptions; // Declarar fitnessOptions a nivel de clase
     private OnFitDataReceivedListener fitDataListener;
+    private ActivityResultLauncher<Intent> signInLauncher;
 
     public interface OnFitDataReceivedListener {
         void onStepsReceived(long steps);
@@ -51,9 +55,10 @@ public class GoogleFitManager {
         void onError(String error);
     }
 
-    public GoogleFitManager(Activity activity, OnFitDataReceivedListener listener) {
+    public GoogleFitManager(Activity activity, OnFitDataReceivedListener listener, ActivityResultLauncher<Intent> signInLauncher) {
         this.activity = activity;
         this.fitDataListener = listener;
+        this.signInLauncher = signInLauncher;
         setupGoogleFitOptions(); // Configurar las opciones de Fitness
     }
 
@@ -79,7 +84,7 @@ public class GoogleFitManager {
         // Lanzar el flujo interactivo de Google Sign-In directamente
         Log.d(TAG, "Iniciando flujo interactivo de Google Sign-In");
         Intent signInIntent = googleSignInClient.getSignInIntent();
-        activity.startActivityForResult(signInIntent, REQUEST_OAUTH_REQUEST_CODE);
+        signInLauncher.launch(signInIntent);
     }
 
     // Solicita los permisos de Google Fit al usuario
@@ -212,21 +217,14 @@ public class GoogleFitManager {
                 });
     }
 
-    // Método para manejar los resultados de las actividades lanzadas por Google Fit
-    public void handleActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "handleActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
-        if (requestCode == REQUEST_OAUTH_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                // Permisos concedidos después de la resolución, intentar leer datos de nuevo
-                Log.d(TAG, "Resolución de Google Fit exitosa. Leyendo datos.");
-                // Aquí, la cuenta de Google ya debería estar disponible a través de GoogleSignIn.getLastSignedInAccount()
-                readFitData(); // Llama a readFitData directamente
-            } else {
-                // Usuario canceló o falló la resolución
-                Log.w(TAG, "Resolución de Google Fit cancelada o fallida. Código: " + resultCode);
-                if (fitDataListener != null) {
-                    fitDataListener.onError("Permisos de Google Fit no concedidos. La función de conteo de pasos no estará disponible.");
-                }
+    // Nuevo método para manejar el resultado del sign-in
+    public void handleSignInResult(int resultCode, Intent data) {
+        Log.d(TAG, "handleSignInResult: resultCode=" + resultCode);
+        if (resultCode == Activity.RESULT_OK) {
+            readFitData();
+        } else {
+            if (fitDataListener != null) {
+                fitDataListener.onError("Permisos de Google Fit no concedidos. La función de conteo de pasos no estará disponible.");
             }
         }
     }
