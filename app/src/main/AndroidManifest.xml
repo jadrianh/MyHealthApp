@@ -88,7 +88,7 @@
         <activity
             android:name=".ui.views.SleepLogsHistoryActivity"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
-        <activity android:name=".ui.views.DeleteAcc" />
+        <activity android:name=".ui.views.DeleteAccountActivity" />
         <activity android:name=".ui.views.WorkoutSummaryActivity" />
         <activity android:name=".ui.views.WorkoutDetailActivity" />
         <receiver

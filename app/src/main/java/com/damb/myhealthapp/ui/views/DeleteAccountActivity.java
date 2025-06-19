@@ -1,11 +1,8 @@
 package com.damb.myhealthapp.ui.views;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ImageButton; // Importación necesaria para ImageButton
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,15 +10,9 @@ import com.damb.myhealthapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import android.app.DatePickerDialog;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.Map;
-import androidx.appcompat.app.AppCompatActivity;
 
-public class DeleteAcc extends AppCompatActivity {
+
+public class DeleteAccountActivity extends AppCompatActivity {
     Button btnEliminarCuenta;
 
     @Override
