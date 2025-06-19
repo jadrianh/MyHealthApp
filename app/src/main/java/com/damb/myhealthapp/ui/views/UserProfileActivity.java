@@ -1,18 +1,24 @@
 package com.damb.myhealthapp.ui.views;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.widget.HorizontalScrollView;
 import com.damb.myhealthapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import de.hdodenhof.circleimageview.CircleImageView;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -28,6 +34,15 @@ public class UserProfileActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseUser user;
     private FirebaseFirestore db;
+    private SharedPreferences prefs;
+    private static final String PREF_PROFILE_IMAGE = "profile_image_res";
+    private int[] avatarResIds = {
+        R.drawable.ic_face_male,
+        R.drawable.ic_face_female,
+        R.drawable.ic_account_circle,
+        R.drawable.ic_launcher_foreground
+    };
+    private de.hdodenhof.circleimageview.CircleImageView profileImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,14 +52,20 @@ public class UserProfileActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
+        prefs = getSharedPreferences("MyHealthAppPrefs", MODE_PRIVATE);
 
+        profileImageView = findViewById(R.id.profileImageView);
         nameTextView = findViewById(R.id.nameTextView);
         emailTextView = findViewById(R.id.emailTextView);
         birthdayTextView = findViewById(R.id.birthdayTextView);
         heightTextView = findViewById(R.id.heightTextView);
         weightTextView = findViewById(R.id.weightTextView);
-
         notificationsItem = findViewById(R.id.notificationsItem);
+
+        // Cargar imagen de perfil guardada
+        int savedResId = prefs.getInt(PREF_PROFILE_IMAGE, R.drawable.ic_account_circle);
+        setProfileAvatar(savedResId);
+        profileImageView.setOnClickListener(v -> mostrarDialogoAvatares());
 
         ImageButton backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> finish());
@@ -176,6 +197,67 @@ public class UserProfileActivity extends AppCompatActivity {
                         }
                     });
         }
+    }
+
+    private void mostrarDialogoAvatares() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Selecciona tu avatar");
+        ImageView[] imageViews = new ImageView[avatarResIds.length];
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.HORIZONTAL);
+        layout.setPadding(32, 32, 32, 32);
+        for (int i = 0; i < avatarResIds.length; i++) {
+            final int resId = avatarResIds[i];
+            imageViews[i] = new ImageView(this);
+            imageViews[i].setImageResource(resId);
+            imageViews[i].setPadding(24, 0, 24, 0);
+            imageViews[i].setLayoutParams(new LinearLayout.LayoutParams(180, 180));
+
+            // Fondo circular de color según el avatar
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.OVAL);
+            bg.setSize(180, 180);
+            if (resId == R.drawable.ic_face_male) {
+                bg.setColor(0xFF2196F3); // Azul
+            } else if (resId == R.drawable.ic_face_female) {
+                bg.setColor(0xFFE91E63); // Rosado
+            } else {
+                bg.setColor(0xFFE0E0E0); // Gris claro
+            }
+            imageViews[i].setBackground(bg);
+        }
+        // Hacer el layout desplazable
+        HorizontalScrollView scrollView = new HorizontalScrollView(this);
+        scrollView.addView(layout);
+        builder.setView(scrollView);
+        builder.setNegativeButton("Cancelar", null);
+        AlertDialog dialog = builder.create();
+        // Listener para seleccionar y cerrar
+        for (int i = 0; i < avatarResIds.length; i++) {
+            final int resId = avatarResIds[i];
+            imageViews[i].setOnClickListener(v -> {
+                setProfileAvatar(resId);
+                prefs.edit().putInt(PREF_PROFILE_IMAGE, resId).apply();
+                dialog.dismiss();
+            });
+            layout.addView(imageViews[i]);
+        }
+        dialog.show();
+    }
+
+    private void setProfileAvatar(int resId) {
+        profileImageView.setImageResource(resId);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.OVAL);
+        bg.setSize(180, 180);
+        if (resId == R.drawable.ic_face_male) {
+            bg.setColor(0xFF2196F3); // Azul
+        } else if (resId == R.drawable.ic_face_female) {
+            bg.setColor(0xFFE91E63); // Rosado
+        } else {
+            bg.setColor(0xFFE0E0E0); // Gris claro
+        }
+        profileImageView.setBackground(bg);
     }
 
 }
