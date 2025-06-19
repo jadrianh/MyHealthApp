@@ -22,9 +22,17 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_welcome);
 
         mAuth = FirebaseAuth.getInstance();
+
+        // Redirigir si ya hay usuario autenticado
+        if (mAuth.getCurrentUser() != null) {
+            startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
+            finish();
+            return;
+        }
+
+        setContentView(R.layout.activity_welcome);
 
         ImageView welcomeImage = findViewById(R.id.welcomeImage);
         ImageView logoImageView = findViewById(R.id.logoImageView);

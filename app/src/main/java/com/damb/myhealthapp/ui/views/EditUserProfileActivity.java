@@ -92,6 +92,7 @@ public class EditUserProfileActivity extends AppCompatActivity {
                             "onboardingData.birthday", birthday)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Datos actualizados", Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_OK);
                         finish(); // Volver al perfil
                     })
                     .addOnFailureListener(e ->

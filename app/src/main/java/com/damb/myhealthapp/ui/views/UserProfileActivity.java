@@ -19,7 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class UserProfileActivity extends AppCompatActivity {
-
+    private static final int EDIT_PROFILE_REQUEST = 1;
     private TextView nameTextView, emailTextView, birthdayTextView,
             heightTextView, weightTextView;
 
@@ -56,12 +56,9 @@ public class UserProfileActivity extends AppCompatActivity {
         });
         //BOTON EDITAR LOS DATOS DEL USUARIO
         LinearLayout manageUserItem = findViewById(R.id.manageUserItem);
-        manageUserItem.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(UserProfileActivity.this, EditUserProfileActivity.class);
-                startActivity(intent);
-            }
+        manageUserItem.setOnClickListener(v -> {
+            Intent intent = new Intent(UserProfileActivity.this, EditUserProfileActivity.class);
+            startActivityForResult(intent, EDIT_PROFILE_REQUEST);
         });
 
         //FIN boton
