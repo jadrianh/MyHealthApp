@@ -4,38 +4,32 @@
     <color name="skyBlue">#38e8ff</color>
     <color name="skyBlueDark">#5D9CC9</color>
 
-    <color name="blueLight">#A7D4F2</color>
-    <color name="blue">#48A3FE</color>
-    <color name="blueDark">#2f5fff</color>
+    <color name="blueLight">#85BEFF</color>
+    <color name="blue">#4885FE</color>
+    <color name="blueDark">#2563EB</color>
 
     <color name="purpleLight">#C79FEF</color>
     <color name="purple">#8F65D5</color>
     <color name="purpleDark">#4d1195</color>
 
-    <color name="greenLight">#B2F2C9</color>
-    <color name="green">#55D48A</color>
-    <color name="greenDark">#23d46a</color>
+    <color name="greenLight">#B5EF84</color>
+    <color name="green">#23d46a</color>
+    <color name="greenDark">#097E43</color>
 
     <color name="redLight">#F9B4BB</color>
     <color name="red">#FA6474</color>
     <color name="redDark">#c33040</color>
 
-    <color name="orangeLight">#F7C2B2</color>
-    <color name="orange">#f16b48</color>
-    <color name="orangeDark">#bc4c32</color>
+    <color name="orangeLight">#F0A05A</color>
+    <color name="orange">#F97316</color>
+    <color name="orangeDark">#B33B26</color>
 
-    <color name="grayLight">#CACACA</color>
-    <color name="gray">#A2A2A2</color>
-    <color name="grayDark">#484848</color>
+    <color name="grayLight">#A2A2A2</color>
+    <color name="gray">#434550</color>
+    <color name="grayDark">#4B5563</color>
 
     <color name="white">#FFFFFF</color>
-    <color name="black">#1F1F1F</color>
-    <color name="app_blue">#2563EB</color>
-    <color name="app_green">#16A34A</color>
-    <color name="app_orange">#F97316</color>
-    <color name="light_gray">#E5E7EB</color>
-    <color name="dark_gray">#4B5563</color>
-    <color name="text_dark">#1F2937</color>
+    <color name="black">#1F2937</color>
 
     <color name="button_selected_background">#23d46a</color> <!-- Green for selected -->
     <color name="button_selected_text">#FFFFFF</color>     <!-- White text for selected -->

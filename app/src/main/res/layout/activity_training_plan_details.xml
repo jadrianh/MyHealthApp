@@ -15,17 +15,6 @@
         android:layout_height="match_parent"
         android:background="#FFFFFF">
 
-        <!-- Fondo azul -->
-        <View
-            android:id="@+id/topBackground"
-            android:layout_width="0dp"
-            android:layout_height="380dp"
-            android:background="@drawable/background_main_gradient"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/titleLayout"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/titleLayout"
             android:layout_width="0dp"
@@ -45,7 +34,7 @@
                 android:src="@drawable/ic_arrow_back"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/white" />
+                app:tint="@color/grayDark" />
 
             <TextView
                 android:id="@+id/tituloDetalle"
@@ -56,7 +45,7 @@
                 android:gravity="center"
                 android:lineSpacingExtra="4dp"
                 android:text="Información del \n plan de entrenamiento"
-                android:textColor="@color/white"
+                android:textColor="@color/grayDark"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -90,8 +79,8 @@
 
                     <ImageView
                         android:id="@+id/imgMotivacional"
-                        android:layout_width="120dp"
-                        android:layout_height="120dp"
+                        android:layout_width="132dp"
+                        android:layout_height="132dp"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:scaleType="centerInside"
@@ -103,7 +92,7 @@
                         android:layout_height="wrap_content"
                         android:text="Comienza con fuerza\ny logra tus metas"
                         android:textColor="#FFFFFF"
-                        android:textSize="18sp"
+                        android:textSize="24sp"
                         android:textStyle="bold"
                         android:layout_alignParentStart="true"
                         android:layout_toStartOf="@id/imgMotivacional"
@@ -113,14 +102,16 @@
                         android:id="@+id/btnComenzar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:maxWidth="200dp"
                         android:text="Comenzar entrenamiento"
                         android:textAllCaps="false"
                         android:textColor="@color/white"
-                        android:textSize="14sp"
+                        android:textSize="20sp"
                         android:backgroundTint="#00C853"
                         android:layout_below="@id/textoMotivacional"
                         android:layout_marginTop="16dp"
-                        android:layout_alignParentStart="true" />
+                        android:layout_alignParentStart="true"
+                        android:layout_marginEnd="16dp"/>
                 </RelativeLayout>
 
 
@@ -130,7 +121,7 @@
                     android:layout_height="wrap_content"
                     android:text="Descripción del plan de entrenamiento..."
                     android:textColor="@color/grayDark"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:lineSpacingExtra="6dp"
                     android:layout_marginHorizontal="6dp"
                     android:elevation="8dp"

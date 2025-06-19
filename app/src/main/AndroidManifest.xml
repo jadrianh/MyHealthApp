@@ -10,6 +10,8 @@
 
     <!-- Permiso para notificaciones en Android 13 (API 33) y superiores -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Permiso para sensores físicos en Android algo (API ¿?) y superiores -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
@@ -76,6 +78,15 @@
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".ui.views.WaterLogActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
+        <activity
+            android:name=".ui.views.SleepLogActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
+        <activity
+            android:name=".ui.views.SleepLogSummaryActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
+        <activity
+            android:name=".ui.views.SleepLogsHistoryActivity"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
         <activity android:name=".ui.views.DeleteAcc" />
         <activity android:name=".ui.views.WorkoutSummaryActivity" />

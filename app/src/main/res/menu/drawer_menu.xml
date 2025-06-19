@@ -21,7 +21,7 @@
             android:icon="@drawable/ic_water_drop"
             android:title="Registro de hidratacion" />
         <item
-            android:id="@+id/nav_dream_log"
+            android:id="@+id/nav_sleep_log"
             android:icon="@drawable/ic_alarm"
             android:title="Registro de Sueño" />
     </group>

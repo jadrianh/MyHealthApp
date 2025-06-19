@@ -15,12 +15,14 @@ import java.util.List;
 
 public class ExerciseViewPagerAdapter extends RecyclerView.Adapter<ExerciseViewPagerAdapter.EjercicioViewHolder> {
 
-    private List<String> tiposEjercicio;
+    // Cambiado de List<String> a List<EjercicioData>
+    private List<EjercicioData> ejercicios;
     private Context context;
 
-    public ExerciseViewPagerAdapter(Context context, List<String> tiposEjercicio) {
+    // Constructor modificado para aceptar List<EjercicioData>
+    public ExerciseViewPagerAdapter(Context context, List<EjercicioData> ejercicios) {
         this.context = context;
-        this.tiposEjercicio = tiposEjercicio;
+        this.ejercicios = ejercicios;
     }
 
     @NonNull
@@ -28,48 +30,71 @@ public class ExerciseViewPagerAdapter extends RecyclerView.Adapter<ExerciseViewP
     public EjercicioViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_viewpager_ejercicio, parent, false);
-        return new EjercicioViewHolder(view, context, tiposEjercicio); // Pasa el contexto y la lista
+        // Pasa el contexto y la lista de objetos de datos al ViewHolder
+        return new EjercicioViewHolder(view, context, ejercicios);
     }
 
     @Override
     public void onBindViewHolder(@NonNull EjercicioViewHolder holder, int position) {
-        String nombre = tiposEjercicio.get(position);
-        holder.nombreEjercicio.setText(nombre);
+        // Obtener el objeto EjercicioData para la posición actual
+        EjercicioData ejercicio = ejercicios.get(position);
 
-        int imageResId = getImageResource(nombre);
+        // Asignar los datos a los TextViews
+        holder.nombreEjercicio.setText(ejercicio.getNombre());
+        holder.subtituloEjercicio.setText(ejercicio.getTipoEntrenamiento()); // Usa el nuevo campo
+        holder.tiempoEjercicio.setText(ejercicio.getTiempo());               // Usa el nuevo campo
+        holder.caloriasEjercicio.setText(ejercicio.getCalorias());           // Usa el nuevo campo
+
+        // Cargar la imagen
+        int imageResId = getImageResource(ejercicio.getNombre());
         holder.imagenEjercicio.setImageResource(imageResId);
     }
 
     @Override
     public int getItemCount() {
-        return tiposEjercicio.size();
+        return ejercicios.size();
     }
 
+    // El ViewHolder ahora contendrá los nuevos TextViews
     static class EjercicioViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView nombreEjercicio;
+        TextView subtituloEjercicio; // Nuevo
+        TextView tiempoEjercicio;    // Nuevo
+        TextView caloriasEjercicio;  // Nuevo
         ImageView imagenEjercicio;
 
         private Context context;
-        private List<String> tiposEjercicio;
+        // La lista de objetos de datos se pasa al ViewHolder
+        private List<EjercicioData> ejercicios;
 
-        EjercicioViewHolder(View itemView, Context context, List<String> tiposEjercicio) {
+        // Constructor modificado para inicializar los nuevos TextViews
+        EjercicioViewHolder(View itemView, Context context, List<EjercicioData> ejercicios) {
             super(itemView);
             this.context = context;
-            this.tiposEjercicio = tiposEjercicio;
+            this.ejercicios = ejercicios; // Almacena la lista
             nombreEjercicio = itemView.findViewById(R.id.nombreEjercicioViewPager);
+            subtituloEjercicio = itemView.findViewById(R.id.subtituloEjercicio); // Inicializar nuevo TextView
+            tiempoEjercicio = itemView.findViewById(R.id.tiempoEjercicio);       // Inicializar nuevo TextView
+            caloriasEjercicio = itemView.findViewById(R.id.caloriasEjercicio);   // Inicializar nuevo TextView
             imagenEjercicio = itemView.findViewById(R.id.imagenEjercicio);
-            // imagenEjercicio = itemView.findViewById(R.id.imagenEjercicio); // Descomentar si añades un ImageView
 
-            itemView.setOnClickListener(this); // Establecer el listener una sola vez
+            itemView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            int position = getAdapterPosition(); // Obtener la posición del elemento cliqueado
+            int position = getAdapterPosition();
             if (position != RecyclerView.NO_POSITION) {
-                String nombre = tiposEjercicio.get(position);
+                // Obtener el objeto EjercicioData para la posición cliqueada
+                EjercicioData ejercicioSeleccionado = ejercicios.get(position);
                 Intent intent = new Intent(context, TrainingPlanDetailsActivity.class);
-                intent.putExtra("nombre_ejercicio", nombre);
+                // Pasa el nombre del ejercicio u otros datos relevantes
+                intent.putExtra("nombre_ejercicio", ejercicioSeleccionado.getNombre());
+                // Si TrainingPlanDetailsActivity necesita más datos, añádelos aquí:
+                // intent.putExtra("subtitulo_ejercicio", ejercicioSeleccionado.getTipoEntrenamiento());
+                // intent.putExtra("tiempo_ejercicio", ejercicioSeleccionado.getTiempo());
+                // intent.putExtra("calorias_ejercicio", ejercicioSeleccionado.getCalorias());
+
                 if (!(context instanceof android.app.Activity)) {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 }
@@ -78,6 +103,7 @@ public class ExerciseViewPagerAdapter extends RecyclerView.Adapter<ExerciseViewP
         }
     }
 
+    // Esta función mapea el nombre del ejercicio a su recurso de imagen
     private int getImageResource(String nombreEjercicio) {
         if (nombreEjercicio.equalsIgnoreCase("Pérdida de Peso (Quema de Grasa)")) {
             return R.drawable.perdida_de_grasa;
@@ -96,8 +122,40 @@ public class ExerciseViewPagerAdapter extends RecyclerView.Adapter<ExerciseViewP
         } else if (nombreEjercicio.equalsIgnoreCase("Plan para Principiantes")) {
             return R.drawable.plan_para_principiantes;
         } else {
-            return R.drawable.ic_face_female;
+            return R.drawable.ic_face_female; // Recurso de imagen por defecto
         }
     }
 
+    // *** CLASE DE DATOS PARA EL EJERCICIO (Importante: define esta clase) ***
+    // Puedes definirla aquí como una clase interna estática o en un archivo EjercicioData.java separado.
+    // Para evitar más problemas de rutas, la mantenemos aquí como interna estática.
+    public static class EjercicioData {
+        private String nombre;
+        private String tipoEntrenamiento; // Nuevo campo para el subtítulo
+        private String tiempo;            // Nuevo campo para la duración
+        private String calorias;          // Nuevo campo para las calorías
+
+        public EjercicioData(String nombre, String tipoEntrenamiento, String tiempo, String calorias) {
+            this.nombre = nombre;
+            this.tipoEntrenamiento = tipoEntrenamiento;
+            this.tiempo = tiempo;
+            this.calorias = calorias;
+        }
+
+        public String getNombre() {
+            return nombre;
+        }
+
+        public String getTipoEntrenamiento() {
+            return tipoEntrenamiento;
+        }
+
+        public String getTiempo() {
+            return tiempo;
+        }
+
+        public String getCalorias() {
+            return calorias;
+        }
+    }
 }

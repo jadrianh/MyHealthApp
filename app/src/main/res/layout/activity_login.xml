@@ -106,7 +106,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="20dp"
-                    android:backgroundTint="@color/greenDark"
+                    android:backgroundTint="@color/green"
                     android:text="Inicia sesión"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"

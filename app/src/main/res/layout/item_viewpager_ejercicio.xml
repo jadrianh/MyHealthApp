@@ -1,25 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <ImageView
         android:id="@+id/imagenEjercicio"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:adjustViewBounds="true" />
+        android:contentDescription="Imagen del tipo de ejercicio" />
 
-
-
-    <TextView
-        android:id="@+id/nombreEjercicioViewPager"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="Tipo de Ejercicio"
-        android:textColor="@color/white"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:background="@drawable/background_gradient_overlay">
+        <TextView
+            android:id="@+id/nombreEjercicioViewPager"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Titulo plan de entrenamiento!"
+            android:textColor="@android:color/white"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
 
-</FrameLayout> 
+        <TextView
+            android:id="@+id/subtituloEjercicio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Plan de entrenamiento"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:alpha="0.8"
+            android:layout_marginBottom="24dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="bottom">
+
+            <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:background="@drawable/rounded_white_background">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_timer"
+                app:tint="@color/blue"
+                android:contentDescription="Icono de duración"
+                android:layout_marginEnd="4dp"/>
+
+            <TextView
+                android:id="@+id/tiempoEjercicio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="40 min"
+                android:textColor="@color/grayDark"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginStart="12dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:background="@drawable/rounded_white_background">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_fire"
+                    app:tint="@color/orange"
+                    android:contentDescription="Icono de calorías"
+                    android:layout_marginEnd="4dp"/>
+
+                <TextView
+                    android:id="@+id/caloriasEjercicio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="350 Cal"
+                    android:textColor="@color/grayDark"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>

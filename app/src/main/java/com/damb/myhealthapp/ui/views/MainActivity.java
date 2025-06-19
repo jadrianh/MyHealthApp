@@ -58,6 +58,8 @@ import java.util.Map;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import android.content.SharedPreferences;
+import android.graphics.drawable.GradientDrawable;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleFitManager.OnFitDataReceivedListener,
@@ -114,6 +116,10 @@ public class MainActivity extends AppCompatActivity implements
     private TextView textProgressWaterPercentage;
     private ProgressBar progressBarWater;
 
+    private de.hdodenhof.circleimageview.CircleImageView drawerProfileImageView;
+    private SharedPreferences prefs;
+    private static final String PREF_PROFILE_IMAGE = "profile_image_res";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        prefs = getSharedPreferences("MyHealthAppPrefs", MODE_PRIVATE);
 
         Username = findViewById(R.id.Username);
         menuIcon = findViewById(R.id.menuIcon);
@@ -133,26 +140,29 @@ public class MainActivity extends AppCompatActivity implements
         if (headerView != null) {
             textViewDrawerUsername = headerView.findViewById(R.id.textView_drawer_username);
             textViewDrawerUserEmail = headerView.findViewById(R.id.textView_drawer_user_email);
+            drawerProfileImageView = headerView.findViewById(R.id.imageView_drawer_user_profile);
+            // Cargar avatar guardado y fondo de color
+            int savedResId = prefs.getInt(PREF_PROFILE_IMAGE, R.drawable.ic_account_circle);
+            setDrawerProfileAvatar(savedResId);
         }
 
-        // Set up navigation listener
         navigationView.setNavigationItemSelectedListener(this);
-
-        // Set up drawer menu icon click listener
         menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
 
-        // Set up ViewPager2
         viewPagerEjercicios = findViewById(R.id.viewPagerEjercicios);
-        List<String> tiposEjercicio = new ArrayList<>();
-        tiposEjercicio.add("Pérdida de Peso (Quema de Grasa)");
-        tiposEjercicio.add("Ganancia de Masa Muscular (Hipertrofia)");
-        tiposEjercicio.add("Flexibilidad y Movilidad");
-        tiposEjercicio.add("Salud General y Bienestar");
-        tiposEjercicio.add("Resistencia y Cardio");
-        tiposEjercicio.add("Entrenamiento Funcional");
-        tiposEjercicio.add("Plan Rápido para Tonificación");
-        tiposEjercicio.add("Plan para Principiantes");
-        ExerciseViewPagerAdapter exerciseViewPagerAdapter = new ExerciseViewPagerAdapter(this, tiposEjercicio);
+
+        // *** CAMBIO CLAVE AQUÍ: Llenar la lista con objetos EjercicioData ***
+        List<ExerciseViewPagerAdapter.EjercicioData> ejerciciosData = new ArrayList<>();
+        ejerciciosData.add(new ExerciseViewPagerAdapter.EjercicioData("Pérdida de Peso (Quema de Grasa)", "Quema de grasa", "40 min", "560 Cal"));
+        ejerciciosData.add(new ExerciseViewPagerAdapter.EjercicioData("Ganancia de Masa Muscular (Hipertrofia)", "Entrenamiento de Fuerza", "60 min", "420 Cal"));
+        ejerciciosData.add(new ExerciseViewPagerAdapter.EjercicioData("Flexibilidad y Movilidad", "Yoga y Estiramientos", "30 min", "170 Cal"));
+        ejerciciosData.add(new ExerciseViewPagerAdapter.EjercicioData("Salud General y Bienestar", "Actividad Moderada", "16 min", "280 Cal"));
+        ejerciciosData.add(new ExerciseViewPagerAdapter.EjercicioData("Resistencia y Cardio", "Running Intervalos", "45 min", "480 Cal"));
+        ejerciciosData.add(new ExerciseViewPagerAdapter.EjercicioData("Entrenamiento Funcional", "Movimientos Compuestos", "25 min", "525 Cal"));
+        ejerciciosData.add(new ExerciseViewPagerAdapter.EjercicioData("Plan Rápido para Tonificación", "Entrenamiento Express", "20 min", "455 Cal"));
+        ejerciciosData.add(new ExerciseViewPagerAdapter.EjercicioData("Plan para Principiantes", "Introducción al Fitness", "15 min", "245 Cal"));
+
+        ExerciseViewPagerAdapter exerciseViewPagerAdapter = new ExerciseViewPagerAdapter(this, ejerciciosData);
         viewPagerEjercicios.setAdapter(exerciseViewPagerAdapter);
 
         // Initialize Google Fit views
@@ -214,6 +224,11 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        // Actualizar avatar del drawer en tiempo real
+        if (drawerProfileImageView != null && prefs != null) {
+            int savedResId = prefs.getInt(PREF_PROFILE_IMAGE, R.drawable.ic_account_circle);
+            setDrawerProfileAvatar(savedResId);
+        }
         // Re-check user and load data, including Google Fit status
         checkCurrentUserAndLoadData();
     }
@@ -290,6 +305,8 @@ public class MainActivity extends AppCompatActivity implements
             startActivity(profileIntent);
         } else if (id == R.id.nav_water_log) {
             startActivity(new Intent(MainActivity.this, WaterLogActivity.class));
+        } else if (id == R.id.nav_sleep_log) {
+            startActivity(new Intent(MainActivity.this, SleepLogActivity.class));
         } else if (id == R.id.nav_logout) {
             logout();
         }
@@ -512,5 +529,21 @@ public class MainActivity extends AppCompatActivity implements
                                 progressBarWater.setProgress(porcentaje);
                             });
                 });
+    }
+
+    private void setDrawerProfileAvatar(int resId) {
+        if (drawerProfileImageView == null) return;
+        drawerProfileImageView.setImageResource(resId);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.OVAL);
+        bg.setSize(180, 180);
+        if (resId == R.drawable.ic_face_male) {
+            bg.setColor(0xFF2196F3); // Azul
+        } else if (resId == R.drawable.ic_face_female) {
+            bg.setColor(0xFFE91E63); // Rosado
+        } else {
+            bg.setColor(0xFFE0E0E0); // Gris claro
+        }
+        drawerProfileImageView.setBackground(bg);
     }
 }

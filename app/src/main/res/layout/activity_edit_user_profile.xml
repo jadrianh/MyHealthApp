@@ -4,25 +4,25 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="@color/white">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:background="@drawable/background_main_gradient"
-        android:paddingTop="32dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
-        <!-- Ojo que la flecha no funciona, ahi se la agregan gente-->
-        <ImageView
+    <RelativeLayout android:background="@drawable/background_main_gradient"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
+
+        <ImageButton
             android:id="@+id/backButton"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:padding="16dp"
+            android:src="@drawable/ic_arrow_back"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_arrow_back"
-            app:tint="#FFFFFF"
-            android:contentDescription="Atrás" />
+            app:tint="@color/white" />
 
         <TextView
             android:id="@+id/headerTitle"
@@ -30,10 +30,11 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="Editar Perfil"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:gravity="center" />
+        android:gravity="center" />
+
     </RelativeLayout>
 
     <ScrollView
@@ -47,13 +48,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- Nombre -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="20dp"
                 android:hint="Nombre"
-                app:boxStrokeColor="#00C853"
                 app:boxStrokeWidthFocused="2dp"
                 app:boxBackgroundMode="outline"
                 app:boxCornerRadiusTopStart="8dp"
@@ -67,17 +66,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName"
-                    android:textColor="#000000"
-                    android:textColorHint="#888888" />
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/grayDark" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Altura -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="20dp"
                 android:hint="Altura (cm)"
-                app:boxStrokeColor="#00C853"
                 app:boxStrokeWidthFocused="2dp"
                 app:boxBackgroundMode="outline"
                 app:boxCornerRadiusTopStart="8dp"
@@ -91,17 +88,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal"
-                    android:textColor="#000000"
-                    android:textColorHint="#888888" />
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/grayDark" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Peso -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="20dp"
                 android:hint="Peso (kg)"
-                app:boxStrokeColor="#00C853"
                 app:boxStrokeWidthFocused="2dp"
                 app:boxBackgroundMode="outline"
                 app:boxCornerRadiusTopStart="8dp"
@@ -115,11 +110,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal"
-                    android:textColor="#000000"
-                    android:textColorHint="#888888" />
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/grayDark" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Fecha de nacimiento (solo visual, no editable) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,7 +125,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="Fecha de nacimiento (dd/MM/yyyy)"
-                    app:boxStrokeColor="#00C853"
                     app:boxStrokeWidthFocused="2dp"
                     app:boxBackgroundMode="outline"
                     app:boxCornerRadiusTopStart="8dp"
@@ -147,31 +140,26 @@
                         android:clickable="false"
                         android:focusable="false"
                         android:inputType="none"
-                        android:textColor="#000000"
-                        android:textColorHint="#888888" />
+                        android:textColor="@color/black"
+                        android:textColorHint="@color/grayDark" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <ImageButton
                     android:id="@+id/calendarButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="8dp"
-                    android:src="@android:drawable/ic_menu_my_calendar"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginStart="12dp" android:src="@drawable/ic_calendar"
                     android:contentDescription="Seleccionar fecha"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:scaleType="centerInside"
-                    app:tint="#1976D2"
-                    android:padding="4dp"/>
-            </LinearLayout>
-
+                    app:tint="@color/green" /> </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveButton"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="20dp"
-                android:backgroundTint="@color/greenDark"
-                android:text="Guardar"
+                android:backgroundTint="@color/green" android:text="Guardar"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -179,9 +167,6 @@
                 app:iconGravity="textEnd"
                 app:iconPadding="8dp"
                 app:iconTint="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/confirmPasswordInputLayout"
                 app:rippleColor="#FFFFFF33" />
 
         </LinearLayout>

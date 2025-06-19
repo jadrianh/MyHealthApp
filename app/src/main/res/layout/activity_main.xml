@@ -44,7 +44,7 @@
                 android:text="Buenos Días 🔥"
                 android:textColor="#FFFFFF"
                 android:textStyle="bold"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -55,7 +55,7 @@
                 android:text="usuario"
                 android:textColor="#FFFFFF"
                 android:textStyle="bold"
-                android:textSize="26sp"
+                android:textSize="28sp"
                 app:layout_constraintTop_toBottomOf="@id/saludo"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -79,20 +79,19 @@
             android:text="Planes de entrenamiento"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
-            android:textSize="16sp"
+            android:textSize="20sp"
             app:layout_constraintTop_toBottomOf="@+id/titleLayout"
             app:layout_constraintStart_toStartOf="parent"
-            android:paddingStart="16dp"
+            android:paddingStart="25dp"
             android:paddingTop="8dp"/>
 
         <!-- Seleccion de plan de entrenamiento -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardViewPagerEjercicios"
             android:layout_width="0dp"
-            android:layout_height="200dp"
+            android:layout_height="220dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginTop="8dp"
             app:cardCornerRadius="40dp"
             app:cardElevation="8dp"
             app:cardBackgroundColor="@android:color/white"
@@ -118,12 +117,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Conteo de pasos y calorías"
-            android:textColor="@color/black"
+            android:textColor="@color/grayDark"
             android:textStyle="bold"
-            android:textSize="16sp"
+            android:textSize="20sp"
             app:layout_constraintTop_toBottomOf="@+id/cardViewPagerEjercicios"
             app:layout_constraintStart_toStartOf="parent"
-            android:paddingStart="16dp"
+            android:paddingStart="25dp"
             android:paddingTop="16dp"/>
 
         <!-- Conteo de pasos y calorías -->
@@ -132,9 +131,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
+            android:padding="20dp"
             android:background="@drawable/rounded_white_background"
-            android:elevation="8dp"
+            android:elevation="2dp"
             android:layout_marginTop="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
@@ -214,14 +213,23 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnConnectGoogleFit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Conectar a Google Fitness"
-                android:visibility="visible"
-                android:layout_marginTop="16dp"
-                android:padding="12dp"
-                android:backgroundTint="@color/green"
-                android:textColor="@color/white"
-                app:cornerRadius="8dp"/>
+                android:layout_height="56dp"
+                android:text="Inicia sesión con Google Fit"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:fontFamily="sans-serif-medium"
+                android:backgroundTint="#FFFFFF"
+                app:elevation="0dp"
+                app:strokeWidth="1dp"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/ic_google_fit"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp"
+                app:iconSize="20dp"
+                app:iconTint="@null"
+                app:rippleColor="#F5F5F5"
+                xmlns:app="http://schemas.android.com/apk/res-auto" />
 
         </LinearLayout>
 

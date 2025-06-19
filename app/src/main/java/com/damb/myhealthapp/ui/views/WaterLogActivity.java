@@ -3,6 +3,7 @@ package com.damb.myhealthapp.ui.views;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,7 +19,9 @@ import androidx.core.view.GravityCompat;
 
 import com.damb.myhealthapp.models.WaterLog;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.Timestamp;
 
@@ -36,8 +39,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WaterLogActivity extends AppCompatActivity {
@@ -86,20 +92,33 @@ public class WaterLogActivity extends AppCompatActivity {
     }
 
     private void agregarAgua(int cantidad) {
-        cantidadActual += cantidad;
-        actualizarUI();
+        if (cantidad <= 0) {
+            Toast.makeText(this, "Cantidad no válida", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : "sin_usuario";
-        WaterLog log = new WaterLog(cantidad, Timestamp.now(), userId);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "Debes iniciar sesión", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("amount", cantidad);
+        data.put("timestamp", FieldValue.serverTimestamp());
+        data.put("timezone", TimeZone.getDefault().getID());
 
         db.collection("users")
-                .document(userId)
+                .document(user.getUid())
                 .collection("waterLogs")
-                .add(log)
+                .add(data)
                 .addOnSuccessListener(documentReference -> {
+                    cantidadActual += cantidad;
+                    actualizarUI();
                 })
                 .addOnFailureListener(e -> {
-                    e.printStackTrace();
+                    Toast.makeText(this, "Error al guardar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.e("WaterLog", "Error al guardar registro", e);
                 });
     }
 
@@ -128,7 +147,6 @@ public class WaterLogActivity extends AppCompatActivity {
         long milisegundosTranscurridos = ahora - inicio;
         double horas = milisegundosTranscurridos / (1000.0 * 60 * 60);
 
-        // Asegurarse que al menos haya pasado 1 minuto para evitar división por cero
         if (horas < 0.0167) { // 1 minuto en milisegundos
             return total;
         }
@@ -145,7 +163,7 @@ public class WaterLogActivity extends AppCompatActivity {
                 .collection("waterLogs")
                 .whereGreaterThanOrEqualTo("timestamp", getStartOfDay())
                 .whereLessThan("timestamp", getEndOfDay())
-                .orderBy("timestamp") // Orden para obtener el primero
+                .orderBy("timestamp")
                 .addSnapshotListener((value, error) -> {
                     if (error != null || value == null) {
                         return;
@@ -167,7 +185,6 @@ public class WaterLogActivity extends AppCompatActivity {
                     cantidadActual = totalDelDia;
                     actualizarUI();
 
-                    // Cálculo del promedio
                     if (primerRegistro != null) {
                         double promedio = calcularPromedioPorHora(totalDelDia, primerRegistro);
                         textViewPromedioHora.setText(String.format(Locale.getDefault(), "%.1f mL/h", promedio));
@@ -185,7 +202,6 @@ public class WaterLogActivity extends AppCompatActivity {
     private void cargarDatosGrafico() {
         String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : "usuario_prueba";
 
-        // Rango de los últimos 7 días
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
@@ -324,7 +340,7 @@ public class WaterLogActivity extends AppCompatActivity {
         int cantidadLimitada = Math.min(cantidadActual, metaDiaria);
 
         int porcentaje = (int) ((cantidadLimitada * 100.0f) / metaDiaria);
-        porcentaje = Math.min(porcentaje, 100); // Asegurar no más del 100%
+        porcentaje = Math.min(porcentaje, 100); // asegura que el porcentaje no sea mayor no más del 100%
 
         tvCantidadActual.setText(String.format(Locale.getDefault(), "%d mL", cantidadActual));
 

@@ -39,6 +39,8 @@ public class EditUserProfileActivity extends AppCompatActivity {
         ImageButton calendarButton = findViewById(R.id.calendarButton);
         calendarButton.setOnClickListener(v -> showDatePicker());
 
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> finish());
 
         db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
