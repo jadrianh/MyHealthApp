@@ -5,9 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.MenuItem; // Importar para manejar clicks en items del menú
 import android.view.View;
-// import android.widget.Button; // Unused, removed
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -17,34 +15,27 @@ import android.util.Log;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.damb.myhealthapp.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.damb.myhealthapp.ui.components.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.damb.myhealthapp.ui.adapters.ExerciseViewPagerAdapter;
-// import com.google.android.material.tabs.TabLayout; // Unused, removed
-// import com.google.android.material.tabs.TabLayoutMediator; // Unused, removed
 import com.damb.myhealthapp.ui.components.GoogleFitManager;
 
 import java.util.ArrayList;
-// import java.util.Arrays; // Unused, removed
 import java.util.List;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -61,7 +52,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import android.content.SharedPreferences;
 import android.graphics.drawable.GradientDrawable;
 
-public class MainActivity extends AppCompatActivity implements
+public class MainActivity extends BaseActivity implements
         GoogleFitManager.OnFitDataReceivedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
@@ -81,10 +72,6 @@ public class MainActivity extends AppCompatActivity implements
             };
         }
     }
-
-    // Declaraciones de UI que permanecen
-    private TextView Username;
-    private ImageView menuIcon;
     private static ViewPager2 viewPagerEjercicios;
     private GoogleFitManager googleFitManager;
     private TextView stepsTextView;
@@ -93,12 +80,6 @@ public class MainActivity extends AppCompatActivity implements
     private ProgressBar stepsProgressBar;
     private LinearLayout stepsCaloriesDataLayout;
     private MaterialButton btnConnectGoogleFit;
-
-    private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
-    private TextView textViewDrawerUsername;
-    private TextView textViewDrawerUserEmail;
-
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
@@ -107,33 +88,28 @@ public class MainActivity extends AppCompatActivity implements
     private boolean isGoogleFitOAuthRequesting = false;
     private static final String TAG = "MainActivity";
 
-    // 1. Agregar campo para el launcher
     private ActivityResultLauncher<Intent> googleFitSignInLauncher;
 
-    // Variables para la meta de agua
     private TextView textCurrentWater;
     private TextView textGoalWater;
     private TextView textProgressWaterPercentage;
     private ProgressBar progressBarWater;
 
-    private de.hdodenhof.circleimageview.CircleImageView drawerProfileImageView;
-    private SharedPreferences prefs;
-    private static final String PREF_PROFILE_IMAGE = "profile_image_res";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentViewWithDrawer(R.layout.activity_main);
         FirebaseApp.initializeApp(this);
+
+        ImageView menuIcon = findViewById(R.id.menuIcon);
+        if (menuIcon != null) {
+            menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        }
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        prefs = getSharedPreferences("MyHealthAppPrefs", MODE_PRIVATE);
 
         Username = findViewById(R.id.Username);
-        menuIcon = findViewById(R.id.menuIcon);
-        drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
 
         View headerView = navigationView.getHeaderView(0);
 
@@ -141,13 +117,8 @@ public class MainActivity extends AppCompatActivity implements
             textViewDrawerUsername = headerView.findViewById(R.id.textView_drawer_username);
             textViewDrawerUserEmail = headerView.findViewById(R.id.textView_drawer_user_email);
             drawerProfileImageView = headerView.findViewById(R.id.imageView_drawer_user_profile);
-            // Cargar avatar guardado y fondo de color
-            int savedResId = prefs.getInt(PREF_PROFILE_IMAGE, R.drawable.ic_account_circle);
-            setDrawerProfileAvatar(savedResId);
         }
 
-        navigationView.setNavigationItemSelectedListener(this);
-        menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
 
         viewPagerEjercicios = findViewById(R.id.viewPagerEjercicios);
 
@@ -221,18 +192,6 @@ public class MainActivity extends AppCompatActivity implements
         cargarMetaYConsumoAgua();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Actualizar avatar del drawer en tiempo real
-        if (drawerProfileImageView != null && prefs != null) {
-            int savedResId = prefs.getInt(PREF_PROFILE_IMAGE, R.drawable.ic_account_circle);
-            setDrawerProfileAvatar(savedResId);
-        }
-        // Re-check user and load data, including Google Fit status
-        checkCurrentUserAndLoadData();
-    }
-
     private void checkCurrentUserAndLoadData() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -263,55 +222,6 @@ public class MainActivity extends AppCompatActivity implements
             startActivity(intent);
             finish();
         }
-    }
-
-    private void loadDisplayNameFromFirestore(String userId) {
-        DocumentReference userDocRef = db.collection("users").document(userId);
-
-        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        String firestoreDisplayName = document.getString("displayName");
-                        // Asignar el nombre de usuario desde Firestore o "Usuario"
-                        Username.setText(firestoreDisplayName != null && !firestoreDisplayName.trim().isEmpty() ? firestoreDisplayName : "Usuario");
-                        textViewDrawerUsername.setText(firestoreDisplayName != null && !firestoreDisplayName.trim().isEmpty() ? firestoreDisplayName : "Usuario");
-                        Log.d(TAG, "Display name from Firestore: " + firestoreDisplayName);
-                    } else {
-                        Log.d(TAG, "No such document for user ID: " + userId);
-                        // Documento no existe, mostrar "Usuario"
-                        Username.setText("Usuario");
-                        textViewDrawerUsername.setText("Usuario");
-                    }
-                } else {
-                    Log.e(TAG, "Failed to get user document: ", task.getException());
-                    // Error al obtener el documento, mostrar "Usuario"
-                    Username.setText("Usuario");
-                    textViewDrawerUsername.setText("Usuario");
-                }
-            }
-        });
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.nav_workout_log) {
-            startActivity(new Intent(MainActivity.this, WorkoutLogActivity.class));
-        } else if (id == R.id.nav_profile) {
-            Intent profileIntent = new Intent(MainActivity.this, UserProfileActivity.class);
-            startActivity(profileIntent);
-        } else if (id == R.id.nav_water_log) {
-            startActivity(new Intent(MainActivity.this, WaterLogActivity.class));
-        } else if (id == R.id.nav_sleep_log) {
-            startActivity(new Intent(MainActivity.this, SleepLogActivity.class));
-        } else if (id == R.id.nav_logout) {
-            logout();
-        }
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     private void checkAndRequestNotificationPermission() {

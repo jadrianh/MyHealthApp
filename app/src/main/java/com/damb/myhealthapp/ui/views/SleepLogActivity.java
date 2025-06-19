@@ -14,11 +14,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.FloatRange;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.damb.myhealthapp.R;
+import com.damb.myhealthapp.ui.components.BaseActivity;
 import com.google.android.material.slider.Slider;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,7 +50,7 @@ import nl.dionsegijn.konfetti.core.Position;
 import nl.dionsegijn.konfetti.core.models.Shape;
 import nl.dionsegijn.konfetti.core.models.Size;
 
-public class SleepLogActivity extends AppCompatActivity {
+public class SleepLogActivity extends BaseActivity {
     private Button btnStart;
     private Slider sliderStop;
     private TextView textSleepStatus, textClock;
@@ -72,7 +75,12 @@ public class SleepLogActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sleep_log);
+        setContentViewWithDrawer(R.layout.activity_sleep_log);
+
+        ImageView menuIcon = findViewById(R.id.menuIcon);
+        if (menuIcon != null) {
+            menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        }
 
         btnStart = findViewById(R.id.btnStart);
         sliderStop = findViewById(R.id.sliderStop);

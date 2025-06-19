@@ -2,8 +2,11 @@ package com.damb.myhealthapp.ui.views;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.util.Log;
+
+import androidx.core.view.GravityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
@@ -17,6 +20,8 @@ import android.widget.ProgressBar;
 import android.widget.ImageButton;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+
+import com.damb.myhealthapp.ui.components.BaseActivity;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
@@ -40,7 +45,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Calendar;
 
-public class WorkoutLogActivity extends AppCompatActivity {
+public class WorkoutLogActivity extends BaseActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -70,7 +75,12 @@ public class WorkoutLogActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_workout_log);
+        setContentViewWithDrawer(R.layout.activity_workout_log);
+
+        ImageView menuIcon = findViewById(R.id.menuIcon);
+        if (menuIcon != null) {
+            menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        }
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -123,21 +133,6 @@ public class WorkoutLogActivity extends AppCompatActivity {
             if (cardStreak != null) {
                 cardStreak.setOnClickListener(v -> mostrarDialogoRacha());
             }
-        }
-
-        // Configurar botón de back para refrescar datos
-        View backButton = findViewById(R.id.backButton);
-        if (backButton != null) {
-            backButton.setOnClickListener(v -> {
-                // Refrescar datos antes de volver
-                FirebaseUser user = mAuth.getCurrentUser();
-                if (user != null) {
-                    Log.d("WorkoutLogActivity", "Refrescando datos desde botón back");
-                    cargarRegistrosEjercicio(user.getUid());
-                    Toast.makeText(this, "Datos actualizados", Toast.LENGTH_SHORT).show();
-                }
-                finish();
-            });
         }
 
         FirebaseUser user = mAuth.getCurrentUser();

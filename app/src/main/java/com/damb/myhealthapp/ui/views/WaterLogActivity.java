@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 
 import com.damb.myhealthapp.models.WaterLog;
+import com.damb.myhealthapp.ui.components.BaseActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -46,7 +48,7 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class WaterLogActivity extends AppCompatActivity {
+public class WaterLogActivity extends BaseActivity {
     private ProgressBar progressCircle;
     private TextView tvCantidadActual, tvMetaProgreso, tvPercentage, textViewPromedioHora;
     private FirebaseFirestore db;
@@ -58,7 +60,12 @@ public class WaterLogActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_water_log);
+        setContentViewWithDrawer(R.layout.activity_water_log);
+
+        ImageView menuIcon = findViewById(R.id.menuIcon);
+        if (menuIcon != null) {
+            menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        }
 
         progressCircle = findViewById(R.id.progressCircle);
         tvCantidadActual = findViewById(R.id.tvCantidadActual);

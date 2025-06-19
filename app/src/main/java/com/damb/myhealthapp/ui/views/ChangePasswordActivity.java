@@ -35,6 +35,9 @@ public class ChangePasswordActivity extends AppCompatActivity{
         confirmPasswordEditText = findViewById(R.id.confirmPasswordEditText);
         changePasswordButton = findViewById(R.id.changePasswordButton);
 
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> finish());
+
         auth = FirebaseAuth.getInstance();
 
         changePasswordButton.setOnClickListener(v -> mostrarDialogoConfirmacion());

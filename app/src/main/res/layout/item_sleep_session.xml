@@ -3,14 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp"
-    android:background="#1E1E2F"
-    android:layout_marginBottom="8dp">
+    android:background="@drawable/background_rounded_corners"
+    android:layout_marginBottom="8dp"
+    android:elevation="8dp" >
 
     <TextView
         android:id="@+id/textFecha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/black"
         android:textSize="18sp"
         android:textStyle="bold"/>
 
@@ -18,7 +19,7 @@
         android:id="@+id/textDuracion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#CCCCCC"
+        android:textColor="@color/gray"
         android:textSize="16sp"
         android:layout_marginTop="4dp"/>
 
@@ -26,7 +27,7 @@
         android:id="@+id/textCalidad"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#8DECB4"
+        android:textColor="@color/blue"
         android:textSize="16sp"
         android:layout_marginTop="2dp"/>
 </LinearLayout>

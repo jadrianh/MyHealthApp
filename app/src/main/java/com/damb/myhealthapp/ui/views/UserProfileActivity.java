@@ -13,8 +13,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+
 import android.widget.HorizontalScrollView;
 import com.damb.myhealthapp.R;
+import com.damb.myhealthapp.ui.components.BaseActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,7 +27,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 
-public class UserProfileActivity extends AppCompatActivity {
+public class UserProfileActivity extends BaseActivity {
     private static final int EDIT_PROFILE_REQUEST = 1;
     private TextView nameTextView, emailTextView, birthdayTextView,
             heightTextView, weightTextView;
@@ -47,7 +50,12 @@ public class UserProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_profile);
+        setContentViewWithDrawer(R.layout.activity_user_profile);
+
+        ImageView menuIcon = findViewById(R.id.menuIcon);
+        if (menuIcon != null) {
+            menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        }
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -66,9 +74,6 @@ public class UserProfileActivity extends AppCompatActivity {
         int savedResId = prefs.getInt(PREF_PROFILE_IMAGE, R.drawable.ic_account_circle);
         setProfileAvatar(savedResId);
         profileImageView.setOnClickListener(v -> mostrarDialogoAvatares());
-
-        ImageButton backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> finish());
 
         notificationsItem.setOnClickListener(v -> {
             // Crear un Intent para iniciar NotificationsActivity
