@@ -5,7 +5,6 @@ plugins {
 
 android {
     namespace 'com.damb.myhealthapp'
-    compileSdk 34
 
     defaultConfig {
         applicationId "com.damb.myhealthapp"
@@ -15,6 +14,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -55,17 +55,25 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'com.airbnb.android:lottie:6.4.0'
 
     // Dependencias para Glide (Cargar imágenes y GIFs)
     implementation 'com.github.bumptech.glide:glide:4.14.2'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    implementation("com.google.android.material:material:1.12.0")
 
-    // Dependencia para el calendario de racha
+    dependencies {
+        // ... tus otras dependencias
+        implementation 'com.airbnb.android:lottie:6.4.0'
+    }
+// Dependencia para el calendario de racha
     implementation('com.prolificinteractive:material-calendarview:1.4.3') {
         exclude group: 'com.android.support', module: 'support-compat'
         exclude group: 'com.android.support', module: 'support-v4'
+
+
     }
 
     /* dependencia de sistema de sueño
@@ -82,6 +90,7 @@ dependencies {
 }
 
 android {
+    compileSdk 34
     buildFeatures {
         viewBinding = true
     }
