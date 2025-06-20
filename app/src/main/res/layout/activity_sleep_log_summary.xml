@@ -1,28 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    android:background="#121212">
-
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/barChart"
-        android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="24dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    android:background="@drawable/background_main_gradient"
+    tools:context=".ui.views.SleepLogSummaryActivity">
 
     <TextView
-        android:id="@+id/textResumen"
+        android:id="@+id/textViewSessionDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:layout_marginTop="32dp"
+        android:textColor="@color/white"
         android:textSize="18sp"
-        android:text="Gráfica de sueño"
-        android:layout_above="@id/barChart"
-        android:layout_centerHorizontal="true" />
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Resumen de sueño" />
 
-</RelativeLayout>
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="#80FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/textViewSessionDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="4dp"/>
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/btnNext"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewSessionDate">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gráfica de sueño"
+                    android:textColor="@color/black"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <TextView android:id="@+id/textLegendLight" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="● Ligero: 50%" android:layout_marginEnd="16dp"/>
+                    <TextView android:id="@+id/textLegendDeep" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="● Profundo: 25%" android:layout_marginEnd="16dp"/>
+                    <TextView android:id="@+id/textLegendRestless" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="● Inquieto: 25%"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/percentageBarContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/background_percentage_bar"
+                    android:orientation="horizontal"
+                    android:weightSum="100">
+                </LinearLayout>
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/barChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp"
+                    android:layout_marginTop="16dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="#E0E0E0" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <ImageView android:src="@drawable/ic_alarm_snooze" android:layout_width="24dp" android:layout_height="24dp" app:tint="@color/grayDark"/>
+                    <TextView android:text="Tiempo total de sueño" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="16dp" android:textColor="@android:color/black" android:layout_height="20dp"/>
+                    <TextView android:id="@+id/textViewTotalSleep" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="7 h 30 min" android:textColor="@android:color/black" android:textStyle="bold"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <ImageView android:src="@drawable/ic_alarm_snooze" android:layout_width="24dp" android:layout_height="24dp" app:tint="@color/yellow"/>
+                    <TextView android:text="Tiempo de sueño ligero" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="16dp" android:textColor="@android:color/black" android:layout_height="20dp"/>
+                    <TextView android:id="@+id/textViewLightSleep" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="3 h 45 min" android:textColor="@android:color/black" android:textStyle="bold"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <ImageView android:src="@drawable/ic_alarm_snooze" android:layout_width="24dp" android:layout_height="24dp" app:tint="@color/blueDark"/>
+                    <TextView android:text="Tiempo de sueño profundo" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="16dp" android:textColor="@android:color/black" android:layout_height="20dp"/>
+                    <TextView android:id="@+id/textViewDeepSleep" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="1 h 52 min" android:textColor="@android:color/black" android:textStyle="bold"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <ImageView android:src="@drawable/ic_alarm_snooze" android:layout_width="24dp" android:layout_height="24dp" app:tint="@color/skyBlue"/>
+                    <TextView android:text="Tiempo de sueño inquieto" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="16dp" android:textColor="@android:color/black" android:layout_height="20dp"/>
+                    <TextView android:id="@+id/textViewRestlessSleep" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="1 h 52 min" android:textColor="@android:color/black" android:textStyle="bold"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnNext"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="16dp"
+        android:backgroundTint="@color/green"
+        android:paddingHorizontal="48dp"
+        android:text="Siguiente"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:cornerRadius="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
